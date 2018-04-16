@@ -1,0 +1,47 @@
+package main.java.com.excilys.cdb.daos;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import main.java.com.excilys.cdb.exceptions.FactoryException;
+
+public class DAOFactory {
+	
+	private static Connection connection;
+	private static DAOFactory daoFactory;
+	
+	private DAOFactory() {
+		try {
+			connection = DriverManager.getConnection(
+			        "jdbc:mysql://localhost:3306/computer-database-db",
+			        "admincdb",
+			        "qwerty1234");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static DAO<?> getDAO(String daoType) throws FactoryException {
+		if(null == daoFactory) {
+			daoFactory = new DAOFactory();
+		}
+		if (null == daoType) {
+			throw new FactoryException("DAO type is null");
+		}
+		switch(daoType) {
+		case "computer":
+			return new ComputerDAO(connection);
+		case "company":
+			return new CompanyDAO(connection);
+		default:
+			throw new FactoryException("Bad DAO type");
+		}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		connection.close();
+	}
+}
