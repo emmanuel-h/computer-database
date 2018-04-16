@@ -16,6 +16,15 @@ public class Computer {
 		this.name = _name;
 	}
 
+	public Computer(int id, String name, Date introduced, Date discontinued, Company manufacturer) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.introduced = introduced;
+		this.discontinued = discontinued;
+		this.manufacturer = manufacturer;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -55,4 +64,11 @@ public class Computer {
 	public void setManufacturer(Company manufacturer) {
 		this.manufacturer = manufacturer;
 	}
+
+	@Override
+	public String toString() {
+		return "Computer [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued=" + discontinued
+				+ ", manufacturer=" + manufacturer + "]";
+	}
+	
 }
