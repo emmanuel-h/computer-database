@@ -5,11 +5,13 @@ public class Company {
 	String name;
 	
 	public Company() {
-		super();
 	}
 
+	public Company(int id) {
+		this.id = id;
+	}
+	
 	public Company(int id, String name) {
-		super();
 		this.id = id;
 		this.name = name;
 	}

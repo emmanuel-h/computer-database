@@ -17,7 +17,8 @@ public class ComputerDAO implements DAO<Computer> {
 	private final String FIND_ALL_MANUFACTURERS = "SELECT * FROM company, computer WHERE computer.company_id = company.id";
 	private final String FIND_COMPUTER_BY_ID = "SELECT * FROM computer WHERE id = ?";
 	private final String FIND_MANUFACTURER_BY_ID = "SELECT * FROM company WHERE id = ?";
-	private final String ADD_COMPUTER = "INSERT INTO computer (id, name) VALUES (?, ?)";
+	private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
+			+ "VALUES (?, ?, ?, ?)";
 	private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
 	private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
 			+ "discontinued = ?, company_id= ? WHERE computer.id = ?";
@@ -90,8 +91,28 @@ public class ComputerDAO implements DAO<Computer> {
 	@Override
 	public boolean add(Computer computer) throws SQLException {
 		PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER);
-		statement.setInt(1, computer.getId());
-		statement.setString(2, computer.getName());
+
+		java.sql.Date introducedSQL = null;
+		java.sql.Date discontinuedSQL = null;
+		
+		// Check if the dates are null or not
+		if(null != computer.getIntroduced()) {
+			introducedSQL = new java.sql.Date(computer.getIntroduced().getTime());
+		}
+		if(null != computer.getDiscontinued()) {
+			discontinuedSQL = new java.sql.Date(computer.getDiscontinued().getTime());
+		}
+		
+		// Give the statement parameters
+		statement.setString(1, computer.getName());
+		statement.setDate(2, introducedSQL);
+		statement.setDate(3, discontinuedSQL);
+		if(null == computer.getManufacturer()) {
+			statement.setObject(4, null);
+		} else {
+			statement.setInt(4, computer.getManufacturer().getId());
+		}
+		
 		int result = statement.executeUpdate();
 		if(result == 0) {
 			return false;
@@ -113,6 +134,7 @@ public class ComputerDAO implements DAO<Computer> {
 	@Override
 	public boolean update(Computer computer) throws SQLException {
 		PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER);
+		
 		java.sql.Date introducedSQL = null;
 		java.sql.Date discontinuedSQL = null;
 		
@@ -134,12 +156,11 @@ public class ComputerDAO implements DAO<Computer> {
 			statement.setInt(4, computer.getManufacturer().getId());
 		}
 		statement.setInt(5, computer.getId());
-		int result = statement.executeUpdate();
 		
+		int result = statement.executeUpdate();
 		if(result == 0) {
 			return false;
 		}
 		return true;
 	}
-
 }

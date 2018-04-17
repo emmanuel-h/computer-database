@@ -13,15 +13,14 @@ public class DAOFactory {
 	
 	public static enum DaoTypes {COMPUTER, COMPANY};
 	
-	private DAOFactory() {
+	private DAOFactory() throws FactoryException {
 		try {
 			connection = DriverManager.getConnection(
 			        "jdbc:mysql://localhost:3306/computer-database-db",
 			        "admincdb",
 			        "qwerty1234");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new FactoryException("Error when initiating SQL connection");
 		}
 	}
 
