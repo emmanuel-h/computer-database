@@ -41,6 +41,7 @@ public class Main {
 			List<Computer> computers;
 			List<Company> companies;
 			Computer computer;
+			int id;
 			while(!stop) {
 				choice = ChoiceMenu.get(ui.accueil());
 				switch(choice) {
@@ -53,13 +54,19 @@ public class Main {
 					ui.displayCompanies(companies);
 					break;
 				case SHOW_COMPUTER_DETAILS:
-					int id = ui.askComputerId();
+					id = ui.askComputerId();
 					computer = service.getOneComputer(id);
 					ui.showComputerDetails(computer);
 					break;
 				case CREATE_COMPUTER:
 					computer = ui.createComputer();
 					service.createComputer(computer);
+					break;
+				case UPDATE_COMPUTER:
+					break;
+				case DELETE_COMPUTER:
+					id = ui.deleteComputer();
+					service.deleteComputer(id);
 					break;
 				case QUIT:
 					stop = true;

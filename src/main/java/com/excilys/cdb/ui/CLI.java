@@ -77,14 +77,14 @@ public class CLI {
 			name = scanner.nextLine();
 		} while(name.isEmpty());
 		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		// Get the introduced date
-		System.out.println("Introduced Date (dd-MM-yyyy) - s to skip");
+		System.out.println("Introduced Date (yyyy-MM-dd) - s to skip");
 		String date;
 		do {
 			date = scanner.nextLine();
-		} while (!date.matches("^((18|19|20|21)\\\\d\\\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
 		Date dateIntroduced = null;
 		if(!date.equals("s")) {
 			try {
@@ -96,10 +96,10 @@ public class CLI {
 		}
 
 		// Get the discontinued date
-		System.out.println("Discontinued Date (dd-MM-yyyy) - s to skip");
+		System.out.println("Discontinued Date (yyyy-MM-dd) - s to skip");
 		do {
 			date = scanner.nextLine();
-		} while (!date.matches("^((18|19|20|21)\\\\d\\\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
 		Date dateDiscontinued = null;
 		if(!date.equals("s")) {
 			try {
@@ -117,19 +117,34 @@ public class CLI {
 		do{
 			manufacturer = scanner.nextLine();
 		} while (!manufacturer.matches("[0-9]+") && !manufacturer.equals("s"));
+		Company company;
 		if(manufacturer.equals("s")) {
-			
+			company = null;
+		} else {
+			company = new Company(Integer.parseInt(manufacturer));
 		}
-		idManufacturer = Integer.parseInt(manufacturer);
-		
 		// Make the object
 		Computer computer = new Computer();
 		computer.setName(name);
 		computer.setIntroduced(dateIntroduced);
 		computer.setDiscontinued(dateDiscontinued);
-		computer.setManufacturer(new Company(idManufacturer));
+		computer.setManufacturer(company);
 		
 		return computer;
+	}
+	
+	public int findComputerToModify() {
+		System.out.println("Which computer do you want to modify ?");
+		return 0;
+	}
+	
+	public int deleteComputer() {
+		System.out.println("Which computer do you want to delete ?");
+		String id;
+		do{
+			id = scanner.nextLine();
+		} while (!id.matches("[0-9]+") && !id.equals("s"));
+		return Integer.parseInt(id);
 	}
 	
 	private void resetDisplay() {
