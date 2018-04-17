@@ -131,7 +131,7 @@ public class ComputerDAO implements DAO<Computer> {
 		if(null == computer.getManufacturer()) {
 			statement.setObject(4, null);
 		} else {
-			statement.setObject(4, computer.getManufacturer().getId());
+			statement.setInt(4, computer.getManufacturer().getId());
 		}
 		statement.setInt(5, computer.getId());
 		int result = statement.executeUpdate();
