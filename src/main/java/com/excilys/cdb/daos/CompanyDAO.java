@@ -36,7 +36,7 @@ public class CompanyDAO implements DAO<Company>{
 	}
 
 	@Override
-	public Company findOneById(int id) throws SQLException {
+	public Company findById(int id) throws SQLException {
 		Company company = null;
 		PreparedStatement statement = connection.prepareStatement(FIND_COMPANY_BY_ID);
         statement.setInt(1, id);

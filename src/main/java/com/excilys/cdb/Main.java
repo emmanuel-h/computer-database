@@ -30,9 +30,9 @@ public class Main {
 				System.out.println(company);
 			}*/
 			
-			CompanyDAO companyDAO = (CompanyDAO) DAOFactory.getDAO("company");
-			Company company_test = companyDAO.findOneById(1);
-			computerDAO = (ComputerDAO) DAOFactory.getDAO("computer");
+			CompanyDAO companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPANY);
+			Company company_test = companyDAO.findById(1);
+			computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPUTER);
 			Computer computer_test = new Computer(574, "test", new Date(), null, company_test);
 			computerDAO.update(computer_test);
 			List<Computer> computers = computerDAO.findAll();

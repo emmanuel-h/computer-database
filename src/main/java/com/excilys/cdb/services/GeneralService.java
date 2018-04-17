@@ -5,12 +5,42 @@ import java.util.List;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 
-public interface GeneralService {
+public class GeneralServiceImpl implements GeneralService {
+
+	@Override
+	public List<Computer> getAllComputers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Company> getAllCompanies() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Computer getOneComputer(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean createComputer(Computer computer) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateComputer(Computer computer) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean deleteComputer(int id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
-	List<Computer> getAllComputers();
-	List<Company> getAllCompanies();
-	Computer getOneComputer(int id);
-	boolean createComputer(Computer computer);
-	boolean updateComputer(Computer computer);
-	boolean deleteComputer(int id);
 }

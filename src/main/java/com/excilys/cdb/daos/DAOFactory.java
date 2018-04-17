@@ -11,6 +11,8 @@ public class DAOFactory {
 	private static Connection connection;
 	private static DAOFactory daoFactory;
 	
+	public static enum DaoTypes {COMPUTER, COMPANY};
+	
 	private DAOFactory() {
 		try {
 			connection = DriverManager.getConnection(
@@ -22,8 +24,8 @@ public class DAOFactory {
 			e.printStackTrace();
 		}
 	}
-	
-	public static DAO<?> getDAO(String daoType) throws FactoryException {
+
+	public static DAO<?> getDAO(DaoTypes daoType) throws FactoryException {
 		if(null == daoFactory) {
 			daoFactory = new DAOFactory();
 		}
@@ -31,9 +33,9 @@ public class DAOFactory {
 			throw new FactoryException("DAO type is null");
 		}
 		switch(daoType) {
-		case "computer":
+		case COMPUTER:
 			return new ComputerDAO(connection);
-		case "company":
+		case COMPANY:
 			return new CompanyDAO(connection);
 		default:
 			throw new FactoryException("Bad DAO type");

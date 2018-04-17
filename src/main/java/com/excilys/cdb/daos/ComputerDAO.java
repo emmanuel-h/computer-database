@@ -61,7 +61,7 @@ public class ComputerDAO implements DAO<Computer> {
 	}
 
 	@Override
-	public Computer findOneById(int id) throws SQLException {
+	public Computer findById(int id) throws SQLException {
 		Computer computer = null;
 		PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID);
 		statement.setInt(1, id);

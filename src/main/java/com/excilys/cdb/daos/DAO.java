@@ -6,7 +6,7 @@ import java.util.List;
 public interface DAO<T> {
 	
 	List<T> findAll() throws SQLException;
-	T findOneById(int id) throws SQLException;
+	T findById(int id) throws SQLException;
 	boolean add(T t) throws SQLException;
 	boolean delete(T t) throws SQLException;
 	boolean update(T t) throws SQLException;
