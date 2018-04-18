@@ -7,12 +7,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import main.java.com.excilys.cdb.exceptions.FactoryException;
 
 public class DAOFactory {
 	
 	private static Connection connection;
 	private static DAOFactory daoFactory;
+	private final static Logger LOGGER = LoggerFactory.getLogger(DAOFactory.class);
 	
 	public static enum DaoTypes {COMPUTER, COMPANY};
 	
@@ -34,8 +38,7 @@ public class DAOFactory {
 		} catch (SQLException e) {
 			throw new FactoryException("Error when initiating SQL connection");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn("Properties file not found");
 		}
 	}
 

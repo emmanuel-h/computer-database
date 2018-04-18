@@ -53,7 +53,7 @@ public class Controller {
 				choice = ChoiceMenu.get(ui.accueil());
 				switch(choice) {
 				case LIST_COMPUTERS:
-						computers = service.getAllComputers();
+					computers = service.getAllComputers();
 					ui.displayComputers(computers);
 					break;
 				case LIST_COMPANIES:
