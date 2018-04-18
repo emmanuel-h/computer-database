@@ -1,8 +1,11 @@
 package main.java.com.excilys.cdb.daos;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import main.java.com.excilys.cdb.exceptions.FactoryException;
 
@@ -15,12 +18,24 @@ public class DAOFactory {
 	
 	private DAOFactory() throws FactoryException {
 		try {
+			Properties properties = new Properties();
+			String propFileName="main/ressources/config-db.properties";
+			InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+			properties.load(inputStream);
+			
+			String databaseURL = properties.getProperty("database-url");
+			String user = properties.getProperty("database-user");
+			String password = properties.getProperty("database-password");
+			
 			connection = DriverManager.getConnection(
-			        "jdbc:mysql://localhost:3306/computer-database-db",
-			        "admincdb",
-			        "qwerty1234");
+			        databaseURL,
+			        user,
+			        password);
 		} catch (SQLException e) {
 			throw new FactoryException("Error when initiating SQL connection");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

@@ -13,10 +13,10 @@ import main.java.com.excilys.cdb.model.Computer;
 public class ComputerDAO implements DAO<Computer> {
 
 	private Connection connection;
-	private final String FIND_ALL_COMPUTERS = "SELECT * FROM computer ORDER BY computer.id";
-	private final String FIND_ALL_MANUFACTURERS = "SELECT * FROM company, computer WHERE computer.company_id = company.id";
-	private final String FIND_COMPUTER_BY_ID = "SELECT * FROM computer WHERE id = ?";
-	private final String FIND_MANUFACTURER_BY_ID = "SELECT * FROM company WHERE id = ?";
+	private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer ORDER BY computer.id";
+	private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
+	private final String FIND_COMPUTER_BY_ID = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id = ?";
+	private final String FIND_MANUFACTURER_BY_ID = "SELECT id, name FROM company WHERE id = ?";
 	private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
 			+ "VALUES (?, ?, ?, ?)";
 	private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";

@@ -12,8 +12,8 @@ import main.java.com.excilys.cdb.model.Company;
 public class CompanyDAO implements DAO<Company>{
 	
 	private Connection connection;
-	private final String FIND_ALL_COMPANIES = "SELECT * FROM company";
-	private final String FIND_COMPANY_BY_ID = "SELECT * FROM company WHERE id=?";
+	private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company";
+	private final String FIND_COMPANY_BY_ID = "SELECT id, name FROM company WHERE id=?";
 	private final String ADD_COMPANY = "INSERT INTO company (id, name) VALUES (?, ?)";
 	private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
 	private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";

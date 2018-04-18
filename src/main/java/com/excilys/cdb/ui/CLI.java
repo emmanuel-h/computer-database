@@ -230,6 +230,11 @@ public class CLI {
 		return computer;
 	}
 	
+	public void displayException(String message) {
+		System.out.println("*****ERREUR*****");
+		System.out.println(message);
+	}
+	
 	private void resetDisplay() {
 		System.out.println();
 		System.out.println();

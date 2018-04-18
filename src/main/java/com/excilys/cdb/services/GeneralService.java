@@ -56,6 +56,9 @@ public class GeneralService {
 		if(null == computer.getName()) {
 			throw new GeneralServiceException("The computer does not have a name");
 		}
+		if(computer.getDiscontinued().before(computer.getIntroduced())) {
+			throw new GeneralServiceException("Discontinued date is before introduced date");
+		}
 		try {
 			return this.computerDAO.add(computer);
 		} catch (SQLException e) {
@@ -70,6 +73,9 @@ public class GeneralService {
 		}
 		if(null == computer.getName()) {
 			throw new GeneralServiceException("The computer does not have a name");
+		}
+		if(computer.getDiscontinued().before(computer.getIntroduced())) {
+			throw new GeneralServiceException("Discontinued date is before introduced date");
 		}
 		try {
 			return computerDAO.update(computer);
