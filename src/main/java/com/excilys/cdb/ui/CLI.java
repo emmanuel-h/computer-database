@@ -60,7 +60,7 @@ public class CLI {
 	}
 	
 	public int askComputerId() {
-		System.out.println("Enter the id of the computer you want to see");
+		System.out.println("Enter the id of the computer");
 		String choice;
 		do{
 			choice = scanner.nextLine();
@@ -71,7 +71,7 @@ public class CLI {
 	public Computer createComputer() {
 		
 		// Get the name
-		System.out.println("Nom (mandatory)");
+		System.out.println("Name (mandatory)");
 		String name;
 		do {
 			name = scanner.nextLine();
@@ -111,7 +111,6 @@ public class CLI {
 		}
 		
 		// Get the manufacturer
-		int idManufacturer;
 		System.out.println("Manufacturer (id) - s to skip");
 		String manufacturer;
 		do{
@@ -123,6 +122,7 @@ public class CLI {
 		} else {
 			company = new Company(Integer.parseInt(manufacturer));
 		}
+		
 		// Make the object
 		Computer computer = new Computer();
 		computer.setName(name);
@@ -145,6 +145,89 @@ public class CLI {
 			id = scanner.nextLine();
 		} while (!id.matches("[0-9]+") && !id.equals("s"));
 		return Integer.parseInt(id);
+	}
+	
+	public Computer updateComputer(Computer computerToUpdate) {
+		// Get the name
+		System.out.println("Name (mandatory) (currently: " + computerToUpdate.getName()
+		+ ") - s to skip");
+		String name;
+		do {
+			name = scanner.nextLine();
+		} while(name.isEmpty());
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		// Get the introduced date
+		System.out.println("Introduced Date (yyyy-MM-dd) (currently: " + computerToUpdate.getIntroduced()
+				+ ") - s to skip");
+		String date;
+		do {
+			date = scanner.nextLine();
+		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		Date dateIntroduced = null;
+		if(!date.equals("s")) {
+			try {
+				dateIntroduced = simpleDateFormat.parse(date);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if(null != computerToUpdate.getIntroduced()) {
+				dateIntroduced = computerToUpdate.getIntroduced();
+			}
+		}
+
+		// Get the discontinued date
+		System.out.println("Discontinued Date (yyyy-MM-dd) (currently:" + computerToUpdate.getDiscontinued()
+				+ ") - s to skip");
+		do {
+			date = scanner.nextLine();
+		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		Date dateDiscontinued = null;
+		if(!date.equals("s")) {
+			try {
+				dateDiscontinued = simpleDateFormat.parse(date);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if(null != computerToUpdate.getDiscontinued()) {
+				dateDiscontinued = computerToUpdate.getDiscontinued();
+			}
+		}
+		
+		// Get the manufacturer
+		System.out.println("Manufacturer (id) (currently: " + computerToUpdate.getManufacturer()
+				+ ") - s to skip");
+		String manufacturer;
+		do{
+			manufacturer = scanner.nextLine();
+		} while (!manufacturer.matches("[0-9]+") && !manufacturer.equals("s"));
+		Company company;
+		if(manufacturer.equals("s")) {
+			if(null != computerToUpdate.getManufacturer()) {
+				company = computerToUpdate.getManufacturer();
+			} else {
+				company = null;
+			}
+		} else {
+			company = new Company(Integer.parseInt(manufacturer));
+		}
+		
+		// Make the object
+		Computer computer = new Computer();
+		computer.setId(computerToUpdate.getId());
+		if(!name.equals("s")) {
+			computer.setName(name);
+		}
+		computer.setIntroduced(dateIntroduced);
+		computer.setDiscontinued(dateDiscontinued);
+		computer.setManufacturer(company);
+		
+		return computer;
 	}
 	
 	private void resetDisplay() {

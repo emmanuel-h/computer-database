@@ -41,6 +41,7 @@ public class Main {
 			List<Computer> computers;
 			List<Company> companies;
 			Computer computer;
+			Computer computerToUpdate;
 			int id;
 			while(!stop) {
 				choice = ChoiceMenu.get(ui.accueil());
@@ -63,6 +64,10 @@ public class Main {
 					service.createComputer(computer);
 					break;
 				case UPDATE_COMPUTER:
+					id = ui.askComputerId();
+					computerToUpdate = service.getOneComputer(id);
+					computer = ui.updateComputer(computerToUpdate);
+					service.updateComputer(computer);
 					break;
 				case DELETE_COMPUTER:
 					id = ui.deleteComputer();
