@@ -151,7 +151,7 @@ public class CLI {
 		System.out.println("Discontinued Date (yyyy-MM-dd) - s to skip");
 		do {
 			date = scanner.nextLine();
-		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
 		Date dateDiscontinued = null;
 		if(!date.equals("s")) {
 			try {
@@ -231,7 +231,7 @@ public class CLI {
 		String date;
 		do {
 			date = scanner.nextLine();
-		} while (!date.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !date.equals("s"));
+		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
 		Date dateIntroduced = null;
 		if(!date.equals("s")) {
 			try {
