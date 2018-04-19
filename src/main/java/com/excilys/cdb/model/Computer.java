@@ -2,11 +2,37 @@ package main.java.com.excilys.cdb.model;
 
 import java.util.Date;
 
+/**
+ * The class describing a computer
+ * 
+ * @author emmanuelh
+ *
+ */
 public class Computer {
+	
+	/**
+	 * The identifier of the computer
+	 */
 	private int id;
+	
+	/**
+	 * The name of the computer (mandatory)
+	 */
 	private String name;
+	
+	/**
+	 * The introduced date
+	 */
 	private Date introduced;
+	
+	/**
+	 * The discontinued date
+	 */
 	private Date discontinued;
+	
+	/**
+	 * The manufacturer of the computer
+	 */
 	private Company manufacturer;
 	
 	public Computer() {

@@ -7,11 +7,30 @@ import main.java.com.excilys.cdb.services.GeneralService;
 import main.java.com.excilys.cdb.ui.CLI;
 import main.java.com.excilys.cdb.utils.Page;
 
+/**
+ * The controller make the discussion between the UI and the service layer.
+ * 
+ * @author emmanuelh
+ *
+ */
 public class Controller {
 	
+	/**
+	 * The displaying UI
+	 */
 	private CLI ui;
+	
+	/**
+	 * The service connected to the model
+	 */
 	private GeneralService service;
 	
+	/**
+	 * ChoiceMenu is used for the switch case concerning the return value of the UI
+	 * 
+	 * @author emmanuelh
+	 *
+	 */
 	private static enum ChoiceMenu {LIST_COMPUTERS("1"), LIST_COMPANIES("2"), SHOW_COMPUTER_DETAILS("3"), CREATE_COMPUTER("4"),
 		UPDATE_COMPUTER("5"), DELETE_COMPUTER("6"), QUIT("7"), PAGE_COMPANY("pc");
 		private String choice;
@@ -39,7 +58,10 @@ public class Controller {
 		this.service = _service;
 	}
 	
-	public boolean run() {
+	/**
+	 * The main method of the controller, making the discussion between UI and service
+	 */
+	public void run() {
 		boolean stop = false;
 		ChoiceMenu choice;
 		Page<Computer> computers;
@@ -50,7 +72,7 @@ public class Controller {
 		String choicePage;
 		while(!stop) {
 			try {
-				choice = ChoiceMenu.get(ui.accueil());
+				choice = ChoiceMenu.get(ui.home());
 				switch(choice) {
 				case LIST_COMPUTERS:
 					computers = service.getAllComputers(1);
@@ -91,13 +113,12 @@ public class Controller {
 					break;
 				case PAGE_COMPANY:
 				case QUIT:
-					return false;
+					return;
 				}
 			} catch (GeneralServiceException e) {
 				ui.displayException(e.getMessage());
 			}
 		}
-		return true;
 	}
 	
 }

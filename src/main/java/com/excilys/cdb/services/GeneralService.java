@@ -24,8 +24,19 @@ public class GeneralService {
 	private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
 	private final String UNKNOWN_COMPUTER = "Id does not refer any computer";
 	
+	/**
+	 * The company concerning DAO
+	 */
 	private CompanyDAO companyDAO;
+	
+	/**
+	 * The computer concerning DAO
+	 */
 	private ComputerDAO computerDAO;
+	
+	/**
+	 * A logger
+	 */
 	private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
 	
 	public GeneralService() throws GeneralServiceException {
@@ -37,6 +48,12 @@ public class GeneralService {
 		}
 	}
 	
+	/**
+	 * Ask the computer DAO to have a page of computers
+	 * 
+	 * @param currentPage	The page number to have
+	 * @return				The page object corresponding to the criteria
+	 */
 	public Page<Computer> getAllComputers(int currentPage) {
 		try {
 			return this.computerDAO.findAll(currentPage);
@@ -46,6 +63,12 @@ public class GeneralService {
 		return null;
 	}
 
+	/**
+	 * Ask the company DAO to have a page of companies
+	 * 
+	 * @param currentPage	The page number to have
+	 * @return				The page object corresponding to the criteria
+	 */
 	public Page<Company> getAllCompanies(int currentPage) {
 		try {
 			
@@ -56,6 +79,13 @@ public class GeneralService {
 		return null;
 	}
 
+	/**
+	 * Retrieve a computer with his id
+	 * 
+	 * @param id						The id of the computer
+	 * @return							The corresponding computer
+	 * @throws GeneralServiceException	if there is no corresponding computer
+	 */
 	public Computer getOneComputer(int id) throws GeneralServiceException {
 		try {
 			return this.computerDAO.findById(id);
@@ -64,7 +94,14 @@ public class GeneralService {
 		}
 	}
 
-	//TODO: factorize create and update
+	/**
+	 * Ask the DAO to create a computer
+	 * 
+	 * @param computer					The computer to create
+	 * @return							true if the computer is created, false if not
+	 * @throws GeneralServiceException	If the computer is null, doesn't have a name,
+	 * 									dates are incorrect or manufacturer is unknown
+	 */
 	public boolean createComputer(Computer computer) throws GeneralServiceException {
 		if(null == computer) {
 			throw new GeneralServiceException(NULL_COMPUTER);
@@ -89,6 +126,14 @@ public class GeneralService {
 		return false;
 	}
 
+	/**
+	 * Update an existing computer
+	 * 
+	 * @param computer					The computer to update
+	 * @return							true if the computer is updated, false if not
+	 * @throws GeneralServiceException	If the computer is null, doesn't have a name,
+	 * 									dates are incorrect or manufacturer is unknown
+	 */
 	public boolean updateComputer(Computer computer) throws GeneralServiceException {
 		if(null == computer) {
 			throw new GeneralServiceException(NULL_COMPUTER);
@@ -113,6 +158,13 @@ public class GeneralService {
 		return false;
 	}
 
+	/**
+	 * Delete an existing computer
+	 * 
+	 * @param id						The id of the computer to delete
+	 * @return							true if the computer is deleted, false if not
+	 * @throws GeneralServiceException	If there is no computer matching this id
+	 */
 	public boolean deleteComputer(int id) throws GeneralServiceException {
 		Computer computer;
 		try {

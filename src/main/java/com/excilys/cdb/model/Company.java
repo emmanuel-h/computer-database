@@ -1,7 +1,21 @@
 package main.java.com.excilys.cdb.model;
 
+/**
+ * the class describing a company
+ * 
+ * @author emmanuelh
+ *
+ */
 public class Company {
+	
+	/**
+	 * The identifier of the company
+	 */
 	int id;
+	
+	/**
+	 * The name of the company
+	 */
 	String name;
 	
 	public Company() {

@@ -11,8 +11,17 @@ import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
 
+/**
+ * COmputerDAo make the link between the database and the model
+ * 
+ * @author emmanuelh
+ *
+ */
 public class ComputerDAO implements DAO<Computer> {
 
+	/**
+	 * The connection to the database
+	 */
 	private Connection connection;
 	private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?,?";
 	private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
