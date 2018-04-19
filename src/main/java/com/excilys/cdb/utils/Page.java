@@ -7,7 +7,8 @@ public class Page<T> {
 	private List<T> results;
 	private static final int resultsPerPage = 5;
 	private int currentPage;
-	
+	private int maxResult;
+
 	public List<T> getResults() {
 		return results;
 	}
@@ -26,5 +27,13 @@ public class Page<T> {
 	
 	public void setCurrentPage(int currentPage) {
 		this.currentPage = currentPage;
+	}
+
+	public int getMaxResult() {
+		return maxResult;
+	}
+
+	public void setMaxResult(int maxResult) {
+		this.maxResult = maxResult;
 	}
 }

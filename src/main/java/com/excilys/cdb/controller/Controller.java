@@ -1,12 +1,11 @@
 package main.java.com.excilys.cdb.controller;
 
-import java.util.List;
-
 import main.java.com.excilys.cdb.exceptions.GeneralServiceException;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.services.GeneralService;
 import main.java.com.excilys.cdb.ui.CLI;
+import main.java.com.excilys.cdb.utils.Page;
 
 public class Controller {
 	
@@ -14,7 +13,7 @@ public class Controller {
 	private GeneralService service;
 	
 	private static enum ChoiceMenu {LIST_COMPUTERS("1"), LIST_COMPANIES("2"), SHOW_COMPUTER_DETAILS("3"), CREATE_COMPUTER("4"),
-		UPDATE_COMPUTER("5"), DELETE_COMPUTER("6"), QUIT("7");
+		UPDATE_COMPUTER("5"), DELETE_COMPUTER("6"), QUIT("7"), PAGE_COMPANY("pc");
 		private String choice;
 		
 		ChoiceMenu(String _choice){
@@ -43,22 +42,33 @@ public class Controller {
 	public boolean run() {
 		boolean stop = false;
 		ChoiceMenu choice;
-		List<Computer> computers;
-		List<Company> companies;
+		Page<Computer> computers;
+		Page<Company> companies;
 		Computer computer;
 		Computer computerToUpdate;
 		int id;
+		String choicePage;
 		while(!stop) {
 			try {
 				choice = ChoiceMenu.get(ui.accueil());
 				switch(choice) {
 				case LIST_COMPUTERS:
-					computers = service.getAllComputers();
-					ui.displayComputers(computers);
+					computers = service.getAllComputers(1);
+					choicePage = ui.displayComputers(computers);
+					while(choicePage.equals("p")) {
+						id = ui.askPage();
+						computers = service.getAllComputers(id);
+						choicePage = ui.displayComputers(computers);
+					}
 					break;
 				case LIST_COMPANIES:
-					companies = service.getAllCompanies();
-					ui.displayCompanies(companies);
+					companies = service.getAllCompanies(1);
+					choicePage = ui.displayCompanies(companies);
+					while(choicePage.equals("p")) {
+						id = ui.askPage();
+						companies = service.getAllCompanies(id);
+						choicePage = ui.displayCompanies(companies);
+					}
 					break;
 				case SHOW_COMPUTER_DETAILS:
 					id = ui.askComputerId();
@@ -79,6 +89,7 @@ public class Controller {
 					id = ui.deleteComputer();
 					service.deleteComputer(id);
 					break;
+				case PAGE_COMPANY:
 				case QUIT:
 					return false;
 				}

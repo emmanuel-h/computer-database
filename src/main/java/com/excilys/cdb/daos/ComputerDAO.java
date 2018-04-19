@@ -9,11 +9,12 @@ import java.util.List;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+import main.java.com.excilys.cdb.utils.Page;
 
 public class ComputerDAO implements DAO<Computer> {
 
 	private Connection connection;
-	private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer ORDER BY computer.id";
+	private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?,?";
 	private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
 	private final String FIND_COMPUTER_BY_ID = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id = ?";
 	private final String FIND_MANUFACTURER_BY_ID = "SELECT id, name FROM company WHERE id = ?";
@@ -28,10 +29,11 @@ public class ComputerDAO implements DAO<Computer> {
 	}
 
 	@Override
-	public List<Computer> findAll() throws SQLException {
+	public Page<Computer> findAll(int currentPage) throws SQLException {
 		// First query to retrieve list of companies which are computer's manufacturers, in order to avoid duplicates.
 		PreparedStatement statement_companies = connection.prepareStatement(FIND_ALL_MANUFACTURERS);
 		List<Company> companies = new ArrayList<>();
+		Page<Computer>page = new Page<>();
 		ResultSet rSet_companies = statement_companies.executeQuery();
 		while(rSet_companies.next()){
 			companies.add(new Company(rSet_companies.getInt("id"), rSet_companies.getString("name")));
@@ -43,6 +45,8 @@ public class ComputerDAO implements DAO<Computer> {
 		// Second query which retrieve all computers
 		List<Computer> computers = new ArrayList<>();
 		PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPUTERS);
+		statement.setInt(1, (currentPage-1)*page.getResultsPerPage());
+		statement.setInt(2, page.getResultsPerPage());
 		ResultSet rs = statement.executeQuery();
 		
 		Company company;
@@ -58,7 +62,9 @@ public class ComputerDAO implements DAO<Computer> {
 	    			rs.getDate("computer.introduced"), rs.getDate("computer.discontinued"),
 	    			company));
 	    }
-		return computers;
+	    page.setCurrentPage(currentPage);
+	    page.setResults(computers);
+	    return page;
 	}
 
 	@Override

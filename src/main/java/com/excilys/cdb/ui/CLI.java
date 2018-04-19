@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+import main.java.com.excilys.cdb.utils.Page;
 
 public class CLI {
 
@@ -34,29 +35,33 @@ public class CLI {
 		return choice;
 	}
 	
-	public void displayComputers(List<Computer> computers){
+	public String displayComputers(Page<Computer> computers){
 		resetDisplay();
 		System.out.println("*****COMPUTERS LIST*****");
-		for(Computer computer : computers) {
+		for(Computer computer : computers.getResults()) {
 			System.out.println(computer);
 		}
-		goToMenu();
+		return goToMenu();
 	}
 	
-	public void displayCompanies(List<Company> companies) {
+	public String displayCompanies(Page<Company> companies) {
 		resetDisplay();
 		System.out.println("*****COMPANIES LIST*****");
-		for(Company company : companies) {
+		for(Company company : companies.getResults()) {
 			System.out.println(company);
 		}
-		goToMenu();
+		return goToMenu();
 	}
 	
 	public void showComputerDetails(Computer computer) {
 		resetDisplay();
 		System.out.println("*****COMPUTER "+computer.getId()+"*****");
 		System.out.println(computer);
-		goToMenu();
+		System.out.println("m- go back to menu");
+		String choice;
+		do{
+			choice = scanner.nextLine();
+		} while (!choice.equals("m"));
 	}
 	
 	public int askComputerId() {
@@ -235,6 +240,24 @@ public class CLI {
 		System.out.println(message);
 	}
 	
+	public int askPageNumber() {
+		System.out.println("Which page do you want to see ?");
+		String id;
+		do{
+			id = scanner.nextLine();
+		} while (!id.matches("[0-9]+"));
+		return Integer.parseInt(id);
+	}
+
+	public int askPage() {
+		System.out.println("Enter the page you want to see");
+		String choice;
+		do{
+			choice = scanner.nextLine();
+		} while (!choice.matches("[0-9]+"));
+		return Integer.parseInt(choice);
+	}
+	
 	private void resetDisplay() {
 		System.out.println();
 		System.out.println();
@@ -242,12 +265,13 @@ public class CLI {
 		System.out.println();
 	}
 	
-	private void goToMenu() {
-		System.out.println("m- go back to menu");
+	private String goToMenu() {
+		System.out.println("m- go back to menu, p- display a particular page");
 		String choice;
 		do{
 			choice = scanner.nextLine();
-		} while (!choice.equals("m"));
+		} while (!choice.equals("m") && !choice.equals("p"));
+		return choice;
 	}
 	
 	@Override
