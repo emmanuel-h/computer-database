@@ -1,6 +1,6 @@
 package main.java.com.excilys.cdb.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * The class describing a computer
@@ -13,7 +13,7 @@ public class Computer {
 	/**
 	 * The identifier of the computer
 	 */
-	private int id;
+	private long id;
 	
 	/**
 	 * The name of the computer (mandatory)
@@ -23,12 +23,12 @@ public class Computer {
 	/**
 	 * The introduced date
 	 */
-	private Date introduced;
+	private LocalDate introduced;
 	
 	/**
 	 * The discontinued date
 	 */
-	private Date discontinued;
+	private LocalDate discontinued;
 	
 	/**
 	 * The manufacturer of the computer
@@ -42,8 +42,7 @@ public class Computer {
 		this.name = _name;
 	}
 
-	public Computer(int id, String name, Date introduced, Date discontinued, Company manufacturer) {
-		super();
+	public Computer(long id, String name, LocalDate introduced, LocalDate discontinued, Company manufacturer) {
 		this.id = id;
 		this.name = name;
 		this.introduced = introduced;
@@ -51,11 +50,11 @@ public class Computer {
 		this.manufacturer = manufacturer;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -67,19 +66,19 @@ public class Computer {
 		this.name = name;
 	}
 
-	public Date getIntroduced() {
+	public LocalDate getIntroduced() {
 		return introduced;
 	}
 
-	public void setIntroduced(Date introduced) {
+	public void setIntroduced(LocalDate introduced) {
 		this.introduced = introduced;
 	}
 
-	public Date getDiscontinued() {
+	public LocalDate getDiscontinued() {
 		return discontinued;
 	}
 
-	public void setDiscontinued(Date discontinued) {
+	public void setDiscontinued(LocalDate discontinued) {
 		this.discontinued = discontinued;
 	}
 
@@ -102,7 +101,7 @@ public class Computer {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-		result = prime * result + id;
+		result = prime * result + (int)id;
 		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;

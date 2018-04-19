@@ -4,15 +4,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+import main.java.com.excilys.cdb.utils.DateConvertor;
 import main.java.com.excilys.cdb.utils.Page;
 
 /**
- * COmputerDAo make the link between the database and the model
+ * ComputerDAo make the link between the database and the model
  * 
  * @author emmanuelh
  *
@@ -23,6 +26,12 @@ public class ComputerDAO implements DAO<Computer> {
 	 * The connection to the database
 	 */
 	private Connection connection;
+	
+	/**
+	 * The singleton's instance of ComputerDAO
+	 */
+	private static ComputerDAO computerDAO;
+	
 	private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?,?";
 	private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
 	private final String FIND_COMPUTER_BY_ID = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id = ?";
@@ -33,8 +42,15 @@ public class ComputerDAO implements DAO<Computer> {
 	private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
 			+ "discontinued = ?, company_id= ? WHERE computer.id = ?";
 	
-	public ComputerDAO(Connection connection) {
+	private ComputerDAO(Connection connection) {
 		this.connection = connection;
+	}
+	
+	public static ComputerDAO GetInstance(Connection connection) {
+		if(null == computerDAO) {
+			computerDAO = new ComputerDAO(connection);
+		}
+		return computerDAO;
 	}
 
 	@Override
@@ -68,7 +84,8 @@ public class ComputerDAO implements DAO<Computer> {
 	    			.findFirst()
 	    			.orElse(null);
 	    	computers.add(new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),
-	    			rs.getDate("computer.introduced"), rs.getDate("computer.discontinued"),
+	    			DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.introduced")),
+	    			DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.discontinued")),
 	    			company));
 	    }
 	    page.setCurrentPage(currentPage);
@@ -77,15 +94,17 @@ public class ComputerDAO implements DAO<Computer> {
 	}
 
 	@Override
-	public Computer findById(int id) throws SQLException {
+	public Computer findById(long id) throws SQLException {
 		Computer computer = null;
 		PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID);
-		statement.setInt(1, id);
+		statement.setLong(1, id);
 		ResultSet rSet = statement.executeQuery();
 		int company_id = 0;
 		if(rSet.next()) {
 			computer = new Computer(rSet.getInt("id"),rSet.getString("name"),
-	    			rSet.getDate("introduced"), rSet.getDate("discontinued"), null);
+					DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("introduced")),
+					DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("discontinued")),
+	    			null);
 			company_id = rSet.getInt("company_id");
 		}
 		rSet.close();
@@ -104,41 +123,45 @@ public class ComputerDAO implements DAO<Computer> {
 	}
 
 	@Override
-	public boolean add(Computer computer) throws SQLException {
-		PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER);
+	public int add(Computer computer) throws SQLException {
+		PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS);
 
-		java.sql.Date introducedSQL = null;
-		java.sql.Date discontinuedSQL = null;
+		Timestamp introducedSQL = null;
+		Timestamp discontinuedSQL = null;
 		
 		// Check if the dates are null or not
 		if(null != computer.getIntroduced()) {
-			introducedSQL = new java.sql.Date(computer.getIntroduced().getTime());
+			introducedSQL = DateConvertor.LocalDateToTimeStamp(computer.getIntroduced());
 		}
 		if(null != computer.getDiscontinued()) {
-			discontinuedSQL = new java.sql.Date(computer.getDiscontinued().getTime());
+			discontinuedSQL = DateConvertor.LocalDateToTimeStamp(computer.getDiscontinued());
 		}
 		
 		// Give the statement parameters
 		statement.setString(1, computer.getName());
-		statement.setDate(2, introducedSQL);
-		statement.setDate(3, discontinuedSQL);
+		statement.setTimestamp(2, introducedSQL);
+		statement.setTimestamp(3, discontinuedSQL);
 		if(null == computer.getManufacturer()) {
 			statement.setObject(4, null);
 		} else {
-			statement.setInt(4, computer.getManufacturer().getId());
+			statement.setLong(4, computer.getManufacturer().getId());
 		}
 		
-		int result = statement.executeUpdate();
-		if(result == 0) {
-			return false;
+		// Execute the add request
+		statement.executeUpdate();
+
+		// Retrieve the id of the created object
+		ResultSet rSet = statement.getGeneratedKeys();
+		if(rSet.next()) {
+			return rSet.getInt(1);
 		}
-		return true;
+		return 0;
 	}
 
 	@Override
-	public boolean delete(Computer computer) throws SQLException {
+	public boolean delete(long id) throws SQLException {
 		PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER);
-		statement.setInt(1, computer.getId());
+		statement.setLong(1, id);
 		int result = statement.executeUpdate();
 		if(result == 0) {
 			return false;
@@ -147,35 +170,35 @@ public class ComputerDAO implements DAO<Computer> {
 	}
 
 	@Override
-	public boolean update(Computer computer) throws SQLException {
+	public Computer update(Computer computer) throws SQLException {
 		PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER);
 		
-		java.sql.Date introducedSQL = null;
-		java.sql.Date discontinuedSQL = null;
+		Timestamp introducedSQL = null;
+		Timestamp discontinuedSQL = null;
 		
 		// Check if the dates are null or not
 		if(null != computer.getIntroduced()) {
-			introducedSQL = new java.sql.Date(computer.getIntroduced().getTime());
+			introducedSQL = DateConvertor.LocalDateToTimeStamp(computer.getIntroduced());
 		}
 		if(null != computer.getDiscontinued()) {
-			discontinuedSQL = new java.sql.Date(computer.getDiscontinued().getTime());
+			discontinuedSQL = DateConvertor.LocalDateToTimeStamp(computer.getDiscontinued());
 		}
 		
 		// Give the statement parameters
 		statement.setString(1, computer.getName());
-		statement.setDate(2, introducedSQL);
-		statement.setDate(3, discontinuedSQL);
+		statement.setTimestamp(2, introducedSQL);
+		statement.setTimestamp(3, discontinuedSQL);
 		if(null == computer.getManufacturer()) {
 			statement.setObject(4, null);
 		} else {
-			statement.setInt(4, computer.getManufacturer().getId());
+			statement.setLong(4, computer.getManufacturer().getId());
 		}
-		statement.setInt(5, computer.getId());
+		statement.setLong(5, computer.getId());
 		
 		int result = statement.executeUpdate();
 		if(result == 0) {
-			return false;
+			return null;
 		}
-		return true;
+		return computer;
 	}
 }

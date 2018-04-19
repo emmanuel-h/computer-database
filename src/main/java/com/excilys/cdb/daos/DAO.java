@@ -22,7 +22,7 @@ public interface DAO<T> {
 	 * @return				The object searched
 	 * @throws SQLException	If there is a problem with the SQL request
 	 */
-	T findById(int id) throws SQLException;
+	T findById(long id) throws SQLException;
 	
 	/**
 	 * Add an object to the database
@@ -31,7 +31,7 @@ public interface DAO<T> {
 	 * @return				true if the object id added to the database, false if not
 	 * @throws SQLException	If there is a problem with the SQL request
 	 */
-	boolean add(T t) throws SQLException;
+	int add(T t) throws SQLException;
 	
 	/**
 	 * Delete an object to the database
@@ -40,7 +40,7 @@ public interface DAO<T> {
 	 * @return				true if the object id deleted to the database, false if not
 	 * @throws SQLException	If there is a problem with the SQL request
 	 */
-	boolean delete(T t) throws SQLException;
+	boolean delete(long id) throws SQLException;
 
 	/**
 	 * Update an existing object to the database
@@ -49,5 +49,5 @@ public interface DAO<T> {
 	 * @return				true if the object id updated, false if not
 	 * @throws SQLException	If there is a problem with the SQL request
 	 */
-	boolean update(T t) throws SQLException;
+	T update(T t) throws SQLException;
 }
