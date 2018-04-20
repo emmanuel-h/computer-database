@@ -39,6 +39,16 @@ public class DAOFactory {
 	public enum DaoTypes {COMPUTER, COMPANY};
 	
 	/**
+	 * The computer DAO
+	 */
+	private static ComputerDAO computerDAO;
+	
+	/**
+	 * The company DAO
+	 */
+	private static CompanyDAO companyDAO;
+	
+	/**
 	 * A logger
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOFactory.class);
@@ -61,6 +71,9 @@ public class DAOFactory {
 			        databaseURL,
 			        user,
 			        password);
+
+			computerDAO = ComputerDAO.GetInstance(connection);
+			companyDAO = CompanyDAO.GetInstance(connection);
 		} catch (SQLException e) {
 			throw new FactoryException("Error when initiating SQL connection");
 		} catch (IOException e) {
@@ -85,9 +98,9 @@ public class DAOFactory {
 		}
 		switch(daoType) {
 		case COMPUTER:
-			return new ComputerDAO(connection);
+			return computerDAO;
 		case COMPANY:
-			return new CompanyDAO(connection);
+			return companyDAO;
 		default:
 			throw new FactoryException("Bad DAO type");
 		}

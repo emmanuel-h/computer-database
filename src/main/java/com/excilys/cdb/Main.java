@@ -15,7 +15,7 @@ public class Main {
 		try {
 			//Initialize the static variables
 			ui = new CLI();
-			service = new GeneralService();
+			service = GeneralService.getInstance();
 			Controller controller = new Controller(ui, service);
 			controller.run();
 		} catch (GeneralServiceException e) {

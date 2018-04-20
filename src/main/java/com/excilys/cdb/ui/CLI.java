@@ -1,12 +1,7 @@
 package main.java.com.excilys.cdb.ui;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Scanner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
@@ -25,12 +20,7 @@ public class CLI {
 	 */
 	private Scanner scanner;
 	
-	/**
-	 * The logger
-	 */
-	private final Logger logger = LoggerFactory.getLogger(CLI.class);
-	
-	private final String REGEX_DATE = "^((18|19|20|21)\\\\d\\\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])";
+	private final String REGEX_DATE = "^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])";
 	
 	public CLI() {
 		scanner = new Scanner(System.in);
@@ -130,21 +120,15 @@ public class CLI {
 			name = scanner.nextLine();
 		} while(name.isEmpty());
 		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
 		// Get the introduced date
 		System.out.println("Introduced Date (yyyy-MM-dd) - s to skip");
 		String date;
 		do {
 			date = scanner.nextLine();
 		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
-		Date dateIntroduced = null;
+		LocalDate dateIntroduced = null;
 		if(!date.equals("s")) {
-			try {
-				dateIntroduced = simpleDateFormat.parse(date);
-			} catch (ParseException e) {
-				logger.warn("Error in parsing the introduced date when creating a computer");
-			}
+			dateIntroduced = LocalDate.parse(date);
 		}
 
 		// Get the discontinued date
@@ -152,13 +136,9 @@ public class CLI {
 		do {
 			date = scanner.nextLine();
 		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
-		Date dateDiscontinued = null;
+		LocalDate dateDiscontinued = null;
 		if(!date.equals("s")) {
-			try {
-				dateDiscontinued = simpleDateFormat.parse(date);
-			} catch (ParseException e) {
-				logger.warn("Error in parsing the discontinued date when creating a computer");
-			}
+			dateDiscontinued = LocalDate.parse(date);
 		}
 		
 		// Get the manufacturer
@@ -175,11 +155,11 @@ public class CLI {
 		}
 		
 		// Make the object
-		Computer computer = new Computer();
-		computer.setName(name);
-		computer.setIntroduced(dateIntroduced);
-		computer.setDiscontinued(dateDiscontinued);
-		computer.setManufacturer(company);
+		Computer computer = new Computer.Builder(name)
+				.introduced(dateIntroduced)
+				.discontinued(dateDiscontinued)
+				.manufacturer(company)
+				.build();
 		
 		return computer;
 	}
@@ -223,8 +203,6 @@ public class CLI {
 			name = scanner.nextLine();
 		} while(name.isEmpty());
 		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
 		// Get the introduced date
 		System.out.println("Introduced Date (yyyy-MM-dd) (currently: " + computerToUpdate.getIntroduced()
 				+ ") - s to skip");
@@ -232,13 +210,9 @@ public class CLI {
 		do {
 			date = scanner.nextLine();
 		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
-		Date dateIntroduced = null;
+		LocalDate dateIntroduced = null;
 		if(!date.equals("s")) {
-			try {
-				dateIntroduced = simpleDateFormat.parse(date);
-			} catch (ParseException e) {
-				logger.warn("Error in parsing the introduced date when updating a computer");
-			}
+			dateIntroduced = LocalDate.parse(date);
 		} else {
 			if(null != computerToUpdate.getIntroduced()) {
 				dateIntroduced = computerToUpdate.getIntroduced();
@@ -251,13 +225,9 @@ public class CLI {
 		do {
 			date = scanner.nextLine();
 		} while (!date.matches(REGEX_DATE) && !date.equals("s"));
-		Date dateDiscontinued = null;
+		LocalDate dateDiscontinued = null;
 		if(!date.equals("s")) {
-			try {
-				dateDiscontinued = simpleDateFormat.parse(date);
-			} catch (ParseException e) {
-				logger.warn("Error in parsing the discontinued date when updating a computer");
-			}
+			dateDiscontinued = LocalDate.parse(date);
 		} else {
 			if(null != computerToUpdate.getDiscontinued()) {
 				dateDiscontinued = computerToUpdate.getDiscontinued();

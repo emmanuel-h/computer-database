@@ -16,13 +16,10 @@ import main.java.com.excilys.cdb.utils.Page;
 
 public class GeneralService {
 
-	private final String SQL_EXCEPTION = "SQL Exception : ";
-	private final String NULL_COMPUTER = "The computer is null";
-	private final String ERREUR_FACTORY = "Erreur lors de la conception de la factory : ";
-	private final String UNNAMED_COMPUTER = "The computer does not have a name";
-	private final String DATE_PROBLEM = "Discontinued date is before introduced date";
-	private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
-	private final String UNKNOWN_COMPUTER = "Id does not refer any computer";
+	/**
+	 * The singleton's instance of the service
+	 */
+	private static GeneralService generalService;
 	
 	/**
 	 * The company concerning DAO
@@ -38,14 +35,28 @@ public class GeneralService {
 	 * A logger
 	 */
 	private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+
+	private final String SQL_EXCEPTION = "SQL Exception : ";
+	private final String NULL_COMPUTER = "The computer is null";
+	private final String ERREUR_FACTORY = "Erreur lors de la conception de la factory : ";
+	private final String UNNAMED_COMPUTER = "The computer does not have a name";
+	private final String DATE_PROBLEM = "Discontinued date is before introduced date";
+	private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
 	
-	public GeneralService() throws GeneralServiceException {
+	private GeneralService() throws GeneralServiceException {
 		try {
 			this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPANY);
 			this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPUTER);
 		} catch (FactoryException e) {
 			LOGGER.warn(ERREUR_FACTORY+e.getMessage());
 		}
+	}
+	
+	public static GeneralService getInstance() throws GeneralServiceException {
+		if(null == generalService) {
+			generalService = new GeneralService();
+		}
+		return generalService;
 	}
 	
 	/**
@@ -102,19 +113,21 @@ public class GeneralService {
 	 * @throws GeneralServiceException	If the computer is null, doesn't have a name,
 	 * 									dates are incorrect or manufacturer is unknown
 	 */
-	public boolean createComputer(Computer computer) throws GeneralServiceException {
+	public int createComputer(Computer computer) throws GeneralServiceException {
 		if(null == computer) {
 			throw new GeneralServiceException(NULL_COMPUTER);
 		}
 		if(null == computer.getName()) {
 			throw new GeneralServiceException(UNNAMED_COMPUTER);
 		}
-		if(computer.getDiscontinued().before(computer.getIntroduced())) {
-			throw new GeneralServiceException(DATE_PROBLEM);
+		if(null != computer.getDiscontinued() && null != computer.getIntroduced()) {
+			if(computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+				throw new GeneralServiceException(DATE_PROBLEM);
+			}
 		}
 		try {
-			if(computer.getId() != 0) {
-				Company company = companyDAO.findById(computer.getId());
+			if(computer.getManufacturer().getId() != 0) {
+				Company company = companyDAO.findById(computer.getManufacturer().getId());
 				if (null == company) {
 					throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
 				}
@@ -123,7 +136,7 @@ public class GeneralService {
 		} catch (SQLException e) {
 			LOGGER.warn(SQL_EXCEPTION+e.getMessage());
 		}
-		return false;
+		return 0;
 	}
 
 	/**
@@ -134,19 +147,21 @@ public class GeneralService {
 	 * @throws GeneralServiceException	If the computer is null, doesn't have a name,
 	 * 									dates are incorrect or manufacturer is unknown
 	 */
-	public boolean updateComputer(Computer computer) throws GeneralServiceException {
+	public Computer updateComputer(Computer computer) throws GeneralServiceException {
 		if(null == computer) {
 			throw new GeneralServiceException(NULL_COMPUTER);
 		}
 		if(null == computer.getName()) {
 			throw new GeneralServiceException(UNNAMED_COMPUTER);
 		}
-		if(computer.getDiscontinued().before(computer.getIntroduced())) {
-			throw new GeneralServiceException(DATE_PROBLEM);
+		if(null != computer.getDiscontinued() && null != computer.getIntroduced()) {
+			if(computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+				throw new GeneralServiceException(DATE_PROBLEM);
+			}
 		}
 		try {
-			if(computer.getId() != 0) {
-				Company company = companyDAO.findById(computer.getId());
+			if(computer.getManufacturer().getId() != 0) {
+				Company company = companyDAO.findById(computer.getManufacturer().getId());
 				if (null == company) {
 					throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
 				}
@@ -155,7 +170,7 @@ public class GeneralService {
 		} catch (SQLException e) {
 			LOGGER.warn(SQL_EXCEPTION+e.getMessage());
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -166,13 +181,8 @@ public class GeneralService {
 	 * @throws GeneralServiceException	If there is no computer matching this id
 	 */
 	public boolean deleteComputer(int id) throws GeneralServiceException {
-		Computer computer;
 		try {
-			computer = computerDAO.findById(id);
-			if(null == computer) {
-				throw new GeneralServiceException(UNKNOWN_COMPUTER);
-			}
-			return computerDAO.delete(computer);
+			return computerDAO.delete(id);
 		} catch (SQLException e) {
 			LOGGER.warn(SQL_EXCEPTION+e.getMessage());
 		}
