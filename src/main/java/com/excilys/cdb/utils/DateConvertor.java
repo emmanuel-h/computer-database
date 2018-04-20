@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class DateConvertor {
 	    
     public static LocalDate TimeStampToLocalDate(final Timestamp time) {
-        if(time != null) {
+        if(null != time) {
             return time.toLocalDateTime().toLocalDate();
         }
         return null;
@@ -14,7 +14,7 @@ public class DateConvertor {
     }
     
     public static Timestamp LocalDateToTimeStamp(final LocalDate date) {
-        if(date != null) {
+        if(null != date) {
             return Timestamp.valueOf(date.atStartOfDay());
         }
         return null;

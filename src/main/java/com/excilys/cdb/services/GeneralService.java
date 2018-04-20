@@ -126,8 +126,8 @@ public class GeneralService {
 			}
 		}
 		try {
-			if(computer.getId() != 0) {
-				Company company = companyDAO.findById(computer.getId());
+			if(computer.getManufacturer().getId() != 0) {
+				Company company = companyDAO.findById(computer.getManufacturer().getId());
 				if (null == company) {
 					throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
 				}
@@ -160,8 +160,8 @@ public class GeneralService {
 			}
 		}
 		try {
-			if(computer.getId() != 0) {
-				Company company = companyDAO.findById(computer.getId());
+			if(computer.getManufacturer().getId() != 0) {
+				Company company = companyDAO.findById(computer.getManufacturer().getId());
 				if (null == company) {
 					throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
 				}

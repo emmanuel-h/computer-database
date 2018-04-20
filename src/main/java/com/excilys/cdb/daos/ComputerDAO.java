@@ -83,10 +83,12 @@ public class ComputerDAO implements DAO<Computer> {
 	    			.filter(a -> a.getId() == company_id)
 	    			.findFirst()
 	    			.orElse(null);
-	    	computers.add(new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),
-	    			DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.introduced")),
-	    			DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.discontinued")),
-	    			company));
+	    	computers.add(new Computer.Builder(rs.getString("computer.name"))
+	    			.id(rs.getInt("computer.id"))
+	    			.introduced(DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.introduced")))
+	    			.discontinued(DateConvertor.TimeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
+	    			.manufacturer(company)
+	    			.build());
 	    }
 	    page.setCurrentPage(currentPage);
 	    page.setResults(computers);
@@ -101,10 +103,11 @@ public class ComputerDAO implements DAO<Computer> {
 		ResultSet rSet = statement.executeQuery();
 		int company_id = 0;
 		if(rSet.next()) {
-			computer = new Computer(rSet.getInt("id"),rSet.getString("name"),
-					DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("introduced")),
-					DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("discontinued")),
-	    			null);
+			computer = new Computer.Builder(rSet.getString("name"))
+					.id(rSet.getInt("id"))
+					.introduced(DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("introduced")))
+					.discontinued(DateConvertor.TimeStampToLocalDate(rSet.getTimestamp("discontinued")))
+	    			.build();
 			company_id = rSet.getInt("company_id");
 		}
 		rSet.close();

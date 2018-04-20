@@ -155,11 +155,11 @@ public class CLI {
 		}
 		
 		// Make the object
-		Computer computer = new Computer();
-		computer.setName(name);
-		computer.setIntroduced(dateIntroduced);
-		computer.setDiscontinued(dateDiscontinued);
-		computer.setManufacturer(company);
+		Computer computer = new Computer.Builder(name)
+				.introduced(dateIntroduced)
+				.discontinued(dateDiscontinued)
+				.manufacturer(company)
+				.build();
 		
 		return computer;
 	}
