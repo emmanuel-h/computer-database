@@ -7,19 +7,22 @@ import com.excilys.cdb.ui.CLI;
 
 public class Main {
 
-	private static CLI ui;
-	private static GeneralService service;
+    private static CLI ui;
+    private static GeneralService service;
 
-	
-	public static void main(String[] args) {
-		try {
-			//Initialize the static variables
-			ui = new CLI();
-			service = GeneralService.getInstance();
-			Controller controller = new Controller(ui, service);
-			controller.run();
-		} catch (GeneralServiceException e) {
+    /**
+     * Start of the program.
+     * @param args  The arguments of the program
+     */
+    public static void main(String[] args) {
+        try {
+            // Initialize the static variables
+            ui = new CLI();
+            service = GeneralService.getInstance();
+            Controller controller = new Controller(ui, service);
+            controller.run();
+        } catch (GeneralServiceException e) {
 
-		}
-	}
+        }
+    }
 }
