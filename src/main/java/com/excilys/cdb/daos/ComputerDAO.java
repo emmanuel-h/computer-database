@@ -15,7 +15,7 @@ import com.excilys.cdb.utils.DateConvertor;
 import com.excilys.cdb.utils.Page;
 
 /**
- * ComputerDAo make the link between the database and the model.
+ * ComputerDAO make the link between the database and the model.
  * @author emmanuelh
  */
 public class ComputerDAO implements DAO<Computer> {
@@ -32,8 +32,8 @@ public class ComputerDAO implements DAO<Computer> {
 
     private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?,?";
     private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
-    private final String FIND_COMPUTER_BY_ID = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id = ?";
-    private final String FIND_MANUFACTURER_BY_ID = "SELECT id, name FROM company WHERE id = ?";
+    private final String FIND_COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced, computer.discontinued, company.id, company.name "
+            + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
     private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
             + "VALUES (?, ?, ?, ?)";
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
@@ -62,6 +62,9 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Page<Computer> findAll(int currentPage) throws SQLException {
+        if (currentPage < 0) {
+            return null;
+        }
         // First query to retrieve list of companies which are computer's manufacturers,
         // in order to avoid duplicates.
         PreparedStatement statementCompanies = connection.prepareStatement(FIND_ALL_MANUFACTURERS);
@@ -103,25 +106,15 @@ public class ComputerDAO implements DAO<Computer> {
         PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID);
         statement.setLong(1, id);
         ResultSet rSet = statement.executeQuery();
-        int companyId = 0;
+        // If a computer is found, build it...
         if (rSet.next()) {
-            computer = new Computer.Builder(rSet.getString("name")).id(rSet.getInt("id"))
-                    .introduced(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("introduced")))
-                    .discontinued(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("discontinued"))).build();
-            companyId = rSet.getInt("company_id");
+            Company company = new Company(rSet.getLong("company.id"), rSet.getString("company.name"));
+            computer = new Computer.Builder(rSet.getString("computer.name")).id(rSet.getInt("computer.id"))
+                    .introduced(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.introduced")))
+                    .discontinued(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.discontinued")))
+                    .manufacturer(company)
+                    .build();
         }
-        rSet.close();
-        statement.close();
-        Company company = null;
-        if (companyId != 0) {
-            PreparedStatement statementCompany = connection.prepareStatement(FIND_MANUFACTURER_BY_ID);
-            statementCompany.setInt(1, companyId);
-            ResultSet rSetCompany = statementCompany.executeQuery();
-            if (rSetCompany.next()) {
-                company = new Company(companyId, rSetCompany.getString("name"));
-            }
-        }
-        computer.setManufacturer(company);
         return computer;
     }
 

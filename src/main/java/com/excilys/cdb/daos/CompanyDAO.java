@@ -12,7 +12,7 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
 /**
- * ComputerDAo make the link between the database and the model.
+ * ComputerDAO make the link between the database and the model.
  * @author emmanuelh
  */
 public class CompanyDAO implements DAO<Company> {
@@ -29,7 +29,7 @@ public class CompanyDAO implements DAO<Company> {
 
     private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company LIMIT ?,?";
     private final String FIND_COMPANY_BY_ID = "SELECT id, name FROM company WHERE id=?";
-    private final String ADD_COMPANY = "INSERT INTO company (id, name) VALUES (?, ?)";
+    private final String ADD_COMPANY = "INSERT INTO company (name) VALUES (?)";
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
     private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
@@ -56,6 +56,9 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public Page<Company> findAll(int currentPage) throws SQLException {
+        if (currentPage < 0) {
+            return null;
+        }
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
         PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
@@ -97,8 +100,7 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public int add(Company company) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS);
-        statement.setLong(1, company.getId());
-        statement.setString(2, company.getName());
+        statement.setString(1, company.getName());
 
         // Execute the add request
         statement.executeUpdate();
