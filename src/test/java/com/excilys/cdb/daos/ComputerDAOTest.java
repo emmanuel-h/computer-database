@@ -123,7 +123,7 @@ public class ComputerDAOTest {
                 .discontinued(LocalDate.of(2008, 12, 12))
                 .manufacturer(manufacturer)
                 .build();
-        int addResult = computerDAO.add(computer);
+        long addResult = computerDAO.add(computer);
         assertTrue(addResult == 13L);
         computerDAO.delete(13L);
     }
@@ -135,7 +135,7 @@ public class ComputerDAOTest {
     @Test
     public void addWithNoFields() throws SQLException {
         Computer computer = new Computer.Builder("test").build();
-        int addResult = computerDAO.add(computer);
+        long addResult = computerDAO.add(computer);
         assertTrue(addResult == 14L);
         computerDAO.delete(14L);
     }
@@ -147,7 +147,7 @@ public class ComputerDAOTest {
     @Test
     public void addWithexistingId() throws SQLException {
         Computer computer = new Computer.Builder("test").id(1L).build();
-        int addResult = computerDAO.add(computer);
+        long addResult = computerDAO.add(computer);
         assertTrue(addResult == 15L);
         computerDAO.delete(15L);
     }

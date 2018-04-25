@@ -98,7 +98,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public int add(Company company) throws SQLException {
+    public long add(Company company) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS);
         statement.setString(1, company.getName());
 
@@ -108,7 +108,7 @@ public class CompanyDAO implements DAO<Company> {
         // Retrieve the id of the created object
         ResultSet rSet = statement.getGeneratedKeys();
         if (rSet.next()) {
-            return rSet.getInt(1);
+            return rSet.getLong(1);
         }
         return 0;
     }

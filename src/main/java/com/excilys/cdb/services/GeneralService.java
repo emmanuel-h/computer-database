@@ -89,7 +89,6 @@ public class GeneralService {
      */
     public Page<Company> getAllCompanies(int currentPage) {
         try {
-
             return this.companyDAO.findAll(currentPage);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -103,7 +102,7 @@ public class GeneralService {
      * @return The corresponding computer
      * @throws GeneralServiceException if there is no corresponding computer
      */
-    public Computer getOneComputer(int id) throws GeneralServiceException {
+    public Computer getOneComputer(long id) throws GeneralServiceException {
         try {
             return this.computerDAO.findById(id);
         } catch (SQLException e) {
@@ -118,7 +117,7 @@ public class GeneralService {
      * @throws GeneralServiceException If the computer is null, doesn't have a name,
      *             dates are incorrect or manufacturer is unknown
      */
-    public int createComputer(Computer computer) throws GeneralServiceException {
+    public long createComputer(Computer computer) throws GeneralServiceException {
         if (null == computer) {
             throw new GeneralServiceException(NULL_COMPUTER);
         }
@@ -131,7 +130,7 @@ public class GeneralService {
             }
         }
         try {
-            if (computer.getManufacturer().getId() != 0) {
+            if (null != computer.getManufacturer()) {
                 Company company = companyDAO.findById(computer.getManufacturer().getId());
                 if (null == company) {
                     throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
@@ -141,7 +140,7 @@ public class GeneralService {
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return 0;
+        return 0L;
     }
 
     /**
@@ -164,7 +163,7 @@ public class GeneralService {
             }
         }
         try {
-            if (computer.getManufacturer().getId() != 0) {
+            if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
                 Company company = companyDAO.findById(computer.getManufacturer().getId());
                 if (null == company) {
                     throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
@@ -183,7 +182,7 @@ public class GeneralService {
      * @return true if the computer is deleted, false if not
      * @throws GeneralServiceException If there is no computer matching this id
      */
-    public boolean deleteComputer(int id) throws GeneralServiceException {
+    public boolean deleteComputer(long id) {
         try {
             return computerDAO.delete(id);
         } catch (SQLException e) {

@@ -28,7 +28,7 @@ public interface DAO<T> {
      * @return true         If the object id added to the database, false if not
      * @throws SQLException If there is a problem with the SQL request
      */
-    int add(T t) throws SQLException;
+    long add(T t) throws SQLException;
 
     /**
      * Delete an object to the database.

@@ -119,7 +119,7 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     @Override
-    public int add(Computer computer) throws SQLException {
+    public long add(Computer computer) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS);
 
         Timestamp introducedSQL = null;

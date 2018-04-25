@@ -86,7 +86,7 @@ public class CompanyDAOTest {
     @Test
     public void add() throws SQLException {
         Company company = new Company(500L, "test add");
-        int addResult = companyDAO.add(company);
+        long addResult = companyDAO.add(company);
         assertTrue(addResult == 44L);
         companyDAO.delete(44L);
     }
@@ -98,7 +98,7 @@ public class CompanyDAOTest {
     @Test
     public void addWithexistingId() throws SQLException {
         Company company = new Company(1L, "test with exisiting id");
-        int addResult = companyDAO.add(company);
+        long addResult = companyDAO.add(company);
         assertTrue(addResult == 45L);
         companyDAO.delete(45L);
     }
