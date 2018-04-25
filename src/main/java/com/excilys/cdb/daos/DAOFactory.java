@@ -69,14 +69,18 @@ public class DAOFactory {
             String password = properties.getProperty("database-password");
 
             // Initiate the connection
+            Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(databaseURL, user, password);
 
             computerDAO = ComputerDAO.getInstance(connection);
             companyDAO = CompanyDAO.getInstance(connection);
+            LOGGER.info("Database connected : " + databaseURL);
         } catch (SQLException e) {
             throw new FactoryException("Error when initiating SQL connection");
         } catch (IOException e) {
             LOGGER.warn("Properties file not found");
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn(e.toString());
         }
     }
 
