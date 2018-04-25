@@ -3,156 +3,188 @@ package com.excilys.cdb.model;
 import java.time.LocalDate;
 
 /**
- * The class describing a computer
- * 
+ * The class describing a computer.
  * @author emmanuelh
- *
  */
 public class Computer {
-	
-	/**
-	 * The identifier of the computer
-	 */
-	private long id;
-	
-	/**
-	 * The name of the computer (mandatory)
-	 */
-	private String name;
-	
-	/**
-	 * The introduced date
-	 */
-	private LocalDate introduced;
-	
-	/**
-	 * The discontinued date
-	 */
-	private LocalDate discontinued;
-	
-	/**
-	 * The manufacturer of the computer
-	 */
-	private Company manufacturer;
-	
-	public static class Builder {
-		private long id;
-		private final String name;
-		private LocalDate introduced;
-		private LocalDate discontinued;
-		private Company manufacturer;
-		
-		public Builder(String _name) {
-			name = _name;
-		}
-		
-		public Builder id(long _id) {
-			id = _id;
-			return this;
-		}
-		
-		public Builder introduced(LocalDate _introduced) {
-			introduced = _introduced;
-			return this;
-		}
-		
-		public Builder discontinued(LocalDate _discontinued) {
-			discontinued = _discontinued;
-			return this;
-		}
-		
-		public Builder manufacturer(Company _manufacturer) {
-			manufacturer = _manufacturer;
-			return this;
-		}
-		
-		public Computer build() {
-			return new Computer(this);
-		}
-	}
-	
-	private Computer(Builder builder) {
-		id = builder.id;
-		name = builder.name;
-		introduced = builder.introduced;
-		discontinued = builder.discontinued;
-		manufacturer = builder.manufacturer;
-	}
-	
-	public Computer() {
-	}
 
-	public long getId() {
-		return id;
-	}
+    /**
+     * The identifier of the computer.
+     */
+    private long id;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    /**
+     * The name of the computer (mandatory).
+     */
+    private String name;
 
-	public String getName() {
-		return name;
-	}
+    /**
+     * The introduced date.
+     */
+    private LocalDate introduced;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * The discontinued date.
+     */
+    private LocalDate discontinued;
 
-	public LocalDate getIntroduced() {
-		return introduced;
-	}
+    /**
+     * The manufacturer of the computer.
+     */
+    private Company manufacturer;
 
-	public void setIntroduced(LocalDate introduced) {
-		this.introduced = introduced;
-	}
+    public static class Builder {
+        private long id;
+        private final String name;
+        private LocalDate introduced;
+        private LocalDate discontinued;
+        private Company manufacturer;
 
-	public LocalDate getDiscontinued() {
-		return discontinued;
-	}
+        /**
+         * Builder constructor for field name.
+         * @param name  The name of the computer.
+         */
+        public Builder(String name) {
+            this.name = name;
+        }
 
-	public void setDiscontinued(LocalDate discontinued) {
-		this.discontinued = discontinued;
-	}
+        /**
+         * Builder method to initialize the id.
+         * @param id  The id of the computer
+         * @return The builder initialized
+         */
+        public Builder id(long id) {
+            this.id = id;
+            return this;
+        }
 
-	public Company getManufacturer() {
-		return manufacturer;
-	}
+        /**
+         * Builder method to initialize the introduced date.
+         * @param introduced    The introduced date of the computer
+         * @return              The builder initialized
+         */
+        public Builder introduced(LocalDate introduced) {
+            this.introduced = introduced;
+            return this;
+        }
 
-	public void setManufacturer(Company manufacturer) {
-		this.manufacturer = manufacturer;
-	}
+        /**
+         * Builder method to initialize the discontinued date.
+         * @param discontinued  The discontinued date of the computer
+         * @return              The builder initialized
+         */
+        public Builder discontinued(LocalDate discontinued) {
+            this.discontinued = discontinued;
+            return this;
+        }
 
-	@Override
-	public String toString() {
-		return "Computer [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued=" + discontinued
-				+ ", manufacturer=" + manufacturer + "]";
-	}
+        /**
+         * Builder method to initialize the computer's manufacturer.
+         * @param manufacturer The computer's manufacturer
+         * @return              The builder initialized
+         */
+        public Builder manufacturer(Company manufacturer) {
+            this.manufacturer = manufacturer;
+            return this;
+        }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-		result = prime * result + (int)id;
-		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-	        return false;
-	    }
-	    if (getClass() != obj.getClass()) {
-	        return false;
-	    }
-	    final Computer other = (Computer) obj;
-	    if (this.id != other.id) {
-	        return false;
-	    }
-	    return true;
-	}
-	
-	
+        /**
+         * Build the builder with all the desired variable initializations.
+         * @return  The computer initialized.
+         */
+        public Computer build() {
+            return new Computer(this);
+        }
+    }
+
+    /**
+     * Private constructor creating a Computer object from a Builder.
+     * @param builder   The initial builder
+     */
+    private Computer(Builder builder) {
+        id = builder.id;
+        name = builder.name;
+        introduced = builder.introduced;
+        discontinued = builder.discontinued;
+        manufacturer = builder.manufacturer;
+    }
+
+    /**
+     * The blank constructor.
+     */
+    public Computer() {
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDate getIntroduced() {
+        return introduced;
+    }
+
+    public void setIntroduced(LocalDate introduced) {
+        this.introduced = introduced;
+    }
+
+    public LocalDate getDiscontinued() {
+        return discontinued;
+    }
+
+    public void setDiscontinued(LocalDate discontinued) {
+        this.discontinued = discontinued;
+    }
+
+    public Company getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(Company manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    @Override
+    public String toString() {
+        return "Computer [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued=" + discontinued
+                + ", manufacturer=" + manufacturer + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
+        result = prime * result + (int) id;
+        result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Computer other = (Computer) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
 }
