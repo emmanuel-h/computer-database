@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.exceptions.GeneralServiceException;
+import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.utils.Page;
 
 /**
  * Servlet implementation class Servlet.
@@ -50,7 +52,11 @@ public class DashBoardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int numberOfComputers = service.countComputers();
+        Page<Computer> firstPage = service.getAllComputers(1);
+
         request.setAttribute("nbComputers", numberOfComputers);
+        request.setAttribute("computerList", firstPage.getResults());
+
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
     }
 
