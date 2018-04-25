@@ -39,6 +39,7 @@ public class ComputerDAO implements DAO<Computer> {
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
             + "discontinued = ?, company_id= ? WHERE computer.id = ?";
+    private final String COUNT_COMPUTER = "SELECT COUNT(id) FROM computer";
 
     /**
      * The constructor with a Connection.
@@ -196,5 +197,19 @@ public class ComputerDAO implements DAO<Computer> {
             return null;
         }
         return computer;
+    }
+
+    /**
+     * Count the number of computers in the database.
+     * @return              The number of computers
+     * @throws SQLException If there is a problem with the SQL request
+     */
+    public int count() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTER);
+        ResultSet rSet = statement.executeQuery();
+        if (rSet.next()) {
+            return rSet.getInt(1);
+        }
+        return -1;
     }
 }

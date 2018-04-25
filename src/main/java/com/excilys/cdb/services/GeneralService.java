@@ -191,4 +191,17 @@ public class GeneralService {
         return false;
     }
 
+    /**
+     * Count the number of existing computers.
+     * @return  The number of computers
+     */
+    public int countComputers() {
+        try {
+            return computerDAO.count();
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+        return -1;
+    }
+
 }

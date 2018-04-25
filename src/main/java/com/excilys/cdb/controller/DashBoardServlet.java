@@ -49,6 +49,8 @@ public class DashBoardServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        int numberOfComputers = service.countComputers();
+        request.setAttribute("nbComputers", numberOfComputers);
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
     }
 

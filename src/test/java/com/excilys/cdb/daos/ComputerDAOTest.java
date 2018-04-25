@@ -250,6 +250,17 @@ public class ComputerDAOTest {
     }
 
     /**
+     * Test if the count retrieve the number of computers in the database.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void count() throws SQLException {
+        int resultCount = computerDAO.count();
+        System.out.println(resultCount);
+        assertEquals(11, resultCount);
+    }
+
+    /**
      * Destroy the computerDAO at the end of the test.
      */
     @After

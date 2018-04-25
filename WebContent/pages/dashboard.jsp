@@ -12,14 +12,14 @@
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="dashboard.html"> Application - Computer Database </a>
+            <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
         </div>
     </header>
 
     <section id="main">
         <div class="container">
             <h1 id="homeTitle">
-                121 Computers found
+                ${nbComputers} Computers found
             </h1>
             <div id="actions" class="form-horizontal">
                 <div class="pull-left">

@@ -492,4 +492,34 @@ public class GeneralServiceTest {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
     }
+
+    /**
+     * Test if the computer count works.
+     */
+    @Test
+    public void countComputer() {
+        try {
+            Mockito.when(computerDAO.count()).thenReturn(11);
+
+            int count = service.countComputers();
+            assertEquals(11, count);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+    }
+
+    /**
+     * Test if the computer count works when a SQL exception is raise.
+     */
+    @Test
+    public void countComputerWithSQLException() {
+        try {
+            Mockito.when(computerDAO.count()).thenThrow(SQLException.class);
+
+            int count = service.countComputers();
+            assertEquals(-1, count);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+    }
 }
