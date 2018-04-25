@@ -90,7 +90,8 @@ public class ComputerDAO implements DAO<Computer> {
         statement = connection.prepareStatement(COUNT_COMPUTERS);
         rs = statement.executeQuery();
         if (rs.next()) {
-            page.setMaxPage(rs.getInt(1) / page.getResultsPerPage());
+            double maxPage = rs.getInt(1) / page.getResultsPerPage();
+            page.setMaxPage((int) Math.ceil(maxPage));
         }
 
         page.setCurrentPage(currentPage);

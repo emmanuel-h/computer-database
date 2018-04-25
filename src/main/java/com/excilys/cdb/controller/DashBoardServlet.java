@@ -1,6 +1,8 @@
 package com.excilys.cdb.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,9 +10,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.utils.ComputerConvertor;
 import com.excilys.cdb.utils.Page;
 
 /**
@@ -53,9 +57,13 @@ public class DashBoardServlet extends HttpServlet {
             throws ServletException, IOException {
         int numberOfComputers = service.countComputers();
         Page<Computer> firstPage = service.getAllComputers(1, 10);
+        List<ComputerDTO> computerList = new ArrayList<>();
+        for (Computer computer : firstPage.getResults()) {
+            computerList.add(ComputerConvertor.computerToDTO(computer));
+        }
 
         request.setAttribute("nbComputers", numberOfComputers);
-        request.setAttribute("computerList", firstPage.getResults());
+        request.setAttribute("computerList", computerList);
 
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
     }
