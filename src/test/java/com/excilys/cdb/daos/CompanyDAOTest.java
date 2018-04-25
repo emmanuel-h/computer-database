@@ -34,7 +34,17 @@ public class CompanyDAOTest {
      */
     @Test
     public void findAllWithNegativePage() throws SQLException {
-        Page<Company> companies = companyDAO.findAll(-1);
+        Page<Company> companies = companyDAO.findAll(-1, 10);
+        assertNull(companies);
+    }
+
+    /**
+     * Test if findAll with negative number of results per page returns null.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void findAllWithNegativeResultsPerPage() throws SQLException {
+        Page<Company> companies = companyDAO.findAll(1, -1);
         assertNull(companies);
     }
 
@@ -44,7 +54,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void findAllWithTooBigPage() throws SQLException {
-        Page<Company> companies = companyDAO.findAll(9999999);
+        Page<Company> companies = companyDAO.findAll(9999999, 10);
         assertTrue(companies.getResults().size() == 0);
     }
 
@@ -54,7 +64,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void findAllWithGoodPageNumber() throws SQLException {
-        Page<Company> companies = companyDAO.findAll(1);
+        Page<Company> companies = companyDAO.findAll(1, 5);
         assertTrue(companies.getResults().size() == 5);
     }
 

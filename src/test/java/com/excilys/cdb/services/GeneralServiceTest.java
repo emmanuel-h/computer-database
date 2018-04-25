@@ -187,7 +187,7 @@ public class GeneralServiceTest {
     @Test
     public void getAllCompaniesWithInvalidResultsPerPage() {
         try {
-            Mockito.when(companyDAO.findAll(1, 1)).thenReturn(null);
+            Mockito.when(companyDAO.findAll(1, -1)).thenReturn(null);
 
             // get all companies with negative page number
             Page<Company> resultsPageNegative = service.getAllCompanies(1, -1);

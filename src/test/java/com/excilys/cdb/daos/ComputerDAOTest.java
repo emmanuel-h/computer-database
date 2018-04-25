@@ -44,7 +44,17 @@ public class ComputerDAOTest {
      */
     @Test
     public void findAllWithNegativePage() throws SQLException {
-        Page<Computer> computers = computerDAO.findAll(-1);
+        Page<Computer> computers = computerDAO.findAll(-1, 10);
+        assertNull(computers);
+    }
+
+    /**
+     * Test if findAll with a negative number of results per page return null.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void findAllWithNegativeResultsPerPage() throws SQLException {
+        Page<Computer> computers = computerDAO.findAll(1, -1);
         assertNull(computers);
     }
 
@@ -54,7 +64,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void findAllWithTooBigPage() throws SQLException {
-        Page<Computer> computers = computerDAO.findAll(9999999);
+        Page<Computer> computers = computerDAO.findAll(9999999, 10);
         assertTrue(computers.getResults().size() == 0);
     }
 
@@ -64,7 +74,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void findAllWithGoodPageNumber() throws SQLException {
-        Page<Computer> computers = computerDAO.findAll(1);
+        Page<Computer> computers = computerDAO.findAll(1, 5);
         assertTrue(computers.getResults().size() == 5);
     }
 
