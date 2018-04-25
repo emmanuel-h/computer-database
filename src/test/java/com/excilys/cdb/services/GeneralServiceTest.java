@@ -81,11 +81,28 @@ public class GeneralServiceTest {
         computers.setResults(computerList);
 
         try {
-            Mockito.when(computerDAO.findAll(1)).thenReturn(computers);
+            Mockito.when(computerDAO.findAll(1, 10)).thenReturn(computers);
 
-            Page<Computer> resultsPage = service.getAllComputers(1);
+            Page<Computer> resultsPage = service.getAllComputers(1, 10);
             assertTrue(resultsPage.getResults().get(0).equals(computer));
-            Mockito.verify(computerDAO).findAll(1);
+            Mockito.verify(computerDAO).findAll(1, 10);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+    }
+
+    /**
+     * Test if the getAllComputers method work correctly when an invalid results per page is asked.
+     */
+    @Test
+    public void getAllComputersWithInvalidResultsPerPage() {
+
+        try {
+            Mockito.when(computerDAO.findAll(1, -1)).thenReturn(null);
+
+            Page<Computer> resultsPageNegative = service.getAllComputers(1, -1);
+            assertNull(resultsPageNegative);
+            Mockito.verify(computerDAO).findAll(1, -1);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -98,11 +115,11 @@ public class GeneralServiceTest {
     public void getAllComputersWithInvalidPageNumber() {
 
         try {
-            Mockito.when(computerDAO.findAll(-1)).thenReturn(null);
+            Mockito.when(computerDAO.findAll(-1, 10)).thenReturn(null);
 
-            Page<Computer> resultsPageNegative = service.getAllComputers(-1);
+            Page<Computer> resultsPageNegative = service.getAllComputers(-1, 10);
             assertNull(resultsPageNegative);
-            Mockito.verify(computerDAO).findAll(-1);
+            Mockito.verify(computerDAO).findAll(-1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -114,11 +131,11 @@ public class GeneralServiceTest {
     @Test
     public void getAllComputersWithSQLException() {
         try {
-            Mockito.when(computerDAO.findAll(1)).thenThrow(SQLException.class);
+            Mockito.when(computerDAO.findAll(1, 10)).thenThrow(SQLException.class);
 
-            Page<Computer> resultsPageException = service.getAllComputers(1);
+            Page<Computer> resultsPageException = service.getAllComputers(1, 10);
             assertNull(resultsPageException);
-            Mockito.verify(computerDAO).findAll(1);
+            Mockito.verify(computerDAO).findAll(1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -136,11 +153,11 @@ public class GeneralServiceTest {
         companies.setResults(companiesList);
 
         try {
-            Mockito.when(companyDAO.findAll(1)).thenReturn(companies);
+            Mockito.when(companyDAO.findAll(1, 10)).thenReturn(companies);
 
-            Page<Company> resultsPage = service.getAllCompanies(1);
+            Page<Company> resultsPage = service.getAllCompanies(1, 10);
             assertTrue(resultsPage.getResults().get(0).equals(company));
-            Mockito.verify(companyDAO).findAll(1);
+            Mockito.verify(companyDAO).findAll(1, 10);
 
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -153,12 +170,29 @@ public class GeneralServiceTest {
     @Test
     public void getAllCompaniesWithInvalidPageNumber() {
         try {
-            Mockito.when(companyDAO.findAll(-1)).thenReturn(null);
+            Mockito.when(companyDAO.findAll(-1, 10)).thenReturn(null);
 
             // get all companies with negative page number
-            Page<Company> resultsPageNegative = service.getAllCompanies(-1);
+            Page<Company> resultsPageNegative = service.getAllCompanies(-1, 10);
             assertNull(resultsPageNegative);
-            Mockito.verify(companyDAO).findAll(-1);
+            Mockito.verify(companyDAO).findAll(-1, 10);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+    }
+
+    /**
+     * Test if the getAllCompanies method work properly when the results per page is incorrect.
+     */
+    @Test
+    public void getAllCompaniesWithInvalidResultsPerPage() {
+        try {
+            Mockito.when(companyDAO.findAll(1, 1)).thenReturn(null);
+
+            // get all companies with negative page number
+            Page<Company> resultsPageNegative = service.getAllCompanies(1, -1);
+            assertNull(resultsPageNegative);
+            Mockito.verify(companyDAO).findAll(1, -1);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -170,11 +204,11 @@ public class GeneralServiceTest {
     @Test
     public void getAllCompaniesWithSQLException() {
         try {
-            Mockito.when(companyDAO.findAll(1)).thenThrow(SQLException.class);
+            Mockito.when(companyDAO.findAll(1, 10)).thenThrow(SQLException.class);
             // Test SQL error
-            Page<Company> resultsPageException = service.getAllCompanies(1);
+            Page<Company> resultsPageException = service.getAllCompanies(1, 10);
             assertNull(resultsPageException);
-            Mockito.verify(companyDAO).findAll(1);
+            Mockito.verify(companyDAO).findAll(1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }

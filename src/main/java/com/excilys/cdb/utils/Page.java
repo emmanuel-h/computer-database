@@ -17,7 +17,7 @@ public class Page<T> {
     /**
      * Number of results per page.
      */
-    private static final int RESULTS_PER_PAGE = 5;
+    private int resultsPerPage = 5;
 
     /**
      * The asked page to display.
@@ -27,7 +27,7 @@ public class Page<T> {
     /**
      * The maximum number of pages which can be displayed.
      */
-    private int maxResult;
+    private int maxPage;
 
     public List<T> getResults() {
         return results;
@@ -38,7 +38,11 @@ public class Page<T> {
     }
 
     public int getResultsPerPage() {
-        return RESULTS_PER_PAGE;
+        return resultsPerPage;
+    }
+
+    public void setResultsPerPage(int resultsPerPage) {
+        this.resultsPerPage = resultsPerPage;
     }
 
     public int getCurrentPage() {
@@ -49,11 +53,11 @@ public class Page<T> {
         this.currentPage = currentPage;
     }
 
-    public int getMaxResult() {
-        return maxResult;
+    public int getMaxPage() {
+        return maxPage;
     }
 
-    public void setMaxResult(int maxResult) {
-        this.maxResult = maxResult;
+    public void setMaxPage(int maxPage) {
+        this.maxPage = maxPage;
     }
 }

@@ -30,8 +30,8 @@ public class ComputerDAO implements DAO<Computer> {
      */
     private static ComputerDAO computerDAO;
 
-    private final String FIND_ALL_COMPUTERS = "SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?,?";
-    private final String FIND_ALL_MANUFACTURERS = "SELECT company.id, company.name FROM company, computer WHERE computer.company_id = company.id";
+    private final String FIND_ALL_COMPUTERS = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
+            + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id LIMIT ?,?";
     private final String FIND_COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
     private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
@@ -39,7 +39,7 @@ public class ComputerDAO implements DAO<Computer> {
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
             + "discontinued = ?, company_id= ? WHERE computer.id = ?";
-    private final String COUNT_COMPUTER = "SELECT COUNT(id) FROM computer";
+    private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM computer";
 
     /**
      * The constructor with a Connection.
@@ -62,40 +62,37 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     @Override
-    public Page<Computer> findAll(int currentPage) throws SQLException {
-        if (currentPage < 0) {
+    public Page<Computer> findAll(int currentPage, int maxResults) throws SQLException {
+        if (currentPage < 1 || maxResults < 1) {
             return null;
         }
-        // First query to retrieve list of companies which are computer's manufacturers,
-        // in order to avoid duplicates.
-        PreparedStatement statementCompanies = connection.prepareStatement(FIND_ALL_MANUFACTURERS);
-        List<Company> companies = new ArrayList<>();
-        Page<Computer> page = new Page<>();
-        ResultSet rSetCompanies = statementCompanies.executeQuery();
-        while (rSetCompanies.next()) {
-            companies.add(new Company(rSetCompanies.getInt("id"), rSetCompanies.getString("name")));
-        }
-        // ResultSet and Statement are close in order to reuse them
-        rSetCompanies.close();
-        statementCompanies.close();
 
-        // Second query which retrieve all computers
         List<Computer> computers = new ArrayList<>();
         PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPUTERS);
-        statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
-        statement.setInt(2, page.getResultsPerPage());
+        statement.setInt(1, (currentPage - 1) * maxResults);
+        statement.setInt(2, maxResults);
         ResultSet rs = statement.executeQuery();
-
         Company company;
         while (rs.next()) {
-            int companyId = rs.getInt("company_id");
-            // The company is found from the companies list created before
-            company = companies.stream().filter(a -> a.getId() == companyId).findFirst().orElse(null);
+            company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
             computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
                     .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
                     .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
                     .manufacturer(company).build());
         }
+        rs.close();
+        statement.close();
+
+        Page<Computer> page = new Page<>();
+        page.setResultsPerPage(maxResults);
+
+        // Count max pages
+        statement = connection.prepareStatement(COUNT_COMPUTERS);
+        rs = statement.executeQuery();
+        if (rs.next()) {
+            page.setMaxPage(rs.getInt(1) / page.getResultsPerPage());
+        }
+
         page.setCurrentPage(currentPage);
         page.setResults(computers);
         return page;
@@ -205,7 +202,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public int count() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTER);
+        PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
         ResultSet rSet = statement.executeQuery();
         if (rSet.next()) {
             return rSet.getInt(1);

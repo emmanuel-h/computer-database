@@ -32,7 +32,7 @@ public class CompanyDAO implements DAO<Company> {
     private final String ADD_COMPANY = "INSERT INTO company (name) VALUES (?)";
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
-    private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
+    private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM company";
 
     /**
      * Default constructor with a Connection.
@@ -55,8 +55,8 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public Page<Company> findAll(int currentPage) throws SQLException {
-        if (currentPage < 0) {
+    public Page<Company> findAll(int currentPage, int maxResults) throws SQLException {
+        if (currentPage < 1 || maxResults < 1) {
             return null;
         }
         Page<Company> page = new Page<>();
@@ -74,10 +74,10 @@ public class CompanyDAO implements DAO<Company> {
         statement.close();
 
         // Count max pages
-        statement = connection.prepareStatement(MAX_PAGE);
+        statement = connection.prepareStatement(COUNT_COMPANIES);
         rs = statement.executeQuery();
         if (rs.next()) {
-            page.setMaxResult(rs.getInt(1) / page.getResultsPerPage());
+            page.setMaxPage(rs.getInt(1) / page.getResultsPerPage());
         }
 
         page.setCurrentPage(currentPage);
@@ -86,10 +86,10 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public Company findById(long l) throws SQLException {
+    public Company findById(long id) throws SQLException {
         Company company = null;
         PreparedStatement statement = connection.prepareStatement(FIND_COMPANY_BY_ID);
-        statement.setLong(1, l);
+        statement.setLong(1, id);
         ResultSet rs = statement.executeQuery();
         if (rs.next()) {
             company = new Company(rs.getInt("id"), rs.getString("name"));

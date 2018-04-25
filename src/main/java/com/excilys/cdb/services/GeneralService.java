@@ -71,11 +71,12 @@ public class GeneralService {
     /**
      * Ask the computer DAO to have a page of computers.
      * @param currentPage The page number to have
+     * @param maxResults    The number of items to display
      * @return The page object corresponding to the criteria
      */
-    public Page<Computer> getAllComputers(int currentPage) {
+    public Page<Computer> getAllComputers(int currentPage, int maxResults) {
         try {
-            return this.computerDAO.findAll(currentPage);
+            return this.computerDAO.findAll(currentPage, maxResults);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -84,12 +85,13 @@ public class GeneralService {
 
     /**
      * Ask the company DAO to have a page of companies.
-     * @param currentPage The page number to have
-     * @return The page object corresponding to the criteria
+     * @param currentPage   The page number to have
+     * @param maxResults    The number of items to display
+     * @return              The page object corresponding to the criteria
      */
-    public Page<Company> getAllCompanies(int currentPage) {
+    public Page<Company> getAllCompanies(int currentPage, int maxResults) {
         try {
-            return this.companyDAO.findAll(currentPage);
+            return this.companyDAO.findAll(currentPage, maxResults);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }

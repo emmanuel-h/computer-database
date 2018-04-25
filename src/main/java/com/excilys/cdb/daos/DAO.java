@@ -9,10 +9,11 @@ public interface DAO<T> {
     /**
      * Find all the objects for the corresponding page.
      * @param currentPage   The page to display
+     * @param maxResults    The number of result per page
      * @return              A Page object with the informations
      * @throws SQLException If there is a problem with the SQL request
      */
-    Page<T> findAll(int currentPage) throws SQLException;
+    Page<T> findAll(int currentPage, int maxResults) throws SQLException;
 
     /**
      * Find an object with his identifier.

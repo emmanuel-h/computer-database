@@ -52,7 +52,7 @@ public class DashBoardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int numberOfComputers = service.countComputers();
-        Page<Computer> firstPage = service.getAllComputers(1);
+        Page<Computer> firstPage = service.getAllComputers(1, 10);
 
         request.setAttribute("nbComputers", numberOfComputers);
         request.setAttribute("computerList", firstPage.getResults());
