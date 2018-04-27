@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="mylib" uri="/WEB-INF/taglibs/paginator.tld"%>
+<%@ taglib prefix="mylib" uri="/WEB-INF/taglibs/mylib.tld"%>
 
 <!DOCTYPE html>
 <html>
@@ -96,17 +96,13 @@
 				page="${page}" totalPages="${maxPage}"
 				results="${results}" />
 
-			<c:url var="myURLWithPage" value="dashboard">
-				<c:param name="page" value="${page}" />
-			</c:url>
-
 			<div class="btn-group btn-group-sm pull-right" role="group">
 				<a class="btn btn-default"
-					href="${myURLWithPage}&results=10">10</a> <a
+					href=<mylib:link target="dashboard" page="${page}" limit="10"/>>10</a> <a
 					class="btn btn-default"
-					href="${myURLWithPage}&results=50">50</a> <a
+					href=<mylib:link target="dashboard" page="${page}" limit="50"/>>50</a> <a
 					class="btn btn-default"
-					href="${myURLWithPage}&results=100">100</a>
+					href=<mylib:link target="dashboard" page="${page}" limit="100"/>>100</a>
 			</div>
 
 		</div>

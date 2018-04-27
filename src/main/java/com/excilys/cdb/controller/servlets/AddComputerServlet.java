@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class AddComputerServlet.
+ * Servlet implementation class AddComputeit arServlet.
  */
 @WebServlet(name = "AddComputerServlet", urlPatterns = { "/addComputer" })
 public class AddComputerServlet extends HttpServlet {
@@ -28,17 +28,14 @@ public class AddComputerServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        response.getWriter().append("Served at: ").append(request.getContextPath());
-    }
+        doPost(request, response);    }
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        doGet(request, response);
+        this.getServletContext().getRequestDispatcher("/pages/addComputer.jsp").forward(request, response);
     }
 
 }
