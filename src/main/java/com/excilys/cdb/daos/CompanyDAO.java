@@ -77,7 +77,7 @@ public class CompanyDAO implements DAO<Company> {
         statement = connection.prepareStatement(COUNT_COMPANIES);
         rs = statement.executeQuery();
         if (rs.next()) {
-            double maxPage = rs.getInt(1) / page.getResultsPerPage();
+            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
             page.setMaxPage((int) Math.ceil(maxPage));
         }
 

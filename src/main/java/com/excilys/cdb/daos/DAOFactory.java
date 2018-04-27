@@ -61,8 +61,8 @@ public class DAOFactory {
             // Retrieve the properties file to initiate the connection
             Properties properties = new Properties();
             String propFileName = "config-db.properties";
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
-            properties.load(inputStream);
+            InputStream path = ClassLoader.getSystemClassLoader().getResourceAsStream(propFileName);
+            properties.load(path);
 
             String databaseURL = properties.getProperty("database-url");
             String user = properties.getProperty("database-user");
