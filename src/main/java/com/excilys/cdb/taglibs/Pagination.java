@@ -40,21 +40,20 @@ public class Pagination extends SimpleTagSupport {
         try {
             out.write("<ul class=\"pagination\">");
 
-            if (page > 1) {
-                out.write(constructLink(page - 1, "Previous"));
+            out.write(page == 1
+                    ? "<li class=\"disabled\"><a><<</a></li>" + "<li class=\"disabled\"><a><</a></li>"
+                    : constructLink(1, "<<") + constructLink(page - 1, "<"));
+
+            for (int i = pgStart; i < pgEnd; i++) {
+                out.write(i == page
+                        ? "<li class=\"active\"><a>" + page + "</a></li>"
+                                : constructLink(i));
             }
 
-            for (int i = pgStart; i < pgEnd && i <= 10; i++) {
-                if (i == page) {
-                    out.write("<li class=\"active\"><a href=\"##\">" + page + "</a></li>");
-                } else {
-                    out.write(constructLink(i));
-                }
-            }
+            out.write(lastPage
+                    ? "<li class=\"disabled\"><a>></a></li>" + "<li class=\"disabled\"><a>>></a></li>"
+                    : constructLink(page + 1, ">") + constructLink(totalPages, ">>"));
 
-            if (!lastPage) {
-                out.write(constructLink(page + 1, "Next"));
-            }
             out.write("</ul>");
 
         } catch (java.io.IOException ex) {

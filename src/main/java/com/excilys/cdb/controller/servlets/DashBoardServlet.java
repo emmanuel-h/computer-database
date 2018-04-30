@@ -55,16 +55,6 @@ public class DashBoardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
-    }
-
-    /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
         // First retrieve the different variables
         int numberOfComputers = service.countComputers();
         int resultsPerPage = (null != request.getParameter("results")) ? Integer.parseInt(request.getParameter("results")) : 10;
@@ -75,7 +65,7 @@ public class DashBoardServlet extends HttpServlet {
             currentPage = (int) Math.ceil((double) numberOfComputers / (double) resultsPerPage);
         }
 
-        Page<Computer> page = service.getAllComputers(currentPage, resultsPerPage);
+        Page<Computer> page = service.getAllComputersWithPaging(currentPage, resultsPerPage);
         List<ComputerDTO> computerList = new ArrayList<>();
         for (Computer computer : page.getResults()) {
             computerList.add(ComputerConvertor.computerToDTO(computer));
@@ -87,6 +77,16 @@ public class DashBoardServlet extends HttpServlet {
         request.setAttribute("page", page.getCurrentPage());
 
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
+    }
+
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 
 }

@@ -68,14 +68,15 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>selenium</artifactId>
-      <version>1.7.1</version>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>3.11.0</version>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
+
 
       <plugin>
 	  		 <!-- ( 1 ) plugin info -->

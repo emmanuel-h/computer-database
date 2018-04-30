@@ -1,6 +1,8 @@
 package com.excilys.cdb.services;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +76,9 @@ public class GeneralService {
      * @param maxResults    The number of items to display
      * @return The page object corresponding to the criteria
      */
-    public Page<Computer> getAllComputers(int currentPage, int maxResults) {
+    public Page<Computer> getAllComputersWithPaging(int currentPage, int maxResults) {
         try {
-            return this.computerDAO.findAll(currentPage, maxResults);
+            return this.computerDAO.findAllWithPaging(currentPage, maxResults);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -89,9 +91,9 @@ public class GeneralService {
      * @param maxResults    The number of items to display
      * @return              The page object corresponding to the criteria
      */
-    public Page<Company> getAllCompanies(int currentPage, int maxResults) {
+    public Page<Company> getAllCompaniesWithPaging(int currentPage, int maxResults) {
         try {
-            return this.companyDAO.findAll(currentPage, maxResults);
+            return this.companyDAO.findAllWithPaging(currentPage, maxResults);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -204,6 +206,19 @@ public class GeneralService {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
         return -1;
+    }
+
+    /**
+     * List all the existing companies.
+     * @return  The list of companies
+     */
+    public List<Company> findAllCompanies() {
+        try {
+            return companyDAO.findAll();
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+        return new ArrayList<Company>();
     }
 
 }

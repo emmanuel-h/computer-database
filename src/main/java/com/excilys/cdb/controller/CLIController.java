@@ -89,20 +89,20 @@ public class CLIController {
                 choice = ChoiceMenu.get(ui.home());
                 switch (choice) {
                 case LISTCOMPUTERS:
-                    computers = service.getAllComputers(1, 5);
+                    computers = service.getAllComputersWithPaging(1, 5);
                     choicePage = ui.displayComputers(computers);
                     while (choicePage.equals("p")) {
                         id = ui.askPage();
-                        computers = service.getAllComputers(id, 5);
+                        computers = service.getAllComputersWithPaging(id, 5);
                         choicePage = ui.displayComputers(computers);
                     }
                     break;
                 case LISTCOMPANIES:
-                    companies = service.getAllCompanies(1, 5);
+                    companies = service.getAllCompaniesWithPaging(1, 5);
                     choicePage = ui.displayCompanies(companies);
                     while (choicePage.equals("p")) {
                         id = ui.askPage();
-                        companies = service.getAllCompanies(id, 5);
+                        companies = service.getAllCompaniesWithPaging(id, 5);
                         choicePage = ui.displayCompanies(companies);
                     }
                     break;
