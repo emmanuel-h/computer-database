@@ -27,7 +27,8 @@ public class CompanyDAO implements DAO<Company> {
      */
     private static CompanyDAO companyDAO;
 
-    private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company LIMIT ?,?";
+    private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company";
+    private final String FIND_ALL_COMPANIES_WITH_PAGING = "SELECT id, name FROM company LIMIT ?,?";
     private final String FIND_COMPANY_BY_ID = "SELECT id, name FROM company WHERE id=?";
     private final String ADD_COMPANY = "INSERT INTO company (name) VALUES (?)";
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
@@ -55,13 +56,13 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public Page<Company> findAll(int currentPage, int maxResults) throws SQLException {
+    public Page<Company> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
-        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
+        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING);
         statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
         statement.setInt(2, page.getResultsPerPage());
         ResultSet rs = statement.executeQuery();
@@ -77,7 +78,7 @@ public class CompanyDAO implements DAO<Company> {
         statement = connection.prepareStatement(COUNT_COMPANIES);
         rs = statement.executeQuery();
         if (rs.next()) {
-            double maxPage = rs.getInt(1) / page.getResultsPerPage();
+            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
             page.setMaxPage((int) Math.ceil(maxPage));
         }
 
@@ -135,5 +136,20 @@ public class CompanyDAO implements DAO<Company> {
             return null;
         }
         return company;
+    }
+
+    /**
+     * Find all companies.
+     * @return              The list of companies, or an empty List if there is no one
+     * @throws SQLException If there is a problem with the SQL request
+     */
+    public List<Company> findAll() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
+        ResultSet rs = statement.executeQuery();
+        List<Company> companies = new ArrayList<>();
+        while (rs.next()) {
+            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        }
+        return companies;
     }
 }

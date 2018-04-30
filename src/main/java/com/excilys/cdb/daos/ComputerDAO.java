@@ -62,7 +62,7 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     @Override
-    public Page<Computer> findAll(int currentPage, int maxResults) throws SQLException {
+    public Page<Computer> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
@@ -90,7 +90,7 @@ public class ComputerDAO implements DAO<Computer> {
         statement = connection.prepareStatement(COUNT_COMPUTERS);
         rs = statement.executeQuery();
         if (rs.next()) {
-            double maxPage = rs.getInt(1) / page.getResultsPerPage();
+            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
             page.setMaxPage((int) Math.ceil(maxPage));
         }
 

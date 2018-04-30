@@ -13,7 +13,7 @@ public interface DAO<T> {
      * @return              A Page object with the informations
      * @throws SQLException If there is a problem with the SQL request
      */
-    Page<T> findAll(int currentPage, int maxResults) throws SQLException;
+    Page<T> findAllWithPaging(int currentPage, int maxResults) throws SQLException;
 
     /**
      * Find an object with his identifier.
