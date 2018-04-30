@@ -62,7 +62,7 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     @Override
-    public Page<Computer> findAll(int currentPage, int maxResults) throws SQLException {
+    public Page<Computer> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
