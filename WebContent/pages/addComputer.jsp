@@ -32,7 +32,7 @@
 								<label for="computerName">Computer name</label> <input
 									type="text" class="form-control" name="name" id="name"
 									placeholder="Computer name" required>
-									<label id="nameProblem" hidden class="error text-danger">This field is required</label>
+									<label id="nameProblem" hidden=true class="error text-danger">This field is required</label>
 							</div>
 							<div class="form-group">
 								<label for="introduced">Introduced date</label> <input

@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller.servlets;
+package com.excilys.cdb.controllers.servlets;
 
 import java.io.IOException;
 import java.time.LocalDate;

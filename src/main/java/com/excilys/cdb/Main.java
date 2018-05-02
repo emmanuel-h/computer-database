@@ -1,6 +1,6 @@
 package com.excilys.cdb;
 
-import com.excilys.cdb.controller.CLIController;
+import com.excilys.cdb.controllers.CLIController;
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.services.GeneralService;
 import com.excilys.cdb.ui.CLI;

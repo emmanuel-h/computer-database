@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller;
+package com.excilys.cdb.controllers;
 
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
