@@ -3,8 +3,8 @@ package com.excilys.cdb.services;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +16,7 @@ import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
+import com.excilys.cdb.validators.ComputerValidator;
 
 public class GeneralService {
 
@@ -77,13 +78,13 @@ public class GeneralService {
      * @param maxResults    The number of items to display
      * @return The page object corresponding to the criteria
      */
-    public Page<Computer> getAllComputersWithPaging(int currentPage, int maxResults) {
+    public Optional<Page<Computer>> getAllComputersWithPaging(int currentPage, int maxResults) {
         try {
-            return this.computerDAO.findAllWithPaging(currentPage, maxResults);
+            return Optional.ofNullable(this.computerDAO.findAllWithPaging(currentPage, maxResults));
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -92,13 +93,13 @@ public class GeneralService {
      * @param maxResults    The number of items to display
      * @return              The page object corresponding to the criteria
      */
-    public Page<Company> getAllCompaniesWithPaging(int currentPage, int maxResults) {
+    public Optional<Page<Company>> getAllCompaniesWithPaging(int currentPage, int maxResults) {
         try {
-            return this.companyDAO.findAllWithPaging(currentPage, maxResults);
+            return Optional.ofNullable(this.companyDAO.findAllWithPaging(currentPage, maxResults));
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -126,11 +127,11 @@ public class GeneralService {
         if (null == computer) {
             throw new GeneralServiceException(NULL_COMPUTER);
         }
-        if (StringUtils.isBlank(computer.getName())) {
+        if (!ComputerValidator.validName(computer.getName())) {
             throw new GeneralServiceException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
-            if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+            if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
                 throw new GeneralServiceException(DATE_PROBLEM);
             }
         }
@@ -155,15 +156,15 @@ public class GeneralService {
      * @throws GeneralServiceException If the computer is null, doesn't have a name,
      *             dates are incorrect or manufacturer is unknown
      */
-    public Computer updateComputer(Computer computer) throws GeneralServiceException {
+    public Optional<Computer> updateComputer(Computer computer) throws GeneralServiceException {
         if (null == computer) {
             throw new GeneralServiceException(NULL_COMPUTER);
         }
-        if (StringUtils.isBlank(computer.getName())) {
+        if (!ComputerValidator.validName(computer.getName())) {
             throw new GeneralServiceException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
-            if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+            if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
                 throw new GeneralServiceException(DATE_PROBLEM);
             }
         }
@@ -174,11 +175,11 @@ public class GeneralService {
                     throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
                 }
             }
-            return computerDAO.update(computer);
+            return Optional.of(computerDAO.update(computer));
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

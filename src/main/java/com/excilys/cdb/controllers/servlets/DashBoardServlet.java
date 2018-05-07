@@ -3,6 +3,7 @@ package com.excilys.cdb.controllers.servlets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -65,17 +66,29 @@ public class DashBoardServlet extends HttpServlet {
             currentPage = (int) Math.ceil((double) numberOfComputers / (double) resultsPerPage);
         }
 
-        Page<Computer> page = service.getAllComputersWithPaging(currentPage, resultsPerPage);
+        Optional<Page<Computer>> pageOptional = service.getAllComputersWithPaging(currentPage, resultsPerPage);
         List<ComputerDTO> computerList = new ArrayList<>();
-        for (Computer computer : page.getResults()) {
-            computerList.add(ComputerConvertor.computerToDTO(computer));
+        if (pageOptional.isPresent()) {
+            Page<Computer> page = pageOptional.get();
+            for (Computer computer : page.getResults()) {
+                computerList.add(ComputerConvertor.computerToDTO(computer));
+            }
+            request.setAttribute("nbComputers", numberOfComputers);
+            request.setAttribute("computerList", computerList);
+            request.setAttribute("results", page.getResultsPerPage());
+            request.setAttribute("maxPage", page.getMaxPage());
+            request.setAttribute("page", page.getCurrentPage());
+        } else {
+            Page<Computer> page = pageOptional.get();
+            for (Computer computer : page.getResults()) {
+                computerList.add(ComputerConvertor.computerToDTO(computer));
+            }
+            request.setAttribute("nbComputers", numberOfComputers);
+            request.setAttribute("computerList", computerList);
+            request.setAttribute("results", resultsPerPage);
+            request.setAttribute("maxPage", 1);
+            request.setAttribute("page", 1);
         }
-        request.setAttribute("nbComputers", numberOfComputers);
-        request.setAttribute("computerList", computerList);
-        request.setAttribute("results", page.getResultsPerPage());
-        request.setAttribute("maxPage", page.getMaxPage());
-        request.setAttribute("page", page.getCurrentPage());
-
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
     }
 

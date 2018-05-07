@@ -1,5 +1,7 @@
 package com.excilys.cdb.controllers;
 
+import java.util.Optional;
+
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -78,8 +80,8 @@ public class CLIController {
     public void run() {
         boolean stop = false;
         ChoiceMenu choice;
-        Page<Computer> computers;
-        Page<Company> companies;
+        Optional<Page<Computer>> computers;
+        Optional<Page<Company>> companies;
         Computer computer;
         Computer computerToUpdate;
         int id;

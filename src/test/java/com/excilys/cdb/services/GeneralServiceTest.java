@@ -2,13 +2,13 @@ package com.excilys.cdb.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -83,8 +83,11 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.findAllWithPaging(1, 10)).thenReturn(computers);
 
-            Page<Computer> resultsPage = service.getAllComputersWithPaging(1, 10);
-            assertTrue(resultsPage.getResults().get(0).equals(computer));
+            Optional<Page<Computer>> resultsPageOptional = service.getAllComputersWithPaging(1, 10);
+            if (resultsPageOptional.isPresent()) {
+                Page<Computer> resultsPage = resultsPageOptional.get();
+                assertTrue(resultsPage.getResults().get(0).equals(computer));
+            }
             Mockito.verify(computerDAO).findAllWithPaging(1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -100,8 +103,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.findAllWithPaging(1, -1)).thenReturn(null);
 
-            Page<Computer> resultsPageNegative = service.getAllComputersWithPaging(1, -1);
-            assertNull(resultsPageNegative);
+            Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(1, -1);
+            assertFalse(resultsPageNegative.isPresent());
             Mockito.verify(computerDAO).findAllWithPaging(1, -1);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -117,8 +120,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.findAllWithPaging(-1, 10)).thenReturn(null);
 
-            Page<Computer> resultsPageNegative = service.getAllComputersWithPaging(-1, 10);
-            assertNull(resultsPageNegative);
+            Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(-1, 10);
+            assertFalse(resultsPageNegative.isPresent());
             Mockito.verify(computerDAO).findAllWithPaging(-1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -133,8 +136,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
 
-            Page<Computer> resultsPageException = service.getAllComputersWithPaging(1, 10);
-            assertNull(resultsPageException);
+            Optional<Page<Computer>> resultsPageException = service.getAllComputersWithPaging(1, 10);
+            assertFalse(resultsPageException.isPresent());
             Mockito.verify(computerDAO).findAllWithPaging(1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -155,8 +158,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenReturn(companies);
 
-            Page<Company> resultsPage = service.getAllCompaniesWithPaging(1, 10);
-            assertTrue(resultsPage.getResults().get(0).equals(company));
+            Optional<Page<Company>> resultsPage = service.getAllCompaniesWithPaging(1, 10);
+            assertTrue(resultsPage.get().getResults().get(0).equals(company));
             Mockito.verify(companyDAO).findAllWithPaging(1, 10);
 
         } catch (SQLException e) {
@@ -173,8 +176,8 @@ public class GeneralServiceTest {
             Mockito.when(companyDAO.findAllWithPaging(-1, 10)).thenReturn(null);
 
             // get all companies with negative page number
-            Page<Company> resultsPageNegative = service.getAllCompaniesWithPaging(-1, 10);
-            assertNull(resultsPageNegative);
+            Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(-1, 10);
+            assertFalse(resultsPageNegative.isPresent());
             Mockito.verify(companyDAO).findAllWithPaging(-1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -190,8 +193,8 @@ public class GeneralServiceTest {
             Mockito.when(companyDAO.findAllWithPaging(1, -1)).thenReturn(null);
 
             // get all companies with negative page number
-            Page<Company> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
-            assertNull(resultsPageNegative);
+            Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
+            assertFalse(resultsPageNegative.isPresent());
             Mockito.verify(companyDAO).findAllWithPaging(1, -1);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -206,8 +209,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
             // Test SQL error
-            Page<Company> resultsPageException = service.getAllCompaniesWithPaging(1, 10);
-            assertNull(resultsPageException);
+            Optional<Page<Company>> resultsPageException = service.getAllCompaniesWithPaging(1, 10);
+            assertFalse(resultsPageException.isPresent());
             Mockito.verify(companyDAO).findAllWithPaging(1, 10);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
@@ -395,12 +398,15 @@ public class GeneralServiceTest {
             Mockito.when(computerDAO.update(computer)).thenReturn(computer);
             Mockito.when(companyDAO.findById(1L)).thenReturn(manufacturer);
 
-            Computer computerUpdated = service.updateComputer(computer);
-            assertEquals(computerUpdated.getId(), computer.getId());
-            assertEquals(computerUpdated.getName(), computer.getName());
-            assertEquals(computerUpdated.getIntroduced(), computer.getIntroduced());
-            assertEquals(computerUpdated.getDiscontinued(), computer.getDiscontinued());
-            assertEquals(computerUpdated.getManufacturer().getId(), computer.getManufacturer().getId());
+            Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
+            if (computerUpdatedOptional.isPresent()) {
+                Computer computerUpdated = computerUpdatedOptional.get();
+                assertEquals(computerUpdated.getId(), computer.getId());
+                assertEquals(computerUpdated.getName(), computer.getName());
+                assertEquals(computerUpdated.getIntroduced(), computer.getIntroduced());
+                assertEquals(computerUpdated.getDiscontinued(), computer.getDiscontinued());
+                assertEquals(computerUpdated.getManufacturer().getId(), computer.getManufacturer().getId());
+            }
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -455,9 +461,12 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.update(computer)).thenReturn(computer);
 
-            Computer computerUpdated = service.updateComputer(computer);
-            assertEquals(computerUpdated.getId(), computer.getId());
-            assertTrue(computerUpdated.getName().equals(computer.getName()));
+            Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
+            if (computerUpdatedOptional.isPresent()) {
+                Computer computerUpdated = computerUpdatedOptional.get();
+                assertEquals(computerUpdated.getId(), computer.getId());
+                assertTrue(computerUpdated.getName().equals(computer.getName()));
+            }
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -475,8 +484,8 @@ public class GeneralServiceTest {
         try {
             Mockito.when(computerDAO.update(computer)).thenThrow(SQLException.class);
 
-            Computer computerUpdated = service.updateComputer(computer);
-            assertNull(computerUpdated);
+            Optional<Computer> computerUpdated = service.updateComputer(computer);
+            assertFalse(computerUpdated.isPresent());
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
