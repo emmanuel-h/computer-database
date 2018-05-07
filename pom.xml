@@ -24,6 +24,7 @@
     <javax.servlet.jsp.version>2.3.1</javax.servlet.jsp.version>
     <mysql.maven.version>1.5</mysql.maven.version>
     <maven.lang.version>3.7</maven.lang.version>
+    <hikari.version>2.7.8</hikari.version>
   </properties>
 
   <dependencies>
@@ -80,6 +81,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${maven.lang.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>${hikari.version}</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

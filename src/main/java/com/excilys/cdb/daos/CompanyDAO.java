@@ -18,11 +18,6 @@ import com.excilys.cdb.utils.Page;
 public class CompanyDAO implements DAO<Company> {
 
     /**
-     * The connection to the database.
-     */
-    private Connection connection;
-
-    /**
      * The singleton's instance of CompanyDAO.
      */
     private static CompanyDAO companyDAO;
@@ -37,20 +32,17 @@ public class CompanyDAO implements DAO<Company> {
 
     /**
      * Default constructor with a Connection.
-     * @param connection The connection
      */
-    private CompanyDAO(Connection connection) {
-        this.connection = connection;
+    private CompanyDAO() {
     }
 
     /**
      * Return the singleton's instance of companyDAO.
-     * @param connection The database connection.
      * @return The companyDAO's instance
      */
-    public static CompanyDAO getInstance(Connection connection) {
+    public static CompanyDAO getInstance() {
         if (null == companyDAO) {
-            companyDAO = new CompanyDAO(connection);
+            companyDAO = new CompanyDAO();
         }
         return companyDAO;
     }
@@ -62,28 +54,28 @@ public class CompanyDAO implements DAO<Company> {
         }
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
-        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING);
-        statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
-        statement.setInt(2, page.getResultsPerPage());
-        ResultSet rs = statement.executeQuery();
 
-        while (rs.next()) {
-            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING)) {
+            statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
+            statement.setInt(2, page.getResultsPerPage());
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+                }
+            }
         }
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(COUNT_COMPANIES);
+                ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                double maxPage = (double) rs.getInt(1) / page.getResultsPerPage();
+                page.setMaxPage((int) Math.ceil(maxPage));
+            }
 
-        rs.close();
-        statement.close();
-
-        // Count max pages
-        statement = connection.prepareStatement(COUNT_COMPANIES);
-        rs = statement.executeQuery();
-        if (rs.next()) {
-            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
-            page.setMaxPage((int) Math.ceil(maxPage));
+            page.setCurrentPage(currentPage);
+            page.setResults(companies);
         }
-
-        page.setCurrentPage(currentPage);
-        page.setResults(companies);
         return page;
     }
 

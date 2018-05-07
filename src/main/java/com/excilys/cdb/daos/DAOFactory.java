@@ -1,16 +1,14 @@
 package com.excilys.cdb.daos;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.exceptions.FactoryException;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * The DAOFactory is used to have instances of class implementing the DAO.
@@ -20,9 +18,9 @@ import com.excilys.cdb.exceptions.FactoryException;
 public class DAOFactory {
 
     /**
-     * The database connection.
+     * The Hikari datasource.
      */
-    private static Connection connection;
+    private static HikariDataSource dataSource;
 
     /**
      * The static reference to the DAOFactory.
@@ -30,7 +28,7 @@ public class DAOFactory {
     private static DAOFactory daoFactory;
 
     /**
-     * The differents DAO types which exist.
+     * The different DAO types which exist.
      * @author emmanuelh
      */
     public enum DaoTypes {
@@ -57,31 +55,12 @@ public class DAOFactory {
      * @throws FactoryException If the database connection failed
      */
     private DAOFactory() throws FactoryException {
-        try {
-            // Retrieve the properties file to initiate the connection
-            Properties properties = new Properties();
-            String propFileName = "config-db.properties";
-            InputStream path = ClassLoader.getSystemClassLoader().getResourceAsStream(propFileName);
-            properties.load(path);
+        HikariConfig config = new HikariConfig("/some/path/hikari.properties");
+        HikariDataSource ds = new HikariDataSource(config);
 
-            String databaseURL = properties.getProperty("database-url");
-            String user = properties.getProperty("database-user");
-            String password = properties.getProperty("database-password");
-
-            // Initiate the connection
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(databaseURL, user, password);
-
-            computerDAO = ComputerDAO.getInstance(connection);
-            companyDAO = CompanyDAO.getInstance(connection);
-            LOGGER.info("Database connected : " + databaseURL);
-        } catch (SQLException e) {
-            throw new FactoryException("Error when initiating SQL connection");
-        } catch (IOException e) {
-            LOGGER.warn("Properties file not found");
-        } catch (ClassNotFoundException e) {
-            LOGGER.warn(e.toString());
-        }
+        computerDAO = ComputerDAO.getInstance();
+        companyDAO = CompanyDAO.getInstance();
+        LOGGER.info("Database connected : " + ds.getDataSourceClassName());
     }
 
     /**
@@ -107,6 +86,15 @@ public class DAOFactory {
         default:
             throw new FactoryException("Bad DAO type");
         }
+    }
+
+    /**
+     * Return the connection from the Hikari datasource.
+     * @return              The connection
+     * @throws SQLException If there is a problem
+     */
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 
     /**
