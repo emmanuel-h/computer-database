@@ -17,6 +17,7 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.ComputerValidator;
+import com.excilys.cdb.validators.ComputersToDeleteValidator;
 
 public class GeneralService {
 
@@ -110,7 +111,12 @@ public class GeneralService {
      */
     public Computer getOneComputer(long id) throws GeneralServiceException {
         try {
-            return this.computerDAO.findById(id);
+            Optional<Computer> computerOptional =  this.computerDAO.findById(id);
+            if (!computerOptional.isPresent()) {
+                throw new GeneralServiceException("The computer is not found");
+            } else {
+                return computerOptional.get();
+            }
         } catch (SQLException e) {
             throw new GeneralServiceException(NULL_COMPUTER);
         }
@@ -137,8 +143,8 @@ public class GeneralService {
         }
         try {
             if (null != computer.getManufacturer()) {
-                Company company = companyDAO.findById(computer.getManufacturer().getId());
-                if (null == company) {
+                Optional<Company> company = companyDAO.findById(computer.getManufacturer().getId());
+                if (!company.isPresent()) {
                     throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
                 }
             }
@@ -170,12 +176,13 @@ public class GeneralService {
         }
         try {
             if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
-                Company company = companyDAO.findById(computer.getManufacturer().getId());
-                if (null == company) {
+                Optional<Company> company = companyDAO.findById(computer.getManufacturer().getId());
+                if (!company.isPresent()) {
                     throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
                 }
             }
-            return Optional.of(computerDAO.update(computer));
+            System.out.println(computer);
+            return Optional.ofNullable(computerDAO.update(computer));
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
@@ -221,6 +228,38 @@ public class GeneralService {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
         return new ArrayList<Company>();
+    }
+
+    /**
+     * Delete a list of computers.
+     * @param toDelete  The list to delete
+     * @return          True if the deletion completes, false if not
+     */
+    public boolean deleteMultipleComputers(String toDelete) {
+        if (ComputersToDeleteValidator.verifyListToDelete(toDelete)) {
+            try {
+                return computerDAO.deleteMultiple(toDelete);
+            } catch (SQLException e) {
+                LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Search a computer or a list of computers.
+     * @param search        The name to search
+     * @param currentPage   The page to display
+     * @param maxResults    The number of results per page
+     * @return              The result of the search
+     */
+    public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults) {
+        try {
+            return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults));
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+        return Optional.empty();
     }
 
 }

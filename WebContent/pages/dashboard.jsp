@@ -23,14 +23,17 @@
 
 	<section id="main">
 		<div class="container">
+            <c:if test="${not empty message}">
+                <div class="alert alert-warning">${message}</div>
+            </c:if>
 			<h1 id="homeTitle">${nbComputers} Computers found</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
-					<form id="searchForm" action="#" method="GET" class="form-inline">
-
+					<form id="searchForm" action="dashboard" method="GET" class="form-inline">
+					    <input type="hidden" name="todo" value="search" />
 						<input type="search" id="searchbox" name="search"
-							class="form-control" placeholder="Search name" /> <input
-							type="submit" id="searchsubmit" value="Filter by name"
+							class="form-control" placeholder="Search name" />
+						 <input type="submit" id="searchsubmit" value="Filter by name"
 							class="btn btn-primary" />
 					</form>
 				</div>
@@ -42,8 +45,9 @@
 			</div>
 		</div>
 
-		<form id="deleteForm" action="#" method="POST">
+		<form id="deleteForm" action="dashboard" method="POST">
 			<input type="hidden" name="selection" value="">
+			<input type="hidden" name="todo" value = "deleteComputer">
 		</form>
 
 		<div class="container" style="margin-top: 10px;">
@@ -74,8 +78,8 @@
 					<c:forEach var="computer" items="${computerList}">
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
-								class="cb" value="0"></td>
-							<td><a href="editComputer.html" onclick="">${computer.name}</a>
+								class="cb" value="${computer.id}"></td>
+							<td><a href="editComputer?id=${computer.id}">${computer.name}</a>
 							</td>
 							<td>${computer.introduced}</td>
 							<td>${computer.discontinued}</td>
@@ -97,14 +101,23 @@
 				results="${results}" />
 
 			<div class="btn-group btn-group-sm pull-right" role="group">
-				<a class="btn btn-default"
-					href=<mylib:link target="dashboard" page="${page}" limit="10"/>>10</a> <a
-					class="btn btn-default"
-					href=<mylib:link target="dashboard" page="${page}" limit="50"/>>50</a> <a
-					class="btn btn-default"
-					href=<mylib:link target="dashboard" page="${page}" limit="100"/>>100</a>
+            <c:if test="${not empty todo}">
+                <a class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="10" todo="${todo}" search="${search}"/>>10</a> <a
+                    class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="50" todo="${todo}" search="${search}"/>>50</a> <a
+                    class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="100" todo="${todo}" search="${search}"/>>100</a>
+            </c:if>
+            <c:if test="${empty todo}">
+                <a class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="10"/>>10</a> <a
+                    class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="50"/>>50</a> <a
+                    class="btn btn-default"
+                    href=<mylib:link target="dashboard" page="${page}" limit="100"/>>100</a>
+            </c:if>
 			</div>
-
 		</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>

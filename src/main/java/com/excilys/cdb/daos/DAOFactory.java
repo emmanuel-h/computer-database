@@ -1,7 +1,10 @@
 package com.excilys.cdb.daos;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +58,20 @@ public class DAOFactory {
      * @throws FactoryException If the database connection failed
      */
     private DAOFactory() throws FactoryException {
-        HikariConfig config = new HikariConfig("/some/path/hikari.properties");
-        HikariDataSource ds = new HikariDataSource(config);
-
-        computerDAO = ComputerDAO.getInstance();
+        Properties prop = new Properties();
+        try (InputStream input = ClassLoader.getSystemClassLoader().getResourceAsStream("datasource.properties")) {
+            prop.load(input);
+            Class.forName("com.mysql.jdbc.Driver");
+            HikariConfig hikariConfig = new HikariConfig(prop);
+            dataSource = new HikariDataSource(hikariConfig);
+        } catch (IOException e) {
+            LOGGER.warn("Error with the property file " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("Error the class name " + e.getMessage());
+        }
         companyDAO = CompanyDAO.getInstance();
-        LOGGER.info("Database connected : " + ds.getDataSourceClassName());
+        computerDAO = ComputerDAO.getInstance();
+        LOGGER.info("Database connected : " + dataSource.getDataSourceClassName());
     }
 
     /**
@@ -102,6 +113,6 @@ public class DAOFactory {
      */
     @Override
     protected void finalize() throws Throwable {
-        connection.close();
+        dataSource.close();
     }
 }

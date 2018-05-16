@@ -42,7 +42,7 @@ public class AddComputerServlet extends HttpServlet {
         try {
             service = GeneralService.getInstance();
         } catch (GeneralServiceException e) {
-            LOGGER.warn("Erreur lors de la création du service : " + e.getMessage());
+            LOGGER.warn("Error when creating the service: " + e.getMessage());
         }
     }
 
@@ -64,6 +64,7 @@ public class AddComputerServlet extends HttpServlet {
         String message = null;
 
         String todo = request.getParameter("todo");
+        System.out.println("llll");
         try {
             if (null != todo) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -72,7 +73,7 @@ public class AddComputerServlet extends HttpServlet {
                 String discontinued = request.getParameter("discontinued");
                 LocalDate introducedDate =  introduced == null || introduced.trim().isEmpty() ? null : LocalDate.parse(introduced, formatter);
                 LocalDate discontinuedDate = discontinued == null || discontinued.trim().isEmpty() ? null : LocalDate.parse(discontinued, formatter);
-                int companyId = request.getParameter("company") != null ? Integer.parseInt(request.getParameter("company")) : -1;
+                long companyId = request.getParameter("company") != null ? Long.parseLong(request.getParameter("company")) : -1;
                 Company company = companies.stream()
                         .filter(c -> c.getId() == companyId)
                         .findFirst()

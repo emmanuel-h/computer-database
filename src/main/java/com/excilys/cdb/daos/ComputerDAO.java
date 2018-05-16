@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -21,11 +22,6 @@ import com.excilys.cdb.utils.Page;
 public class ComputerDAO implements DAO<Computer> {
 
     /**
-     * The connection to the database.
-     */
-    private Connection connection;
-
-    /**
      * The singleton's instance of ComputerDAO.
      */
     private static ComputerDAO computerDAO;
@@ -37,26 +33,26 @@ public class ComputerDAO implements DAO<Computer> {
     private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
             + "VALUES (?, ?, ?, ?)";
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
+    private final String DELETE_MULTIPLE_COMPUTER = "DELETE FROM computer WHERE id in %s";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
             + "discontinued = ?, company_id= ? WHERE computer.id = ?";
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM computer";
+    private final String SEARCH_COMPUTERS = "SELECT company.id, company.name, computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
+            + "FROM computer, company WHERE computer.name LIKE ? LIMIT ?,?";
 
     /**
      * The constructor with a Connection.
-     * @param connection    The connection
      */
-    private ComputerDAO(Connection connection) {
-        this.connection = connection;
+    private ComputerDAO() {
     }
 
     /**
      * Get the singleton's instance of the ComputerDAO.
-     * @param connection    The connection
      * @return              The instance of ComputerDAO
      */
-    public static ComputerDAO getInstance(Connection connection) {
+    public static ComputerDAO getInstance() {
         if (null == computerDAO) {
-            computerDAO = new ComputerDAO(connection);
+            computerDAO = new ComputerDAO();
         }
         return computerDAO;
     }
@@ -68,131 +64,138 @@ public class ComputerDAO implements DAO<Computer> {
         }
 
         List<Computer> computers = new ArrayList<>();
-        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPUTERS);
-        statement.setInt(1, (currentPage - 1) * maxResults);
-        statement.setInt(2, maxResults);
-        ResultSet rs = statement.executeQuery();
-        Company company;
-        while (rs.next()) {
-            company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
-            computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
-                    .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
-                    .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
-                    .manufacturer(company).build());
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPUTERS)) {
+            statement.setInt(1, (currentPage - 1) * maxResults);
+            statement.setInt(2, maxResults);
+            try (ResultSet rs = statement.executeQuery()) {
+                Company company;
+                while (rs.next()) {
+                    company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
+                    computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
+                            .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
+                            .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
+                            .manufacturer(company).build());
+                }
+            }
         }
-        rs.close();
-        statement.close();
 
         Page<Computer> page = new Page<>();
         page.setResultsPerPage(maxResults);
 
-        // Count max pages
-        statement = connection.prepareStatement(COUNT_COMPUTERS);
-        rs = statement.executeQuery();
-        if (rs.next()) {
-            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
-            page.setMaxPage((int) Math.ceil(maxPage));
-        }
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
+                ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                double maxPage = (double) rs.getInt(1) / page.getResultsPerPage();
+                page.setMaxPage((int) Math.ceil(maxPage));
+            }
 
-        page.setCurrentPage(currentPage);
-        page.setResults(computers);
+            page.setCurrentPage(currentPage);
+            page.setResults(computers);
+        }
         return page;
     }
 
     @Override
-    public Computer findById(long id) throws SQLException {
-        Computer computer = null;
-        PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID);
-        statement.setLong(1, id);
-        ResultSet rSet = statement.executeQuery();
-        // If a computer is found, build it...
-        if (rSet.next()) {
-            Company company = new Company(rSet.getLong("company.id"), rSet.getString("company.name"));
-            computer = new Computer.Builder(rSet.getString("computer.name")).id(rSet.getInt("computer.id"))
-                    .introduced(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.introduced")))
-                    .discontinued(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.discontinued")))
-                    .manufacturer(company)
-                    .build();
+    public Optional<Computer> findById(long id) throws SQLException {
+        Optional<Computer> computer = Optional.empty();
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID)) {
+            statement.setLong(1, id);
+            try (ResultSet rSet = statement.executeQuery()) {
+                if (rSet.next()) {
+                    Company company = new Company(rSet.getLong("company.id"), rSet.getString("company.name"));
+                    computer = Optional.of(new Computer.Builder(rSet.getString("computer.name")).id(rSet.getInt("computer.id"))
+                            .introduced(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.introduced")))
+                            .discontinued(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.discontinued")))
+                            .manufacturer(company)
+                            .build());
+                }
+            }
         }
         return computer;
     }
 
     @Override
     public long add(Computer computer) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS)) {
 
-        Timestamp introducedSQL = null;
-        Timestamp discontinuedSQL = null;
+            Timestamp introducedSQL = null;
+            Timestamp discontinuedSQL = null;
 
-        // Check if the dates are null or not
-        if (null != computer.getIntroduced()) {
-            introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
-        }
-        if (null != computer.getDiscontinued()) {
-            discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
-        }
+            if (null != computer.getIntroduced()) {
+                introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
+            }
+            if (null != computer.getDiscontinued()) {
+                discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
+            }
 
-        // Give the statement parameters
-        statement.setString(1, computer.getName());
-        statement.setTimestamp(2, introducedSQL);
-        statement.setTimestamp(3, discontinuedSQL);
-        if (null == computer.getManufacturer()) {
-            statement.setObject(4, null);
-        } else {
-            statement.setLong(4, computer.getManufacturer().getId());
-        }
+            statement.setString(1, computer.getName());
+            statement.setTimestamp(2, introducedSQL);
+            statement.setTimestamp(3, discontinuedSQL);
+            if (null == computer.getManufacturer()) {
+                statement.setObject(4, null);
+            } else {
+                statement.setLong(4, computer.getManufacturer().getId());
+            }
 
-        // Execute the add request
-        statement.executeUpdate();
+            statement.executeUpdate();
 
-        // Retrieve the id of the created object
-        ResultSet rSet = statement.getGeneratedKeys();
-        if (rSet.next()) {
-            return rSet.getInt(1);
+            try (ResultSet rSet = statement.getGeneratedKeys()) {
+                if (rSet.next()) {
+                    return rSet.getInt(1);
+                }
+            }
         }
         return 0;
     }
 
     @Override
     public boolean delete(long id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER);
-        statement.setLong(1, id);
-        int result = statement.executeUpdate();
-        if (result == 0) {
-            return false;
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER)) {
+            statement.setLong(1, id);
+            int result = statement.executeUpdate();
+            if (result == 0) {
+                return false;
+            }
         }
         return true;
     }
 
     @Override
     public Computer update(Computer computer) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER)) {
 
-        Timestamp introducedSQL = null;
-        Timestamp discontinuedSQL = null;
+            Timestamp introducedSQL = null;
+            Timestamp discontinuedSQL = null;
 
-        // Check if the dates are null or not
-        if (null != computer.getIntroduced()) {
-            introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
-        }
-        if (null != computer.getDiscontinued()) {
-            discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
-        }
+            // Check if the dates are null or not
+            if (null != computer.getIntroduced()) {
+                introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
+            }
+            if (null != computer.getDiscontinued()) {
+                discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
+            }
 
-        // Give the statement parameters
-        statement.setString(1, computer.getName());
-        statement.setTimestamp(2, introducedSQL);
-        statement.setTimestamp(3, discontinuedSQL);
-        if (null == computer.getManufacturer()) {
-            statement.setObject(4, null);
-        } else {
-            statement.setLong(4, computer.getManufacturer().getId());
-        }
-        statement.setLong(5, computer.getId());
+            // Give the statement parameters
+            statement.setString(1, computer.getName());
+            statement.setTimestamp(2, introducedSQL);
+            statement.setTimestamp(3, discontinuedSQL);
+            if (null == computer.getManufacturer()) {
+                statement.setObject(4, null);
+            } else {
+                statement.setLong(4, computer.getManufacturer().getId());
+            }
+            statement.setLong(5, computer.getId());
 
-        int result = statement.executeUpdate();
-        if (result == 0) {
-            return null;
+            int result = statement.executeUpdate();
+            if (result == 0) {
+                return null;
+            }
         }
         return computer;
     }
@@ -203,11 +206,63 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public int count() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
-        ResultSet rSet = statement.executeQuery();
-        if (rSet.next()) {
-            return rSet.getInt(1);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
+                ResultSet rSet = statement.executeQuery()) {
+            if (rSet.next()) {
+                return rSet.getInt(1);
+            }
         }
         return -1;
+    }
+
+    /**
+     * Delete a list of computers.
+     * @param toDelete      The list to delete
+     * @return              true if the computers have been deleted, false if not
+     * @throws SQLException If there is a problem with the SQL request
+     */
+    public boolean deleteMultiple(String toDelete) throws SQLException {
+        String query = String.format(DELETE_MULTIPLE_COMPUTER, toDelete);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            int result = statement.executeUpdate();
+            if (result == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Search a computer or a list of computer with a name.
+     * @param name          The name to search
+     * @param currentPage   The page to display
+     * @param maxResults    The number of results per page
+     * @return              The list found
+     * @throws SQLException If there is a problem with the SQL request
+     */
+    public Page<Computer> searchComputer(String name, int currentPage, int maxResults) throws SQLException {
+        List<Computer> computers = new ArrayList<>();
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(SEARCH_COMPUTERS)) {
+            statement.setString(1, '%' + name + '%');
+            statement.setInt(2, (currentPage - 1) * maxResults);
+            statement.setInt(3, maxResults);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Company company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
+                    computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
+                            .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
+                            .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
+                            .manufacturer(company).build());
+                }
+            }
+        }
+        Page<Computer> page = new Page<Computer>();
+        page.setResults(computers);
+        page.setCurrentPage(currentPage);
+        page.setMaxPage(maxResults);
+        return page;
     }
 }
