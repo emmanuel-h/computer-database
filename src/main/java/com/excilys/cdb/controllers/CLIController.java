@@ -1,9 +1,12 @@
-package com.excilys.cdb.controller;
+package com.excilys.cdb.controllers;
 
-import com.excilys.cdb.exceptions.GeneralServiceException;
+import java.util.Optional;
+
+import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.ui.CLI;
 import com.excilys.cdb.utils.Page;
 
@@ -19,16 +22,21 @@ public class CLIController {
     private CLI ui;
 
     /**
-     * The service connected to the model.
+     * The computer service connected to the model.
      */
-    private GeneralService service;
+    private ComputerService computerService;
+
+    /**
+     * The company service connected to the model.
+     */
+    private CompanyService companyService;
 
     /**
      * ChoiceMenu is used for the switch case concerning the return value of the UI.
      * @author emmanuelh
      */
     private enum ChoiceMenu {
-        LISTCOMPUTERS("1"), LISTCOMPANIES("2"), SHOWCOMPUTERDETAILS("3"), CREATECOMPUTER("4"), UPDATECOMPUTER(
+        DELETECOMPANY("0"), LISTCOMPUTERS("1"), LISTCOMPANIES("2"), SHOWCOMPUTERDETAILS("3"), CREATECOMPUTER("4"), UPDATECOMPUTER(
                 "5"), DELETECOMPUTER("6"), QUIT("7"), PAGECOMPANY("pc");
         private String choice;
 
@@ -55,6 +63,9 @@ public class CLIController {
         }
     };
 
+    private final String COMPUTER = "computer";
+    private final String COMPANY = "company";
+
     /**
      * Blank constructor.
      */
@@ -65,11 +76,13 @@ public class CLIController {
     /**
      * Constructor with an UI and a service.
      * @param ui       The UI
-     * @param service  The service
+     * @param companyService  The company service
+     * @param computerService The computer service
      */
-    public CLIController(CLI ui, GeneralService service) {
+    public CLIController(CLI ui, CompanyService companyService, ComputerService computerService) {
         this.ui = ui;
-        this.service = service;
+        this.companyService = companyService;
+        this.computerService = computerService;
     }
 
     /**
@@ -78,8 +91,8 @@ public class CLIController {
     public void run() {
         boolean stop = false;
         ChoiceMenu choice;
-        Page<Computer> computers;
-        Page<Company> companies;
+        Optional<Page<Computer>> computers;
+        Optional<Page<Company>> companies;
         Computer computer;
         Computer computerToUpdate;
         int id;
@@ -88,48 +101,54 @@ public class CLIController {
             try {
                 choice = ChoiceMenu.get(ui.home());
                 switch (choice) {
+                case DELETECOMPANY:
+                    id = ui.askId(COMPANY);
+                    companyService.deleteCompany(id);
+                    break;
                 case LISTCOMPUTERS:
-                    computers = service.getAllComputersWithPaging(1, 5);
+                    computers = computerService.getAllComputersWithPaging(1, 5);
                     choicePage = ui.displayComputers(computers);
                     while (choicePage.equals("p")) {
                         id = ui.askPage();
-                        computers = service.getAllComputersWithPaging(id, 5);
+                        computers = computerService.getAllComputersWithPaging(id, 5);
                         choicePage = ui.displayComputers(computers);
                     }
                     break;
                 case LISTCOMPANIES:
-                    companies = service.getAllCompaniesWithPaging(1, 5);
+                    companies = companyService.getAllCompaniesWithPaging(1, 5);
                     choicePage = ui.displayCompanies(companies);
                     while (choicePage.equals("p")) {
                         id = ui.askPage();
-                        companies = service.getAllCompaniesWithPaging(id, 5);
+                        companies = companyService.getAllCompaniesWithPaging(id, 5);
                         choicePage = ui.displayCompanies(companies);
                     }
                     break;
                 case SHOWCOMPUTERDETAILS:
-                    id = ui.askComputerId();
-                    computer = service.getOneComputer(id);
+                    id = ui.askId(COMPUTER);
+                    computer = computerService.getOneComputer(id);
                     ui.showComputerDetails(computer);
                     break;
                 case CREATECOMPUTER:
                     computer = ui.createComputer();
-                    service.createComputer(computer);
+                    computerService.createComputer(computer);
                     break;
                 case UPDATECOMPUTER:
-                    id = ui.askComputerId();
-                    computerToUpdate = service.getOneComputer(id);
+                    id = ui.askId(COMPUTER);
+                    computerToUpdate = computerService.getOneComputer(id);
                     computer = ui.updateComputer(computerToUpdate);
-                    service.updateComputer(computer);
+                    computerService.updateComputer(computer);
                     break;
                 case DELETECOMPUTER:
                     id = ui.deleteComputer();
-                    service.deleteComputer(id);
+                    computerService.deleteComputer(id);
                     break;
                 case PAGECOMPANY:
                 case QUIT:
                     return;
+                default:
+                    break;
                 }
-            } catch (GeneralServiceException e) {
+            } catch (ComputerServiceException e) {
                 ui.displayException(e.getMessage());
             }
         }

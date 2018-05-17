@@ -1,6 +1,7 @@
 package com.excilys.cdb.daos;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 import com.excilys.cdb.utils.Page;
 
@@ -21,7 +22,7 @@ public interface DAO<T> {
      * @return              The object searched
      * @throws SQLException If there is a problem with the SQL request
      */
-    T findById(long id) throws SQLException;
+    Optional<T> findById(long id) throws SQLException;
 
     /**
      * Add an object to the database.

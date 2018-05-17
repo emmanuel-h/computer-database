@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller.servlets;
+package com.excilys.cdb.controllers.servlets;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.cdb.exceptions.GeneralServiceException;
+import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 
 /**
  * Servlet implementation class AddComputeit arServlet.
@@ -27,12 +29,13 @@ import com.excilys.cdb.services.GeneralService;
 public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private GeneralService service;
+    private ComputerService computerService;
+    private CompanyService companyService;
 
     /**
      * A logger.
      */
-    private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AddComputerServlet.class);
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -40,9 +43,10 @@ public class AddComputerServlet extends HttpServlet {
     public AddComputerServlet() {
         super();
         try {
-            service = GeneralService.getInstance();
-        } catch (GeneralServiceException e) {
-            LOGGER.warn("Erreur lors de la création du service : " + e.getMessage());
+            computerService = ComputerService.getInstance();
+            companyService = CompanyService.getInstance();
+        } catch (FactoryException e) {
+            LOGGER.warn("Error when creating the service: " + e.getMessage());
         }
     }
 
@@ -60,10 +64,11 @@ public class AddComputerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        final List<Company> companies = service.findAllCompanies();
+        final List<Company> companies = companyService.findAllCompanies();
         String message = null;
 
         String todo = request.getParameter("todo");
+        System.out.println("llll");
         try {
             if (null != todo) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -72,7 +77,7 @@ public class AddComputerServlet extends HttpServlet {
                 String discontinued = request.getParameter("discontinued");
                 LocalDate introducedDate =  introduced == null || introduced.trim().isEmpty() ? null : LocalDate.parse(introduced, formatter);
                 LocalDate discontinuedDate = discontinued == null || discontinued.trim().isEmpty() ? null : LocalDate.parse(discontinued, formatter);
-                int companyId = request.getParameter("company") != null ? Integer.parseInt(request.getParameter("company")) : -1;
+                long companyId = request.getParameter("company") != null ? Long.parseLong(request.getParameter("company")) : -1;
                 Company company = companies.stream()
                         .filter(c -> c.getId() == companyId)
                         .findFirst()
@@ -84,9 +89,9 @@ public class AddComputerServlet extends HttpServlet {
                         .manufacturer(company)
                         .build();
                 try {
-                    final long idNewComputer = service.createComputer(computer);
+                    final long idNewComputer = computerService.createComputer(computer);
                     message = "Computer created with id " + idNewComputer;
-                } catch (GeneralServiceException e) {
+                } catch (ComputerServiceException e) {
                     LOGGER.warn(e.getMessage());
                     message = "Computer has not been created : " + e.getMessage();
                 }

@@ -31,6 +31,16 @@
       <rtexprvalue>true</rtexprvalue>
       <type>int</type>
     </attribute>
+    <attribute>
+      <name>search</name>
+      <rtexprvalue>true</rtexprvalue>
+      <type>String</type>
+    </attribute>
+    <attribute>
+      <name>todo</name>
+      <rtexprvalue>true</rtexprvalue>
+      <type>String</type>
+    </attribute>
   </tag>
    
   <tag>
@@ -53,6 +63,16 @@
       <name>limit</name>
       <rtexprvalue>true</rtexprvalue>
       <type>int</type>
+    </attribute>
+    <attribute>
+      <name>todo</name>
+      <rtexprvalue>true</rtexprvalue>
+      <type>String</type>
+    </attribute>
+    <attribute>
+      <name>search</name>
+      <rtexprvalue>true</rtexprvalue>
+      <type>String</type>
     </attribute>
   </tag>
 </taglib>

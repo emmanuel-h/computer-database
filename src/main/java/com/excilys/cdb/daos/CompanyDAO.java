@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
@@ -16,11 +20,6 @@ import com.excilys.cdb.utils.Page;
  * @author emmanuelh
  */
 public class CompanyDAO implements DAO<Company> {
-
-    /**
-     * The connection to the database.
-     */
-    private Connection connection;
 
     /**
      * The singleton's instance of CompanyDAO.
@@ -34,23 +33,26 @@ public class CompanyDAO implements DAO<Company> {
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
     private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM company";
+    private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM computer WHERE computer.company_id = ?";
+
+    /**
+     * A logger.
+     */
+    private final Logger LOGGER = LoggerFactory.getLogger(CompanyDAO.class);
 
     /**
      * Default constructor with a Connection.
-     * @param connection The connection
      */
-    private CompanyDAO(Connection connection) {
-        this.connection = connection;
+    private CompanyDAO() {
     }
 
     /**
      * Return the singleton's instance of companyDAO.
-     * @param connection The database connection.
      * @return The companyDAO's instance
      */
-    public static CompanyDAO getInstance(Connection connection) {
+    public static CompanyDAO getInstance() {
         if (null == companyDAO) {
-            companyDAO = new CompanyDAO(connection);
+            companyDAO = new CompanyDAO();
         }
         return companyDAO;
     }
@@ -62,94 +64,125 @@ public class CompanyDAO implements DAO<Company> {
         }
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
-        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING);
-        statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
-        statement.setInt(2, page.getResultsPerPage());
-        ResultSet rs = statement.executeQuery();
 
-        while (rs.next()) {
-            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING)) {
+            statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
+            statement.setInt(2, page.getResultsPerPage());
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+                }
+            }
         }
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(COUNT_COMPANIES);
+                ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                double maxPage = (double) rs.getInt(1) / page.getResultsPerPage();
+                page.setMaxPage((int) Math.ceil(maxPage));
+            }
 
-        rs.close();
-        statement.close();
-
-        // Count max pages
-        statement = connection.prepareStatement(COUNT_COMPANIES);
-        rs = statement.executeQuery();
-        if (rs.next()) {
-            double maxPage = (double) rs.getInt(1) / (double) page.getResultsPerPage();
-            page.setMaxPage((int) Math.ceil(maxPage));
+            page.setCurrentPage(currentPage);
+            page.setResults(companies);
         }
-
-        page.setCurrentPage(currentPage);
-        page.setResults(companies);
         return page;
     }
 
     @Override
-    public Company findById(long id) throws SQLException {
-        Company company = null;
-        PreparedStatement statement = connection.prepareStatement(FIND_COMPANY_BY_ID);
-        statement.setLong(1, id);
-        ResultSet rs = statement.executeQuery();
-        if (rs.next()) {
-            company = new Company(rs.getInt("id"), rs.getString("name"));
+    public Optional<Company> findById(long id) throws SQLException {
+        Optional<Company> company = Optional.empty();
+        try (Connection con = DAOFactory.getConnection();
+                PreparedStatement statement = con.prepareStatement(FIND_COMPANY_BY_ID)) {
+            statement.setLong(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    company = Optional.of(new Company(rs.getInt("id"), rs.getString("name")));
+                }
+            }
         }
         return company;
     }
 
     @Override
     public long add(Company company) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS);
-        statement.setString(1, company.getName());
-
-        // Execute the add request
-        statement.executeUpdate();
-
-        // Retrieve the id of the created object
-        ResultSet rSet = statement.getGeneratedKeys();
-        if (rSet.next()) {
-            return rSet.getLong(1);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, company.getName());
+            statement.executeUpdate();
+            try (ResultSet rSet = statement.getGeneratedKeys()) {
+                if (rSet.next()) {
+                    return rSet.getLong(1);
+                }
+            }
         }
         return 0;
     }
 
     @Override
     public boolean delete(long id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(DELETE_COMPANY);
-        statement.setLong(1, id);
-        int result = statement.executeUpdate();
-        if (result == 0) {
-            return false;
+        boolean result = false;
+        Connection connection = DAOFactory.getConnection();
+        PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY);
+        PreparedStatement statementComputers = connection.prepareStatement(DELETE_COMPUTER_FROM_MANUFACTURER);
+        try {
+            connection.setAutoCommit(false);
+            statementCompany.setLong(1, id);
+            statementComputers.setLong(1, id);
+            statementComputers.executeUpdate();
+            int resultChange = statementCompany.executeUpdate();
+            if (resultChange != 0) {
+                result = true;
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            result = false;
+            LOGGER.warn("SQL exception when deleting a company : " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException exception) {
+                LOGGER.warn("SQL exception when deleting a company after a rollback : " + exception.getMessage());
+            }
+        } finally {
+            if (null != statementCompany) {
+                statementCompany.close();
+            }
+            if (null != statementComputers) {
+                statementComputers.close();
+            }
+            connection.setAutoCommit(true);
         }
-        return true;
+        return result;
     }
 
     @Override
     public Company update(Company company) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(UPDATE_COMPANY);
-        statement.setString(1, company.getName());
-        statement.setLong(2, company.getId());
-        int result = statement.executeUpdate();
-        if (result == 0) {
-            return null;
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(UPDATE_COMPANY)) {
+            statement.setString(1, company.getName());
+            statement.setLong(2, company.getId());
+            int result = statement.executeUpdate();
+            if (result == 0) {
+                return null;
+            }
         }
         return company;
     }
 
     /**
      * Find all companies.
-     * @return              The list of companies, or an empty List if there is no one
+     * @return The list of companies, or an empty List if there is no one
      * @throws SQLException If there is a problem with the SQL request
      */
     public List<Company> findAll() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
-        ResultSet rs = statement.executeQuery();
-        List<Company> companies = new ArrayList<>();
-        while (rs.next()) {
-            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
+                ResultSet rs = statement.executeQuery()) {
+            List<Company> companies = new ArrayList<>();
+            while (rs.next()) {
+                companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+            }
+            return companies;
         }
-        return companies;
     }
 }

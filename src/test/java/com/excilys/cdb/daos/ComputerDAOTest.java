@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -84,7 +85,9 @@ public class ComputerDAOTest {
      */
     @Test
     public void findByIdWithGoodId() throws SQLException {
-        Computer computer = computerDAO.findById(1L);
+        Optional<Computer> computerOptional = computerDAO.findById(1L);
+        assertTrue(computerOptional.isPresent());
+        Computer computer = computerOptional.get();
         assertEquals(computer.getId(), 1L);
         assertEquals(computer.getName(), "MacBook Pro 15.4 inch");
         assertNull(computer.getIntroduced());
@@ -97,8 +100,8 @@ public class ComputerDAOTest {
      * @throws SQLException If there is a problem with the database
      */
     public void findByIdWithManufacturer() throws SQLException {
-        Computer computer = computerDAO.findById(7L);
-        assertNull(computer.getManufacturer());
+        Optional<Computer> computer = computerDAO.findById(7L);
+        assertNull(computer.get().getManufacturer());
     }
 
     /**
@@ -106,8 +109,8 @@ public class ComputerDAOTest {
      * @throws SQLException If there is a problem with the database
      */
     public void findByIdWithNoManufacturer() throws SQLException {
-        Computer computer = computerDAO.findById(1L);
-        Company company = computer.getManufacturer();
+        Optional<Computer> computer = computerDAO.findById(1L);
+        Company company = computer.get().getManufacturer();
         assertTrue(company.getId() == 1L);
     }
 
@@ -117,8 +120,8 @@ public class ComputerDAOTest {
      */
     @Test
     public void findByIdWithBadId() throws SQLException {
-        Computer computer = computerDAO.findById(0L);
-        assertNull(computer);
+        Optional<Computer> computer = computerDAO.findById(0L);
+        assertFalse(computer.isPresent());
     }
 
     /**
@@ -127,11 +130,11 @@ public class ComputerDAOTest {
      */
     @Test
     public void addWithAllFields() throws SQLException {
-        Company manufacturer = companyDAO.findById(1L);
+        Optional<Company> manufacturer = companyDAO.findById(1L);
         Computer computer = new Computer.Builder("test")
                 .introduced(LocalDate.of(2007, 12, 12))
                 .discontinued(LocalDate.of(2008, 12, 12))
-                .manufacturer(manufacturer)
+                .manufacturer(manufacturer.get())
                 .build();
         long addResult = computerDAO.add(computer);
         assertTrue(addResult == 13L);
@@ -158,8 +161,7 @@ public class ComputerDAOTest {
     public void addWithexistingId() throws SQLException {
         Computer computer = new Computer.Builder("test").id(1L).build();
         long addResult = computerDAO.add(computer);
-        assertTrue(addResult == 15L);
-        computerDAO.delete(15L);
+        assertTrue(addResult == 1L);
     }
 
     /**
@@ -170,8 +172,8 @@ public class ComputerDAOTest {
     public void deleteLegitComputer() throws SQLException {
         boolean deleteResult = computerDAO.delete(1L);
         assertTrue(deleteResult);
-        Computer computer = computerDAO.findById(1L);
-        assertNull(computer);
+        Optional<Computer> computer = computerDAO.findById(1L);
+        assertFalse(computer.isPresent());
     }
 
     /**
@@ -266,8 +268,32 @@ public class ComputerDAOTest {
     @Test
     public void count() throws SQLException {
         int resultCount = computerDAO.count();
-        System.out.println(resultCount);
         assertEquals(11, resultCount);
+    }
+
+    /**
+     * Test if the multiple delete works fine.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void deleteMultiple() throws SQLException {
+        Optional<Computer> computer = computerDAO.findById(5L);
+        boolean test = computerDAO.deleteMultiple("(5)");
+        assertTrue(test);
+        computerDAO.add(computer.get());
+    }
+
+    /**
+     * Test if the search of a computer works.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void searchComputer() throws SQLException {
+        Page<Computer> computers = computerDAO.searchComputer("pp", 1, 10);
+        assertTrue(computers.getCurrentPage() == 1);
+        assertTrue(computers.getMaxPage() == 1);
+        assertTrue(computers.getResults().size() == 6);
+        assertTrue(computers.getResultsPerPage() == 10);
     }
 
     /**

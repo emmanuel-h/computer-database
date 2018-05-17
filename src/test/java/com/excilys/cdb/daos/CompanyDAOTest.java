@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +28,17 @@ public class CompanyDAOTest {
     @Before
     public void setup() throws FactoryException {
         companyDAO = (CompanyDAO) DAOFactory.getDAO(DaoTypes.COMPANY);
+    }
+
+
+    /**
+     * Test if the findAll method works.
+     * @throws SQLException If there is a problem with the database
+     */
+    @Test
+    public void findAll() throws SQLException {
+        List<Company> companies = companyDAO.findAll();
+        assertTrue(companies.size() == 42);
     }
 
     /**
@@ -74,9 +87,9 @@ public class CompanyDAOTest {
      */
     @Test
     public void findByIdWithGoodId() throws SQLException {
-        Company company = companyDAO.findById(1L);
-        assertTrue(company.getId() == 1L);
-        assertTrue(company.getName().equals("Apple Inc."));
+        Optional<Company> company = companyDAO.findById(1L);
+        assertTrue(company.get().getId() == 1L);
+        assertTrue(company.get().getName().equals("Apple Inc."));
     }
 
     /**
@@ -85,8 +98,8 @@ public class CompanyDAOTest {
      */
     @Test
     public void findByIdWithBadId() throws SQLException {
-        Company company = companyDAO.findById(0L);
-        assertNull(company);
+        Optional<Company> company = companyDAO.findById(0L);
+        assertFalse(company.isPresent());
     }
 
     /**
@@ -121,8 +134,8 @@ public class CompanyDAOTest {
     public void deleteLegitCompany() throws SQLException {
         boolean deleteResult = companyDAO.delete(43L);
         assertTrue(deleteResult);
-        Company company = companyDAO.findById(43L);
-        assertNull(company);
+        Optional<Company> company = companyDAO.findById(43L);
+        assertFalse(company.isPresent());
     }
 
     /**
