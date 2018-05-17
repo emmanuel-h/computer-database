@@ -262,4 +262,18 @@ public class GeneralService {
         return Optional.empty();
     }
 
+    /**
+     * Count the number of computers corresponding to the search.
+     * @param search    The String researched
+     * @return          The number of computers
+     */
+    public int countSearchedComputers(String search) {
+        try {
+            return computerDAO.countSearchedComputers(search);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+        return -1;
+    }
+
 }

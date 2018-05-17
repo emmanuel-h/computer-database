@@ -98,7 +98,7 @@
 		<div class="container text-center">
 			<mylib:pagination uri="dashboard"
 				page="${page}" totalPages="${maxPage}"
-				results="${results}" />
+				results="${results}" todo="${todo}" search="${search}"/>
 
 			<div class="btn-group btn-group-sm pull-right" role="group">
             <c:if test="${not empty todo}">

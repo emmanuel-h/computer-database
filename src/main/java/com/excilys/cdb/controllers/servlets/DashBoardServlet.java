@@ -36,7 +36,7 @@ public class DashBoardServlet extends HttpServlet {
     /**
      * A logger.
      */
-    private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(DashBoardServlet.class);
 
     private final String DELETE_COMPUTER = "deleteComputer";
     private final String SEARCH_COMPUTER = "search";
@@ -61,7 +61,9 @@ public class DashBoardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int numberOfComputers = service.countComputers();
+        String todo = request.getParameter("todo");
+        String search = request.getParameter("search");
+        int numberOfComputers = SEARCH_COMPUTER.equals(todo) ? service.countSearchedComputers(search) : service.countComputers();
         int resultsPerPage = (null != request.getParameter("results")) ? Integer.parseInt(request.getParameter("results")) : 10;
         int currentPage = (null != request.getParameter("page")) ? Integer.parseInt(request.getParameter("page")) : 1;
 
@@ -70,10 +72,8 @@ public class DashBoardServlet extends HttpServlet {
         }
 
         Optional<Page<Computer>> pageOptional;
-        String todo = request.getParameter("todo");
 
         if (null != todo && SEARCH_COMPUTER.equals(todo)) {
-            String search = request.getParameter("search");
             pageOptional = service.searchComputer(search, currentPage, resultsPerPage);
             request.setAttribute("todo", todo);
             request.setAttribute("search", search);
@@ -93,10 +93,6 @@ public class DashBoardServlet extends HttpServlet {
             request.setAttribute("maxPage", page.getMaxPage());
             request.setAttribute("page", page.getCurrentPage());
         } else {
-            Page<Computer> page = pageOptional.get();
-            for (Computer computer : page.getResults()) {
-                computerList.add(ComputerConvertor.computerToDTO(computer));
-            }
             request.setAttribute("nbComputers", numberOfComputers);
             request.setAttribute("computerList", computerList);
             request.setAttribute("results", resultsPerPage);

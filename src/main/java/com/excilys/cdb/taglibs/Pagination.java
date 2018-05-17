@@ -11,6 +11,8 @@ public class Pagination extends SimpleTagSupport {
     private int page;
     private int totalPages;
     private int results;
+    private String search;
+    private String todo;
 
     /**
      * Constructor initializing the jspWriter.
@@ -80,11 +82,18 @@ public class Pagination extends SimpleTagSupport {
         StringBuilder link = new StringBuilder("<li>")
                 .append("<a href=\"")
                 .append(uri)
-                .append("?page=" + page)
-                .append("&results=" + results)
-                .append("\">")
-                .append(text)
-                .append("</a></li>");
+                .append("?");
+        if (!"".equals(todo)) {
+            link.append("todo=" + todo + '&');
+        }
+        if (!"".equals(search)) {
+            link.append("search=" + search + '&');
+        }
+        link.append("page=" + page)
+        .append("&results=" + results)
+        .append("\">")
+        .append(text)
+        .append("</a></li>");
         return link.toString();
     }
 
@@ -103,4 +112,13 @@ public class Pagination extends SimpleTagSupport {
     public void setResults(int results) {
         this.results = results;
     }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
+
+    public void setTodo(String todo) {
+        this.todo = todo;
+    }
+
 }

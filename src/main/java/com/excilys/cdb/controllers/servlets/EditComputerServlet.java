@@ -35,7 +35,7 @@ public class EditComputerServlet extends HttpServlet {
     /**
      * A logger.
      */
-    private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(EditComputerServlet.class);
 
     /**
      * @see HttpServlet#HttpServlet()

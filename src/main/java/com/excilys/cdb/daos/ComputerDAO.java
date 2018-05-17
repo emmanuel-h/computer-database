@@ -38,7 +38,8 @@ public class ComputerDAO implements DAO<Computer> {
             + "discontinued = ?, company_id= ? WHERE computer.id = ?";
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM computer";
     private final String SEARCH_COMPUTERS = "SELECT company.id, company.name, computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
-            + "FROM computer, company WHERE computer.name LIKE ? LIMIT ?,?";
+            + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id WHERE computer.name LIKE ? LIMIT ?,?";
+    private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM computer WHERE computer.name LIKE ?";
 
     /**
      * The constructor with a Connection.
@@ -80,20 +81,16 @@ public class ComputerDAO implements DAO<Computer> {
             }
         }
 
+
         Page<Computer> page = new Page<>();
         page.setResultsPerPage(maxResults);
 
-        try (Connection connection = DAOFactory.getConnection();
-                PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
-                ResultSet rs = statement.executeQuery()) {
-            if (rs.next()) {
-                double maxPage = (double) rs.getInt(1) / page.getResultsPerPage();
-                page.setMaxPage((int) Math.ceil(maxPage));
-            }
+        int totalComputers = count();
+        double maxPage = (double) totalComputers / page.getResultsPerPage();
+        page.setMaxPage((int) Math.ceil(maxPage));
 
-            page.setCurrentPage(currentPage);
-            page.setResults(computers);
-        }
+        page.setCurrentPage(currentPage);
+        page.setResults(computers);
         return page;
     }
 
@@ -236,17 +233,17 @@ public class ComputerDAO implements DAO<Computer> {
 
     /**
      * Search a computer or a list of computer with a name.
-     * @param name          The name to search
+     * @param search          The name to search
      * @param currentPage   The page to display
      * @param maxResults    The number of results per page
      * @return              The list found
      * @throws SQLException If there is a problem with the SQL request
      */
-    public Page<Computer> searchComputer(String name, int currentPage, int maxResults) throws SQLException {
+    public Page<Computer> searchComputer(String search, int currentPage, int maxResults) throws SQLException {
         List<Computer> computers = new ArrayList<>();
         try (Connection connection = DAOFactory.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SEARCH_COMPUTERS)) {
-            statement.setString(1, '%' + name + '%');
+            statement.setString(1, '%' + search + '%');
             statement.setInt(2, (currentPage - 1) * maxResults);
             statement.setInt(3, maxResults);
             try (ResultSet rs = statement.executeQuery()) {
@@ -259,10 +256,35 @@ public class ComputerDAO implements DAO<Computer> {
                 }
             }
         }
-        Page<Computer> page = new Page<Computer>();
-        page.setResults(computers);
+
+        Page<Computer> page = new Page<>();
+        page.setResultsPerPage(maxResults);
+
+        int totalComputers = countSearchedComputers(search);
+        double maxPage = (double) totalComputers / page.getResultsPerPage();
+        page.setMaxPage((int) Math.ceil(maxPage));
+
         page.setCurrentPage(currentPage);
-        page.setMaxPage(maxResults);
+        page.setResults(computers);
         return page;
+    }
+
+    /**
+     * Count the number of computers corresponding to the search.
+     * @param search        The researched String
+     * @return              The number of computers
+     * @throws SQLException If there is a problem with the SQL request
+     */
+    public int countSearchedComputers(String search) throws SQLException {
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(COUNT_SEARCHED_COMPUTERS)) {
+            statement.setString(1, '%' + search + '%');
+            try (ResultSet rSet = statement.executeQuery()) {
+                if (rSet.next()) {
+                    return rSet.getInt(1);
+                }
+            }
+        }
+        return -1;
     }
 }

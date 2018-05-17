@@ -32,7 +32,7 @@ public class AddComputerServlet extends HttpServlet {
     /**
      * A logger.
      */
-    private final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AddComputerServlet.class);
 
     /**
      * @see HttpServlet#HttpServlet()
