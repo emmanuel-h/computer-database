@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.exceptions.FactoryException;
-import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
@@ -89,7 +89,7 @@ public class EditComputerServlet extends HttpServlet {
                 Optional<Computer> computer2 = computerService.updateComputer(computer);
                 System.out.println(computer2);
                 message = "Computer succesfully modified";
-            } catch (GeneralServiceException e) {
+            } catch (ComputerServiceException e) {
                 message = "Update not applied";
             }
         } else {
@@ -105,7 +105,7 @@ public class EditComputerServlet extends HttpServlet {
                 request.setAttribute("companyId", -1L);
             }
             request.setAttribute("companies", companies);
-        } catch (GeneralServiceException e) {
+        } catch (ComputerServiceException e) {
             message = "Identifier is not valid";
         }
         request.setAttribute("message", message);

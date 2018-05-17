@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.daos.ComputerDAO;
 import com.excilys.cdb.daos.DAOFactory;
+import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.exceptions.FactoryException;
-import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
@@ -21,6 +21,8 @@ public class ComputerService {
     private static ComputerService service;
 
     private ComputerDAO computerDAO;
+
+    private CompanyService companyService;
 
     /**
      * A logger.
@@ -40,6 +42,7 @@ public class ComputerService {
      */
     private ComputerService() throws FactoryException {
         this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPUTER);
+        companyService = CompanyService.getInstance();
     }
 
     /**
@@ -73,18 +76,18 @@ public class ComputerService {
      * Retrieve a computer with his id.
      * @param id The id of the computer
      * @return The corresponding computer
-     * @throws GeneralServiceException if there is no corresponding computer
+     * @throws ComputerServiceException if there is no corresponding computer
      */
-    public Computer getOneComputer(long id) throws GeneralServiceException {
+    public Computer getOneComputer(long id) throws ComputerServiceException {
         try {
             Optional<Computer> computerOptional =  this.computerDAO.findById(id);
             if (!computerOptional.isPresent()) {
-                throw new GeneralServiceException("The computer is not found");
+                throw new ComputerServiceException("The computer is not found");
             } else {
                 return computerOptional.get();
             }
         } catch (SQLException e) {
-            throw new GeneralServiceException(NULL_COMPUTER);
+            throw new ComputerServiceException(NULL_COMPUTER);
         }
     }
 
@@ -92,34 +95,31 @@ public class ComputerService {
      * Ask the DAO to create a computer.
      * @param computer The computer to create
      * @return true if the computer is created, false if not
-     * @throws GeneralServiceException If the computer is null, doesn't have a name,
+     * @throws ComputerServiceException If the computer is null, doesn't have a name,
      *             dates are incorrect or manufacturer is unknown
      */
-    public long createComputer(Computer computer) throws GeneralServiceException {
+    public long createComputer(Computer computer) throws ComputerServiceException {
         if (null == computer) {
-            throw new GeneralServiceException(NULL_COMPUTER);
+            throw new ComputerServiceException(NULL_COMPUTER);
         }
         if (!ComputerValidator.validName(computer.getName())) {
-            throw new GeneralServiceException(UNNAMED_COMPUTER);
+            throw new ComputerServiceException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
             if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
-                throw new GeneralServiceException(DATE_PROBLEM);
+                throw new ComputerServiceException(DATE_PROBLEM);
             }
         }
         try {
             if (null != computer.getManufacturer()) {
-                CompanyService companyService = CompanyService.getInstance();
                 Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
                 if (!company.isPresent()) {
-                    throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
+                    throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
                 }
             }
             return this.computerDAO.add(computer);
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        } catch (FactoryException e) {
-            LOGGER.warn(ERREUR_FACTORY + e.getMessage());
         }
         return 0L;
     }
@@ -128,35 +128,31 @@ public class ComputerService {
      * Update an existing computer.
      * @param computer The computer to update
      * @return true if the computer is updated, false if not
-     * @throws GeneralServiceException If the computer is null, doesn't have a name,
+     * @throws ComputerServiceException If the computer is null, doesn't have a name,
      *             dates are incorrect or manufacturer is unknown
      */
-    public Optional<Computer> updateComputer(Computer computer) throws GeneralServiceException {
+    public Optional<Computer> updateComputer(Computer computer) throws ComputerServiceException {
         if (null == computer) {
-            throw new GeneralServiceException(NULL_COMPUTER);
+            throw new ComputerServiceException(NULL_COMPUTER);
         }
         if (!ComputerValidator.validName(computer.getName())) {
-            throw new GeneralServiceException(UNNAMED_COMPUTER);
+            throw new ComputerServiceException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
             if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
-                throw new GeneralServiceException(DATE_PROBLEM);
+                throw new ComputerServiceException(DATE_PROBLEM);
             }
         }
         try {
             if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
-                CompanyService companyService = CompanyService.getInstance();
                 Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
                 if (!company.isPresent()) {
-                    throw new GeneralServiceException(UNKNOWN_MANUFACTURER);
+                    throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
                 }
             }
-            System.out.println(computer);
             return Optional.ofNullable(computerDAO.update(computer));
         } catch (SQLException e) {
             LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        } catch (FactoryException e) {
-            LOGGER.warn(ERREUR_FACTORY + e.getMessage());
         }
         return Optional.empty();
     }
@@ -165,7 +161,7 @@ public class ComputerService {
      * Delete an existing computer.
      * @param id The id of the computer to delete
      * @return true if the computer is deleted, false if not
-     * @throws GeneralServiceException If there is no computer matching this id
+     * @throws ComputerServiceException If there is no computer matching this id
      */
     public boolean deleteComputer(long id) {
         try {

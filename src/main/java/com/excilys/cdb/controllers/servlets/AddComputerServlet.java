@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.exceptions.FactoryException;
-import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
@@ -91,7 +91,7 @@ public class AddComputerServlet extends HttpServlet {
                 try {
                     final long idNewComputer = computerService.createComputer(computer);
                     message = "Computer created with id " + idNewComputer;
-                } catch (GeneralServiceException e) {
+                } catch (ComputerServiceException e) {
                     LOGGER.warn(e.getMessage());
                     message = "Computer has not been created : " + e.getMessage();
                 }

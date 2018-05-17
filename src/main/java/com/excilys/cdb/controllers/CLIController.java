@@ -2,7 +2,7 @@ package com.excilys.cdb.controllers;
 
 import java.util.Optional;
 
-import com.excilys.cdb.exceptions.GeneralServiceException;
+import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
@@ -148,7 +148,7 @@ public class CLIController {
                 default:
                     break;
                 }
-            } catch (GeneralServiceException e) {
+            } catch (ComputerServiceException e) {
                 ui.displayException(e.getMessage());
             }
         }
