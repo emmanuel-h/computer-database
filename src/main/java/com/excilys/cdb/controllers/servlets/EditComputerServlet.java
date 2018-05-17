@@ -16,10 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.utils.ComputerConvertor;
 
 /**
@@ -30,7 +32,8 @@ public class EditComputerServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private GeneralService service;
+    private ComputerService computerService;
+    private CompanyService companyService;
 
     /**
      * A logger.
@@ -43,9 +46,10 @@ public class EditComputerServlet extends HttpServlet {
     public EditComputerServlet() {
         super();
         try {
-            service = GeneralService.getInstance();
-        } catch (GeneralServiceException e) {
-            LOGGER.warn("Error when creating the service : " + e.getMessage());
+            computerService = ComputerService.getInstance();
+            companyService = CompanyService.getInstance();
+        } catch (FactoryException e) {
+            LOGGER.warn("Error when creating the service: " + e.getMessage());
         }
     }
 
@@ -56,7 +60,7 @@ public class EditComputerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String message = null;
 
-        final List<Company> companies = service.findAllCompanies();
+        final List<Company> companies = companyService.findAllCompanies();
         String todo = request.getParameter("todo");
 
         long id;
@@ -82,7 +86,7 @@ public class EditComputerServlet extends HttpServlet {
                     .manufacturer(company)
                     .build();
             try {
-                Optional<Computer> computer2 = service.updateComputer(computer);
+                Optional<Computer> computer2 = computerService.updateComputer(computer);
                 System.out.println(computer2);
                 message = "Computer succesfully modified";
             } catch (GeneralServiceException e) {
@@ -92,7 +96,7 @@ public class EditComputerServlet extends HttpServlet {
             id = Long.parseLong(request.getParameter("id"));
         }
         try {
-            Computer computerFull = service.getOneComputer(id);
+            Computer computerFull = computerService.getOneComputer(id);
             ComputerDTO computer = ComputerConvertor.computerToDTO(computerFull);
             request.setAttribute("computer", computer);
             if (null != computerFull.getManufacturer()) {

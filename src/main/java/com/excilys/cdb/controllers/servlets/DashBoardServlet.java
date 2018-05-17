@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.dtos.ComputerDTO;
-import com.excilys.cdb.exceptions.GeneralServiceException;
+import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.utils.ComputerConvertor;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.ComputersToDeleteValidator;
@@ -28,10 +28,9 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 @WebServlet(name = "DashBoardServlet", urlPatterns = { "/dashboard" })
 public class DashBoardServlet extends HttpServlet {
 
-
     private static final long serialVersionUID = 1L;
 
-    private GeneralService service;
+    private ComputerService computerService;
 
     /**
      * A logger.
@@ -47,9 +46,9 @@ public class DashBoardServlet extends HttpServlet {
     public DashBoardServlet() {
         super();
         try {
-            service = GeneralService.getInstance();
-        } catch (GeneralServiceException e) {
-            LOGGER.warn("Erreur lors de la création du service : " + e.getMessage());
+            computerService = ComputerService.getInstance();
+        } catch (FactoryException e) {
+            LOGGER.warn("Error when creating the service: " + e.getMessage());
         }
     }
 
@@ -63,7 +62,7 @@ public class DashBoardServlet extends HttpServlet {
 
         String todo = request.getParameter("todo");
         String search = request.getParameter("search");
-        int numberOfComputers = SEARCH_COMPUTER.equals(todo) ? service.countSearchedComputers(search) : service.countComputers();
+        int numberOfComputers = SEARCH_COMPUTER.equals(todo) ? computerService.countSearchedComputers(search) : computerService.countComputers();
         int resultsPerPage = (null != request.getParameter("results")) ? Integer.parseInt(request.getParameter("results")) : 10;
         int currentPage = (null != request.getParameter("page")) ? Integer.parseInt(request.getParameter("page")) : 1;
 
@@ -74,11 +73,11 @@ public class DashBoardServlet extends HttpServlet {
         Optional<Page<Computer>> pageOptional;
 
         if (null != todo && SEARCH_COMPUTER.equals(todo)) {
-            pageOptional = service.searchComputer(search, currentPage, resultsPerPage);
+            pageOptional = computerService.searchComputer(search, currentPage, resultsPerPage);
             request.setAttribute("todo", todo);
             request.setAttribute("search", search);
         } else {
-            pageOptional = service.getAllComputersWithPaging(currentPage, resultsPerPage);
+            pageOptional = computerService.getAllComputersWithPaging(currentPage, resultsPerPage);
         }
 
         List<ComputerDTO> computerList = new ArrayList<>();
@@ -127,7 +126,7 @@ public class DashBoardServlet extends HttpServlet {
         stringBuilder.insert(0, "(");
         stringBuilder.append(")");
         if (ComputersToDeleteValidator.verifyListToDelete(stringBuilder.toString())) {
-            service.deleteMultipleComputers(stringBuilder.toString());
+            computerService.deleteMultipleComputers(stringBuilder.toString());
         }
     }
 

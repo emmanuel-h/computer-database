@@ -1,14 +1,20 @@
 package com.excilys.cdb;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.controllers.CLIController;
-import com.excilys.cdb.exceptions.GeneralServiceException;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.exceptions.FactoryException;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.ui.CLI;
 
 public class Main {
 
-    private static CLI ui;
-    private static GeneralService service;
+    /**
+     * A logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     /**
      * Start of the program.
@@ -17,12 +23,13 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Initialize the static variables
-            ui = new CLI();
-            service = GeneralService.getInstance();
-            CLIController controller = new CLIController(ui, service);
+            CLI ui = new CLI();
+            CompanyService companyService = CompanyService.getInstance();
+            ComputerService computerService = ComputerService.getInstance();
+            CLIController controller = new CLIController(ui, companyService, computerService);
             controller.run();
-        } catch (GeneralServiceException e) {
-
+        } catch (FactoryException e) {
+            LOGGER.warn("Error when instanciating the services");
         }
     }
 }

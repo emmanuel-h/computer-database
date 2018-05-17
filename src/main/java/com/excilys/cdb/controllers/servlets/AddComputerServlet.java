@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.exceptions.GeneralServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.GeneralService;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 
 /**
  * Servlet implementation class AddComputeit arServlet.
@@ -27,7 +29,8 @@ import com.excilys.cdb.services.GeneralService;
 public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private GeneralService service;
+    private ComputerService computerService;
+    private CompanyService companyService;
 
     /**
      * A logger.
@@ -40,8 +43,9 @@ public class AddComputerServlet extends HttpServlet {
     public AddComputerServlet() {
         super();
         try {
-            service = GeneralService.getInstance();
-        } catch (GeneralServiceException e) {
+            computerService = ComputerService.getInstance();
+            companyService = CompanyService.getInstance();
+        } catch (FactoryException e) {
             LOGGER.warn("Error when creating the service: " + e.getMessage());
         }
     }
@@ -60,7 +64,7 @@ public class AddComputerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        final List<Company> companies = service.findAllCompanies();
+        final List<Company> companies = companyService.findAllCompanies();
         String message = null;
 
         String todo = request.getParameter("todo");
@@ -85,7 +89,7 @@ public class AddComputerServlet extends HttpServlet {
                         .manufacturer(company)
                         .build();
                 try {
-                    final long idNewComputer = service.createComputer(computer);
+                    final long idNewComputer = computerService.createComputer(computer);
                     message = "Computer created with id " + idNewComputer;
                 } catch (GeneralServiceException e) {
                     LOGGER.warn(e.getMessage());
