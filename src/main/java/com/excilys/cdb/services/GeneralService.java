@@ -276,4 +276,18 @@ public class GeneralService {
         return -1;
     }
 
+    /**
+     * Delete a company and the associated computers.
+     * @param id    The company identifier to delete
+     * @return      True if the company has been successfully deleted, false if not
+     */
+    public boolean deleteCompany(long id) {
+        try {
+            return companyDAO.delete(id);
+        } catch (SQLException e) {
+            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        }
+        return false;
+    }
+
 }

@@ -34,6 +34,7 @@ public class CLI {
      */
     public String home() {
         System.out.println("\n*****MENU*****");
+        System.out.println("0- Delete company");
         System.out.println("1- List computers");
         System.out.println("2- List companies");
         System.out.println("3- Show computer details");
@@ -44,7 +45,7 @@ public class CLI {
         String choice;
         do {
             choice = scanner.nextLine();
-        } while (!choice.matches("[1-7]"));
+        } while (!choice.matches("[0-7]"));
         return choice;
     }
 
@@ -96,10 +97,11 @@ public class CLI {
 
     /**
      * When a user wants to see a particular computer, this method ask him which one.
-     * @return The id of the desired computer
+     * @param type  he type : computer or company
+     * @return      The id of the desired type
      */
-    public int askComputerId() {
-        System.out.println("Enter the id of the computer");
+    public int askId(String type) {
+        System.out.println("Enter the id of the " + type);
         String choice;
         do {
             choice = scanner.nextLine();
@@ -292,7 +294,6 @@ public class CLI {
         } while (!choice.equals("m") && !choice.equals("p"));
         return choice;
     }
-
     /**
      * Closing the scanner if the object is destroyed by the garbage collector.
      */

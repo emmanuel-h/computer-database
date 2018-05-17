@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -30,6 +33,12 @@ public class CompanyDAO implements DAO<Company> {
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
     private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM company";
+    private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM computer WHERE computer.company_id = ?";
+
+    /**
+     * A logger.
+     */
+    private final Logger LOGGER = LoggerFactory.getLogger(CompanyDAO.class);
 
     /**
      * Default constructor with a Connection.
@@ -100,11 +109,7 @@ public class CompanyDAO implements DAO<Company> {
         try (Connection connection = DAOFactory.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, company.getName());
-
-            // Execute the add request
             statement.executeUpdate();
-
-            // Retrieve the id of the created object
             try (ResultSet rSet = statement.getGeneratedKeys()) {
                 if (rSet.next()) {
                     return rSet.getLong(1);
@@ -116,15 +121,37 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public boolean delete(long id) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
-                PreparedStatement statement = connection.prepareStatement(DELETE_COMPANY)) {
-            statement.setLong(1, id);
-            int result = statement.executeUpdate();
-            if (result == 0) {
-                return false;
+        int result = 0;
+        Connection connection = DAOFactory.getConnection();
+        PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY);
+        PreparedStatement statementComputers = connection.prepareStatement(DELETE_COMPUTER_FROM_MANUFACTURER);
+        try {
+            connection.setAutoCommit(false);
+            statementCompany.setLong(1, id);
+            statementComputers.setLong(1, id);
+            statementComputers.executeUpdate();
+            result = statementCompany.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            LOGGER.warn("SQL exception when deleting a company : " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException exception) {
+                LOGGER.warn("SQL exception when deleting a company after a rollback : " + exception.getMessage());
             }
-            return true;
+        } finally {
+            if (null != statementCompany) {
+                statementCompany.close();
+            }
+            if (null != statementComputers) {
+                statementComputers.close();
+            }
+            connection.setAutoCommit(true);
         }
+        if (result == 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override

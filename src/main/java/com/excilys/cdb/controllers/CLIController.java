@@ -30,7 +30,7 @@ public class CLIController {
      * @author emmanuelh
      */
     private enum ChoiceMenu {
-        LISTCOMPUTERS("1"), LISTCOMPANIES("2"), SHOWCOMPUTERDETAILS("3"), CREATECOMPUTER("4"), UPDATECOMPUTER(
+        DELETECOMPANY("0"), LISTCOMPUTERS("1"), LISTCOMPANIES("2"), SHOWCOMPUTERDETAILS("3"), CREATECOMPUTER("4"), UPDATECOMPUTER(
                 "5"), DELETECOMPUTER("6"), QUIT("7"), PAGECOMPANY("pc");
         private String choice;
 
@@ -56,6 +56,9 @@ public class CLIController {
             return null;
         }
     };
+
+    private final String COMPUTER = "computer";
+    private final String COMPANY = "company";
 
     /**
      * Blank constructor.
@@ -90,6 +93,10 @@ public class CLIController {
             try {
                 choice = ChoiceMenu.get(ui.home());
                 switch (choice) {
+                case DELETECOMPANY:
+                    id = ui.askId(COMPANY);
+                    service.deleteCompany(id);
+                    break;
                 case LISTCOMPUTERS:
                     computers = service.getAllComputersWithPaging(1, 5);
                     choicePage = ui.displayComputers(computers);
@@ -109,7 +116,7 @@ public class CLIController {
                     }
                     break;
                 case SHOWCOMPUTERDETAILS:
-                    id = ui.askComputerId();
+                    id = ui.askId(COMPUTER);
                     computer = service.getOneComputer(id);
                     ui.showComputerDetails(computer);
                     break;
@@ -118,7 +125,7 @@ public class CLIController {
                     service.createComputer(computer);
                     break;
                 case UPDATECOMPUTER:
-                    id = ui.askComputerId();
+                    id = ui.askId(COMPUTER);
                     computerToUpdate = service.getOneComputer(id);
                     computer = ui.updateComputer(computerToUpdate);
                     service.updateComputer(computer);
@@ -130,6 +137,8 @@ public class CLIController {
                 case PAGECOMPANY:
                 case QUIT:
                     return;
+                default:
+                    break;
                 }
             } catch (GeneralServiceException e) {
                 ui.displayException(e.getMessage());
