@@ -121,7 +121,7 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public boolean delete(long id) throws SQLException {
-        int result = 0;
+        boolean result = false;
         Connection connection = DAOFactory.getConnection();
         PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY);
         PreparedStatement statementComputers = connection.prepareStatement(DELETE_COMPUTER_FROM_MANUFACTURER);
@@ -130,9 +130,13 @@ public class CompanyDAO implements DAO<Company> {
             statementCompany.setLong(1, id);
             statementComputers.setLong(1, id);
             statementComputers.executeUpdate();
-            result = statementCompany.executeUpdate();
+            int resultChange = statementCompany.executeUpdate();
+            if (resultChange != 0) {
+                result = true;
+            }
             connection.commit();
         } catch (SQLException e) {
+            result = false;
             LOGGER.warn("SQL exception when deleting a company : " + e.getMessage());
             try {
                 connection.rollback();
@@ -148,10 +152,7 @@ public class CompanyDAO implements DAO<Company> {
             }
             connection.setAutoCommit(true);
         }
-        if (result == 0) {
-            return false;
-        }
-        return true;
+        return result;
     }
 
     @Override

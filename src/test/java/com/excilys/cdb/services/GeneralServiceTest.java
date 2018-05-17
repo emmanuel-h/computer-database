@@ -226,7 +226,7 @@ public class GeneralServiceTest {
         Computer computer = new Computer.Builder("test").id(1L).build();
 
         try {
-            Mockito.when(computerDAO.findById(1L)).thenReturn(computer);
+            Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.of(computer));
             Mockito.when(computerDAO.findById(42L)).thenThrow(SQLException.class);
 
             Computer receiveComputer = service.getOneComputer(1L);
@@ -310,7 +310,7 @@ public class GeneralServiceTest {
                 .build();
 
         try {
-            Mockito.when(companyDAO.findById(2L)).thenReturn(null);
+            Mockito.when(companyDAO.findById(2L)).thenReturn(Optional.empty());
 
             exception.expect(GeneralServiceException.class);
             service.createComputer(computer);
@@ -396,7 +396,7 @@ public class GeneralServiceTest {
 
         try {
             Mockito.when(computerDAO.update(computer)).thenReturn(computer);
-            Mockito.when(companyDAO.findById(1L)).thenReturn(manufacturer);
+            Mockito.when(companyDAO.findById(1L)).thenReturn(Optional.of(manufacturer));
 
             Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
             if (computerUpdatedOptional.isPresent()) {
@@ -439,7 +439,7 @@ public class GeneralServiceTest {
                 .build();
 
         try {
-            Mockito.when(companyDAO.findById(2L)).thenReturn(null);
+            Mockito.when(companyDAO.findById(2L)).thenReturn(Optional.empty());
 
             exception.expect(GeneralServiceException.class);
             service.updateComputer(computer);

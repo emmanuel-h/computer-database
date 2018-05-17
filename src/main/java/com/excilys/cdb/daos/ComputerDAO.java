@@ -30,8 +30,8 @@ public class ComputerDAO implements DAO<Computer> {
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id LIMIT ?,?";
     private final String FIND_COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
-    private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id)"
-            + "VALUES (?, ?, ?, ?)";
+    private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id, id)"
+            + "VALUES (?, ?, ?, ?, ?)";
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
     private final String DELETE_MULTIPLE_COMPUTER = "DELETE FROM computer WHERE id in %s";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
@@ -137,6 +137,7 @@ public class ComputerDAO implements DAO<Computer> {
             } else {
                 statement.setLong(4, computer.getManufacturer().getId());
             }
+            statement.setLong(5, computer.getId());
 
             statement.executeUpdate();
 
