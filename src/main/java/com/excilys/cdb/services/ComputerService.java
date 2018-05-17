@@ -34,7 +34,6 @@ public class ComputerService {
     private final String UNNAMED_COMPUTER = "The computer does not have a name";
     private final String DATE_PROBLEM = "Discontinued date is before introduced date";
     private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
-    private final String ERREUR_FACTORY = "Erreur lors de la conception de la factory : ";
 
     /**
      * Constructor initializing the DAO.

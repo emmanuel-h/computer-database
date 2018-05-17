@@ -6,14 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.DateConvertor;
 import com.excilys.cdb.utils.Page;
+import com.excilys.cdb.utils.ResultSetConvertor;
 
 /**
  * ComputerDAO make the link between the database and the model.
@@ -63,35 +61,15 @@ public class ComputerDAO implements DAO<Computer> {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
-
-        List<Computer> computers = new ArrayList<>();
         try (Connection con = DAOFactory.getConnection();
                 PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPUTERS)) {
             statement.setInt(1, (currentPage - 1) * maxResults);
             statement.setInt(2, maxResults);
             try (ResultSet rs = statement.executeQuery()) {
-                Company company;
-                while (rs.next()) {
-                    company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
-                    computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
-                            .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
-                            .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
-                            .manufacturer(company).build());
-                }
+                int totalComputers = count();
+                return ResultSetConvertor.resultSetToComputerPage(rs, maxResults, totalComputers, currentPage);
             }
         }
-
-
-        Page<Computer> page = new Page<>();
-        page.setResultsPerPage(maxResults);
-
-        int totalComputers = count();
-        double maxPage = (double) totalComputers / page.getResultsPerPage();
-        page.setMaxPage((int) Math.ceil(maxPage));
-
-        page.setCurrentPage(currentPage);
-        page.setResults(computers);
-        return page;
     }
 
     @Override
@@ -102,12 +80,7 @@ public class ComputerDAO implements DAO<Computer> {
             statement.setLong(1, id);
             try (ResultSet rSet = statement.executeQuery()) {
                 if (rSet.next()) {
-                    Company company = new Company(rSet.getLong("company.id"), rSet.getString("company.name"));
-                    computer = Optional.of(new Computer.Builder(rSet.getString("computer.name")).id(rSet.getInt("computer.id"))
-                            .introduced(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.introduced")))
-                            .discontinued(DateConvertor.timeStampToLocalDate(rSet.getTimestamp("computer.discontinued")))
-                            .manufacturer(company)
-                            .build());
+                    computer = ResultSetConvertor.resultSetToOptionalComputer(rSet);
                 }
             }
         }
@@ -241,33 +214,16 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public Page<Computer> searchComputer(String search, int currentPage, int maxResults) throws SQLException {
-        List<Computer> computers = new ArrayList<>();
         try (Connection connection = DAOFactory.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SEARCH_COMPUTERS)) {
             statement.setString(1, '%' + search + '%');
             statement.setInt(2, (currentPage - 1) * maxResults);
             statement.setInt(3, maxResults);
             try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    Company company = new Company(rs.getLong("company.id"), rs.getString("company.name"));
-                    computers.add(new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
-                            .introduced(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.introduced")))
-                            .discontinued(DateConvertor.timeStampToLocalDate(rs.getTimestamp("computer.discontinued")))
-                            .manufacturer(company).build());
-                }
+                int totalComputers = countSearchedComputers(search);
+                return ResultSetConvertor.resultSetToComputerPage(rs, maxResults, totalComputers, currentPage);
             }
         }
-
-        Page<Computer> page = new Page<>();
-        page.setResultsPerPage(maxResults);
-
-        int totalComputers = countSearchedComputers(search);
-        double maxPage = (double) totalComputers / page.getResultsPerPage();
-        page.setMaxPage((int) Math.ceil(maxPage));
-
-        page.setCurrentPage(currentPage);
-        page.setResults(computers);
-        return page;
     }
 
     /**
