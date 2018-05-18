@@ -10,34 +10,31 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.excilys.cdb.daos.DAOFactory.DaoTypes;
-import com.excilys.cdb.exceptions.FactoryException;
+import com.excilys.cdb.launcher.SpringConfigTest;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringConfigTest.class)
 public class ComputerDAOTest {
 
+    @Autowired
     private ComputerDAO computerDAO;
+
+    @Autowired
     private CompanyDAO companyDAO;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-
-    /**
-     * Get the instance of computerDAO.
-     * @throws FactoryException If there is an exception in the DAOFactory
-     */
-    @Before
-    public void setup() throws FactoryException {
-        computerDAO = (ComputerDAO) DAOFactory.getDAO(DaoTypes.COMPUTER);
-        companyDAO = (CompanyDAO) DAOFactory.getDAO(DaoTypes.COMPANY);
-    }
 
     /**
      * Test if findAll with a negative page number return null.

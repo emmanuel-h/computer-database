@@ -11,4 +11,7 @@
   <logger name="com.zaxxer.hikari">
     <level value="error" />
   </logger>
+  <logger name="org.springframework" level="info">
+    <appender-ref ref="STDOUT" />
+  </logger>
 </configuration>

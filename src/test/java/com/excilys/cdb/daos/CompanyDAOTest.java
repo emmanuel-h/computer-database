@@ -9,26 +9,22 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.excilys.cdb.daos.DAOFactory.DaoTypes;
-import com.excilys.cdb.exceptions.FactoryException;
+import com.excilys.cdb.launcher.SpringConfigTest;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringConfigTest.class)
 public class CompanyDAOTest {
 
+    @Autowired
     private CompanyDAO companyDAO;
-
-    /**
-     * Get the instance of companyDAO.
-     * @throws FactoryException If there is an exception in the DAOFactory
-     */
-    @Before
-    public void setup() throws FactoryException {
-        companyDAO = (CompanyDAO) DAOFactory.getDAO(DaoTypes.COMPANY);
-    }
 
 
     /**
