@@ -8,6 +8,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.DateConvertor;
 import com.excilys.cdb.utils.Page;
@@ -17,12 +22,11 @@ import com.excilys.cdb.utils.ResultSetConvertor;
  * ComputerDAO make the link between the database and the model.
  * @author emmanuelh
  */
+@Repository
 public class ComputerDAO implements DAO<Computer> {
 
-    /**
-     * The singleton's instance of ComputerDAO.
-     */
-    private static ComputerDAO computerDAO;
+    @Autowired
+    private DataSource dataSource;
 
     private final String FIND_ALL_COMPUTERS = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id LIMIT ?,?";
@@ -45,23 +49,12 @@ public class ComputerDAO implements DAO<Computer> {
     private ComputerDAO() {
     }
 
-    /**
-     * Get the singleton's instance of the ComputerDAO.
-     * @return              The instance of ComputerDAO
-     */
-    public static ComputerDAO getInstance() {
-        if (null == computerDAO) {
-            computerDAO = new ComputerDAO();
-        }
-        return computerDAO;
-    }
-
     @Override
     public Page<Computer> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
-        try (Connection con = DAOFactory.getConnection();
+        try (Connection con = dataSource.getConnection();
                 PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPUTERS)) {
             statement.setInt(1, (currentPage - 1) * maxResults);
             statement.setInt(2, maxResults);
@@ -74,14 +67,12 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Optional<Computer> findById(long id) throws SQLException {
-        Optional<Computer> computer = Optional.empty();
-        try (Connection connection = DAOFactory.getConnection();
+        Optional<Computer> computer;
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet rSet = statement.executeQuery()) {
-                if (rSet.next()) {
-                    computer = ResultSetConvertor.resultSetToOptionalComputer(rSet);
-                }
+                computer = ResultSetConvertor.resultSetToOptionalComputer(rSet);
             }
         }
         return computer;
@@ -89,7 +80,7 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public long add(Computer computer) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS)) {
 
             Timestamp introducedSQL = null;
@@ -125,7 +116,7 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public boolean delete(long id) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER)) {
             statement.setLong(1, id);
             int result = statement.executeUpdate();
@@ -138,7 +129,7 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Computer update(Computer computer) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER)) {
 
             Timestamp introducedSQL = null;
@@ -177,7 +168,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public int count() throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
                 ResultSet rSet = statement.executeQuery()) {
             if (rSet.next()) {
@@ -195,7 +186,7 @@ public class ComputerDAO implements DAO<Computer> {
      */
     public boolean deleteMultiple(String toDelete) throws SQLException {
         String query = String.format(DELETE_MULTIPLE_COMPUTER, toDelete);
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
             int result = statement.executeUpdate();
             if (result == 0) {
@@ -214,7 +205,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public Page<Computer> searchComputer(String search, int currentPage, int maxResults) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(SEARCH_COMPUTERS)) {
             statement.setString(1, '%' + search + '%');
             statement.setInt(2, (currentPage - 1) * maxResults);
@@ -233,7 +224,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public int countSearchedComputers(String search) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(COUNT_SEARCHED_COMPUTERS)) {
             statement.setString(1, '%' + search + '%');
             try (ResultSet rSet = statement.executeQuery()) {

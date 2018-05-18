@@ -25,6 +25,7 @@
     <mysql.maven.version>1.5</mysql.maven.version>
     <maven.lang.version>3.7</maven.lang.version>
     <hikari.version>2.7.8</hikari.version>
+    <spring.version>5.0.6.RELEASE</spring.version>
   </properties>
 
   <dependencies>
@@ -89,6 +90,31 @@
       <version>${hikari.version}</version>
       <scope>compile</scope>
     </dependency>
+    
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>commons.logging</groupId>
+                <artifactId>commons.logging</artifactId>
+            </exclusion>
+        </exclusions>
+        <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
+        <scope>test</scope>
+    </dependency>
+    
+    
   </dependencies>
 
   <build>

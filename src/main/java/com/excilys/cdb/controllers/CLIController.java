@@ -2,6 +2,8 @@ package com.excilys.cdb.controllers;
 
 import java.util.Optional;
 
+import org.springframework.context.support.AbstractApplicationContext;
+
 import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -75,14 +77,13 @@ public class CLIController {
 
     /**
      * Constructor with an UI and a service.
-     * @param ui       The UI
-     * @param companyService  The company service
-     * @param computerService The computer service
+     * @param ui        The UI
+     * @param context   The Spring context
      */
-    public CLIController(CLI ui, CompanyService companyService, ComputerService computerService) {
+    public CLIController(CLI ui, AbstractApplicationContext context) {
         this.ui = ui;
-        this.companyService = companyService;
-        this.computerService = computerService;
+        this.companyService = context.getBean(CompanyService.class);
+        this.computerService = context.getBean(ComputerService.class);
     }
 
     /**
