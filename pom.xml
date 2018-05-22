@@ -5,7 +5,7 @@
 
   <groupId>com.excilys.cdb</groupId>
   <artifactId>computerdb</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>4.5.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>computerdb</name>
@@ -102,11 +102,13 @@
         </exclusions>
         <version>${spring.version}</version>
     </dependency>
+    
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
         <version>${spring.version}</version>
     </dependency>
+    
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
