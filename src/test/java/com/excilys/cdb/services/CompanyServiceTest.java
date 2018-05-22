@@ -3,7 +3,6 @@ package com.excilys.cdb.services;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,16 +83,5 @@ public class CompanyServiceTest {
         Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
         assertFalse(resultsPageNegative.isPresent());
         Mockito.verify(companyDAO).findAllWithPaging(1, -1);
-    }
-
-    /**
-     * Test if the getAllCompanies method work properly when a SQL Exception is raised.
-     */
-    @Test
-    public void getAllCompaniesWithSQLException() {
-        Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
-        Optional<Page<Company>> resultsPageException = service.getAllCompaniesWithPaging(1, 10);
-        assertFalse(resultsPageException.isPresent());
-        Mockito.verify(companyDAO).findAllWithPaging(1, 10);
     }
 }

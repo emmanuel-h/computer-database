@@ -71,7 +71,7 @@ public class CompanyDAO implements DAO<Company> {
         }
         int total = template.queryForObject(COUNT_COMPANIES, Integer.class);
 
-        double maxPage = (double) total / page.getResultsPerPage();
+        double maxPage = total / page.getResultsPerPage();
         page.setMaxPage((int) Math.ceil(maxPage));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
@@ -94,9 +94,8 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public boolean delete(long id) {
-        int resultDeleteComputers = template.update(DELETE_COMPUTER_FROM_MANUFACTURER, id);
-        int resultDeleteCompany = template.update(DELETE_COMPANY, id);
-        return !(resultDeleteCompany == 0 && resultDeleteComputers == 0);
+        template.update(DELETE_COMPUTER_FROM_MANUFACTURER, id);
+        return template.update(DELETE_COMPANY, id) == 0;
     }
 
     @Override

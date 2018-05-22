@@ -2,6 +2,8 @@ package com.excilys.cdb.services;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,11 @@ public class ComputerService {
 
     @Autowired
     private CompanyService companyService;
+
+    /**
+     * A logger.
+     */
+    private final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 
     private final String NULL_COMPUTER = "The computer is null";
     private final String UNNAMED_COMPUTER = "The computer does not have a name";
@@ -50,7 +57,7 @@ public class ComputerService {
      * @throws ComputerServiceException if there is no corresponding computer
      */
     public Computer getOneComputer(long id) throws ComputerServiceException {
-        Optional<Computer> computerOptional =  this.computerDAO.findById(id);
+        Optional<Computer> computerOptional = this.computerDAO.findById(id);
         if (!computerOptional.isPresent()) {
             throw new ComputerServiceException("The computer is not found");
         } else {
@@ -111,7 +118,12 @@ public class ComputerService {
                 throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
             }
         }
-        return Optional.ofNullable(computerDAO.update(computer));
+        try {
+            return Optional.ofNullable(computerDAO.update(computer));
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            LOGGER.warn("Problem when updating the Computer : " + e);
+            throw new ComputerServiceException("Problem when updating the computer");
+        }
     }
 
     /**

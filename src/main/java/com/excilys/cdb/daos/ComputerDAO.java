@@ -80,7 +80,7 @@ public class ComputerDAO implements DAO<Computer> {
         }
         int total = template.queryForObject(COUNT_COMPUTERS, Integer.class);
 
-        double maxPage = (double) total / page.getResultsPerPage();
+        double maxPage = total / page.getResultsPerPage();
         page.setMaxPage((int) Math.ceil(maxPage));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
@@ -90,7 +90,14 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Optional<Computer> findById(long id) {
-        return Optional.ofNullable(template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper()));
+        Computer computer;
+        try {
+            computer = template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+        return Optional.of(computer);
+        //return Optional.ofNullable(template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper()));
 
     }
 
@@ -177,7 +184,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public boolean deleteMultiple(String toDelete) {
-        int result = template.update(DELETE_MULTIPLE_COMPUTER, toDelete);
+        int result = template.update(String.format(DELETE_MULTIPLE_COMPUTER, toDelete));
         return !(result == 0);
     }
 
@@ -212,7 +219,7 @@ public class ComputerDAO implements DAO<Computer> {
         }
         int total = countSearchedComputers(search);
 
-        double maxPage = (double) total / page.getResultsPerPage();
+        double maxPage = total / page.getResultsPerPage();
         page.setMaxPage((int) Math.ceil(maxPage));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.daos.ComputerDAO;
@@ -47,9 +44,6 @@ public class ComputerServiceTest {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-
-    private final Logger LOGGER = LoggerFactory.getLogger(ComputerServiceTest.class);
-    private final String SQL_EXCEPTION = "Unit test - SQL Exception : ";
 
     /**
      * Initialize the mocks.
@@ -86,16 +80,10 @@ public class ComputerServiceTest {
      */
     @Test
     public void getAllComputersWithInvalidResultsPerPage() {
-
-        try {
-            Mockito.when(computerDAO.findAllWithPaging(1, -1)).thenReturn(null);
-
-            Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(1, -1);
-            assertFalse(resultsPageNegative.isPresent());
-            Mockito.verify(computerDAO).findAllWithPaging(1, -1);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.findAllWithPaging(1, -1)).thenReturn(null);
+        Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(1, -1);
+        assertFalse(resultsPageNegative.isPresent());
+        Mockito.verify(computerDAO).findAllWithPaging(1, -1);
     }
 
     /**
@@ -103,54 +91,10 @@ public class ComputerServiceTest {
      */
     @Test
     public void getAllComputersWithInvalidPageNumber() {
-
-        try {
-            Mockito.when(computerDAO.findAllWithPaging(-1, 10)).thenReturn(null);
-
-            Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(-1, 10);
-            assertFalse(resultsPageNegative.isPresent());
-            Mockito.verify(computerDAO).findAllWithPaging(-1, 10);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if the getAllComputers method work correctly when a SQLException is raised.
-     */
-    @Test
-    public void getAllComputersWithSQLException() {
-        try {
-            Mockito.when(computerDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
-
-            Optional<Page<Computer>> resultsPageException = service.getAllComputersWithPaging(1, 10);
-            assertFalse(resultsPageException.isPresent());
-            Mockito.verify(computerDAO).findAllWithPaging(1, 10);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if the getOneComputer works properly.
-     * @throws ComputerServiceException  If an SQL Exception is raise by the DAO
-     */
-    @Test
-    public void getOneComputer() throws ComputerServiceException {
-        Computer computer = new Computer.Builder("test").id(1L).build();
-
-        try {
-            Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.of(computer));
-            Mockito.when(computerDAO.findById(42L)).thenThrow(SQLException.class);
-
-            Computer receiveComputer = service.getOneComputer(1L);
-            assertTrue(receiveComputer.getId() == 1L);
-
-            exception.expect(ComputerServiceException.class);
-            service.getOneComputer(42L);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.findAllWithPaging(-1, 10)).thenReturn(null);
+        Optional<Page<Computer>> resultsPageNegative = service.getAllComputersWithPaging(-1, 10);
+        assertFalse(resultsPageNegative.isPresent());
+        Mockito.verify(computerDAO).findAllWithPaging(-1, 10);
     }
 
     /**
@@ -171,7 +115,6 @@ public class ComputerServiceTest {
     public void createComputerWithNoName() throws ComputerServiceException {
         Computer computer = new Computer();
         computer.setId(1L);
-
         exception.expect(ComputerServiceException.class);
         service.createComputer(computer);
     }
@@ -186,15 +129,9 @@ public class ComputerServiceTest {
                 .id(1L)
                 .discontinued(null)
                 .build();
-
-        try {
-            Mockito.when(computerDAO.add(computer)).thenReturn(computer.getId());
-
-            long computerCreatedId = service.createComputer(computer);
-            assertEquals(computerCreatedId, 1L);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.add(computer)).thenReturn(computer.getId());
+        long computerCreatedId = service.createComputer(computer);
+        assertEquals(computerCreatedId, 1L);
     }
 
     /**
@@ -222,9 +159,7 @@ public class ComputerServiceTest {
                 .id(1L)
                 .manufacturer(new Company(2L, "nonexistent company"))
                 .build();
-
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
-
         exception.expect(ComputerServiceException.class);
         service.createComputer(computer);
     }
@@ -237,34 +172,9 @@ public class ComputerServiceTest {
     public void createValidComputer() throws ComputerServiceException {
         Computer computer = new Computer.Builder("test")
                 .build();
-
-        try {
-            Mockito.when(computerDAO.add(computer)).thenReturn(1L);
-
-            long id = service.createComputer(computer);
-            assertEquals(id, 1L);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if a computer is not updated when a SQL Exception is raised.
-     * @throws ComputerServiceException  If there is a problem with the computer update inside the service method
-     */
-    @Test
-    public void createComputerWithSQLException() throws ComputerServiceException {
-        Computer computer = new Computer.Builder("test")
-                .build();
-
-        try {
-            Mockito.when(computerDAO.add(computer)).thenThrow(SQLException.class);
-
-            long id = service.createComputer(computer);
-            assertEquals(id, 0L);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.add(computer)).thenReturn(1L);
+        long id = service.createComputer(computer);
+        assertEquals(id, 1L);
     }
 
     /**
@@ -285,7 +195,6 @@ public class ComputerServiceTest {
     public void updateComputerWithNoName() throws ComputerServiceException {
         Computer computer = new Computer();
         computer.setId(1L);
-
         exception.expect(ComputerServiceException.class);
         service.updateComputer(computer);
     }
@@ -303,22 +212,17 @@ public class ComputerServiceTest {
                 .discontinued(LocalDate.of(2008, 11, 11))
                 .manufacturer(manufacturer)
                 .build();
+        Mockito.when(computerDAO.update(computer)).thenReturn(computer);
+        Mockito.when(companyService.getOneCompany(1L)).thenReturn(Optional.of(manufacturer));
 
-        try {
-            Mockito.when(computerDAO.update(computer)).thenReturn(computer);
-            Mockito.when(companyService.getOneCompany(1L)).thenReturn(Optional.of(manufacturer));
-
-            Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
-            if (computerUpdatedOptional.isPresent()) {
-                Computer computerUpdated = computerUpdatedOptional.get();
-                assertEquals(computerUpdated.getId(), computer.getId());
-                assertEquals(computerUpdated.getName(), computer.getName());
-                assertEquals(computerUpdated.getIntroduced(), computer.getIntroduced());
-                assertEquals(computerUpdated.getDiscontinued(), computer.getDiscontinued());
-                assertEquals(computerUpdated.getManufacturer().getId(), computer.getManufacturer().getId());
-            }
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
+        if (computerUpdatedOptional.isPresent()) {
+            Computer computerUpdated = computerUpdatedOptional.get();
+            assertEquals(computerUpdated.getId(), computer.getId());
+            assertEquals(computerUpdated.getName(), computer.getName());
+            assertEquals(computerUpdated.getIntroduced(), computer.getIntroduced());
+            assertEquals(computerUpdated.getDiscontinued(), computer.getDiscontinued());
+            assertEquals(computerUpdated.getManufacturer().getId(), computer.getManufacturer().getId());
         }
     }
 
@@ -347,9 +251,7 @@ public class ComputerServiceTest {
                 .id(1L)
                 .manufacturer(new Company(2L, "nonexistent company"))
                 .build();
-
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
-
         exception.expect(ComputerServiceException.class);
         service.updateComputer(computer);
     }
@@ -363,37 +265,12 @@ public class ComputerServiceTest {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .build();
-
-        try {
-            Mockito.when(computerDAO.update(computer)).thenReturn(computer);
-
-            Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
-            if (computerUpdatedOptional.isPresent()) {
-                Computer computerUpdated = computerUpdatedOptional.get();
-                assertEquals(computerUpdated.getId(), computer.getId());
-                assertTrue(computerUpdated.getName().equals(computer.getName()));
-            }
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if a computer is not updated when a SQL Exception is raised.
-     * @throws ComputerServiceException  If there is a problem with the computer update inside the service method
-     */
-    @Test
-    public void updateComputerWithSQLException() throws ComputerServiceException {
-        Computer computer = new Computer.Builder("test")
-                .build();
-
-        try {
-            Mockito.when(computerDAO.update(computer)).thenThrow(SQLException.class);
-
-            Optional<Computer> computerUpdated = service.updateComputer(computer);
-            assertFalse(computerUpdated.isPresent());
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        Mockito.when(computerDAO.update(computer)).thenReturn(computer);
+        Optional<Computer> computerUpdatedOptional = service.updateComputer(computer);
+        if (computerUpdatedOptional.isPresent()) {
+            Computer computerUpdated = computerUpdatedOptional.get();
+            assertEquals(computerUpdated.getId(), computer.getId());
+            assertTrue(computerUpdated.getName().equals(computer.getName()));
         }
     }
 
@@ -402,14 +279,9 @@ public class ComputerServiceTest {
      */
     @Test
     public void deleteComputer() {
-        try {
-            Mockito.when(computerDAO.delete(1L)).thenReturn(true);
-
-            boolean resultDelete = service.deleteComputer(1L);
-            assertTrue(resultDelete);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.delete(1L)).thenReturn(true);
+        boolean resultDelete = service.deleteComputer(1L);
+        assertTrue(resultDelete);
     }
 
     /**
@@ -417,29 +289,9 @@ public class ComputerServiceTest {
      */
     @Test
     public void deleteUnknownComputer() {
-        try {
-            Mockito.when(computerDAO.delete(1L)).thenReturn(false);
-
-            boolean resultDelete = service.deleteComputer(1L);
-            assertFalse(resultDelete);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if the deletion of an existing computer works with a SQLException.
-     */
-    @Test
-    public void deleteComputerWithSQLException() {
-        try {
-            Mockito.when(computerDAO.delete(1L)).thenThrow(SQLException.class);
-
-            boolean resultDelete = service.deleteComputer(1L);
-            assertFalse(resultDelete);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.delete(1L)).thenReturn(false);
+        boolean resultDelete = service.deleteComputer(1L);
+        assertFalse(resultDelete);
     }
 
     /**
@@ -447,28 +299,8 @@ public class ComputerServiceTest {
      */
     @Test
     public void countComputer() {
-        try {
-            Mockito.when(computerDAO.count()).thenReturn(11);
-
-            int count = service.countComputers();
-            assertEquals(11, count);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-    }
-
-    /**
-     * Test if the computer count works when a SQL exception is raise.
-     */
-    @Test
-    public void countComputerWithSQLException() {
-        try {
-            Mockito.when(computerDAO.count()).thenThrow(SQLException.class);
-
-            int count = service.countComputers();
-            assertEquals(-1, count);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(computerDAO.count()).thenReturn(11);
+        int count = service.countComputers();
+        assertEquals(11, count);
     }
 }
