@@ -18,8 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.daos.ComputerDAO;
@@ -41,9 +39,6 @@ public class CompanyServiceTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
-    private final Logger LOGGER = LoggerFactory.getLogger(CompanyServiceTest.class);
-    private final String SQL_EXCEPTION = "Unit test - SQL Exception : ";
-
     /**
      * Initialize the mocks.
      */
@@ -62,17 +57,11 @@ public class CompanyServiceTest {
         List<Company> companiesList = new ArrayList<>();
         companiesList.add(company);
         companies.setResults(companiesList);
+        Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenReturn(companies);
 
-        try {
-            Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenReturn(companies);
-
-            Optional<Page<Company>> resultsPage = service.getAllCompaniesWithPaging(1, 10);
-            assertTrue(resultsPage.get().getResults().get(0).equals(company));
-            Mockito.verify(companyDAO).findAllWithPaging(1, 10);
-
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Optional<Page<Company>> resultsPage = service.getAllCompaniesWithPaging(1, 10);
+        assertTrue(resultsPage.get().getResults().get(0).equals(company));
+        Mockito.verify(companyDAO).findAllWithPaging(1, 10);
     }
 
     /**
@@ -80,16 +69,10 @@ public class CompanyServiceTest {
      */
     @Test
     public void getAllCompaniesWithInvalidPageNumber() {
-        try {
-            Mockito.when(companyDAO.findAllWithPaging(-1, 10)).thenReturn(null);
-
-            // get all companies with negative page number
-            Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(-1, 10);
-            assertFalse(resultsPageNegative.isPresent());
-            Mockito.verify(companyDAO).findAllWithPaging(-1, 10);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(companyDAO.findAllWithPaging(-1, 10)).thenReturn(null);
+        Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(-1, 10);
+        assertFalse(resultsPageNegative.isPresent());
+        Mockito.verify(companyDAO).findAllWithPaging(-1, 10);
     }
 
     /**
@@ -97,16 +80,10 @@ public class CompanyServiceTest {
      */
     @Test
     public void getAllCompaniesWithInvalidResultsPerPage() {
-        try {
-            Mockito.when(companyDAO.findAllWithPaging(1, -1)).thenReturn(null);
-
-            // get all companies with negative page number
-            Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
-            assertFalse(resultsPageNegative.isPresent());
-            Mockito.verify(companyDAO).findAllWithPaging(1, -1);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(companyDAO.findAllWithPaging(1, -1)).thenReturn(null);
+        Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
+        assertFalse(resultsPageNegative.isPresent());
+        Mockito.verify(companyDAO).findAllWithPaging(1, -1);
     }
 
     /**
@@ -114,14 +91,9 @@ public class CompanyServiceTest {
      */
     @Test
     public void getAllCompaniesWithSQLException() {
-        try {
-            Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
-            // Test SQL error
-            Optional<Page<Company>> resultsPageException = service.getAllCompaniesWithPaging(1, 10);
-            assertFalse(resultsPageException.isPresent());
-            Mockito.verify(companyDAO).findAllWithPaging(1, 10);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
+        Mockito.when(companyDAO.findAllWithPaging(1, 10)).thenThrow(SQLException.class);
+        Optional<Page<Company>> resultsPageException = service.getAllCompaniesWithPaging(1, 10);
+        assertFalse(resultsPageException.isPresent());
+        Mockito.verify(companyDAO).findAllWithPaging(1, 10);
     }
 }

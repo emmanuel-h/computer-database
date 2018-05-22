@@ -66,7 +66,6 @@ public class AddComputerServlet extends HttpServlet {
         String message = null;
 
         String todo = request.getParameter("todo");
-        System.out.println("llll");
         try {
             if (null != todo) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

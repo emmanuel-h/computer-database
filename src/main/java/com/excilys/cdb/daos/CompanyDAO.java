@@ -4,18 +4,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
+import com.excilys.cdb.daos.mapper.CompanyRowMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -29,10 +35,11 @@ public class CompanyDAO implements DAO<Company> {
     @Autowired
     private DataSource dataSource;
 
+    private JdbcTemplate template;
+
     private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company";
     private final String FIND_ALL_COMPANIES_WITH_PAGING = "SELECT id, name FROM company LIMIT ?,?";
     private final String FIND_COMPANY_BY_ID = "SELECT id, name FROM company WHERE id=?";
-    private final String ADD_COMPANY = "INSERT INTO company (name) VALUES (?)";
     private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
     private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM company";
@@ -44,71 +51,55 @@ public class CompanyDAO implements DAO<Company> {
     private final Logger LOGGER = LoggerFactory.getLogger(CompanyDAO.class);
 
     /**
-     * Default constructor with a Connection.
+     * Private constructor to ensure uniqueness.
      */
     private CompanyDAO() {
     }
 
+    @PostConstruct
+    private void initializeConnection() {
+        template = new JdbcTemplate(dataSource);
+    }
+
     @Override
-    public Page<Company> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
+    public Page<Company> findAllWithPaging(int currentPage, int maxResults) {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
-
-        try (Connection con = dataSource.getConnection();
-                PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING)) {
-            statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
-            statement.setInt(2, page.getResultsPerPage());
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    companies.add(new Company(rs.getInt("id"), rs.getString("name")));
-                }
-            }
-        }
-        try (Connection con = dataSource.getConnection();
-                PreparedStatement statement = con.prepareStatement(COUNT_COMPANIES);
-                ResultSet rs = statement.executeQuery()) {
-            if (rs.next()) {
-                double maxPage = (double) rs.getInt(1) / page.getResultsPerPage();
-                page.setMaxPage((int) Math.ceil(maxPage));
-            }
-
+        try {
+            companies = template.query(FIND_ALL_COMPANIES_WITH_PAGING,
+                    new Object[] {(currentPage - 1) * maxResults, maxResults},
+                    new CompanyRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            page.setMaxPage(1);
             page.setCurrentPage(currentPage);
+            page.setResultsPerPage(maxResults);
             page.setResults(companies);
+            return page;
         }
+        int total = template.queryForObject(COUNT_COMPANIES, Integer.class);
+
+        double maxPage = (double) total / page.getResultsPerPage();
+        page.setMaxPage((int) Math.ceil(maxPage));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
         return page;
     }
 
     @Override
-    public Optional<Company> findById(long id) throws SQLException {
-        Optional<Company> company = Optional.empty();
-        try (Connection con = dataSource.getConnection();
-                PreparedStatement statement = con.prepareStatement(FIND_COMPANY_BY_ID)) {
-            statement.setLong(1, id);
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    company = Optional.of(new Company(rs.getInt("id"), rs.getString("name")));
-                }
-            }
-        }
-        return company;
+    public Optional<Company> findById(long id) {
+        return Optional.ofNullable(template.queryForObject(FIND_COMPANY_BY_ID, new Object[] {id}, new CompanyRowMapper()));
     }
 
     @Override
-    public long add(Company company) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, company.getName());
-            statement.executeUpdate();
-            try (ResultSet rSet = statement.getGeneratedKeys()) {
-                if (rSet.next()) {
-                    return rSet.getLong(1);
-                }
-            }
-        }
-        return 0;
+    public long add(Company company) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
+        jdbcInsert.withTableName("computer").usingGeneratedKeyColumns("id");
+        SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("name", company.getName());
+        return jdbcInsert.executeAndReturnKey(parameterSource).longValue();
     }
 
     @Override

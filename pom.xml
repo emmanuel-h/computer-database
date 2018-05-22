@@ -13,6 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>4.12</junit.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <slf4j.version>1.7.25</slf4j.version>
@@ -32,7 +33,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -105,15 +106,15 @@
     
     <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
+        <artifactId>spring-test</artifactId>
         <version>${spring.version}</version>
+        <scope>test</scope>
     </dependency>
     
     <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
+        <artifactId>spring-jdbc</artifactId>
         <version>${spring.version}</version>
-        <scope>test</scope>
     </dependency>
     
     

@@ -40,12 +40,7 @@ public class CompanyService {
      * @return              The page object corresponding to the criteria
      */
     public Optional<Page<Company>> getAllCompaniesWithPaging(int currentPage, int maxResults) {
-        try {
-            return Optional.ofNullable(this.companyDAO.findAllWithPaging(currentPage, maxResults));
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.companyDAO.findAllWithPaging(currentPage, maxResults));
     }
 
     /**
@@ -81,11 +76,8 @@ public class CompanyService {
      * @return      The company found
      */
     public Optional<Company> getOneCompany(long id) {
-        try {
-            return companyDAO.findById(id);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+
+        return companyDAO.findById(id);
+
     }
 }
