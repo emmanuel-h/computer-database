@@ -48,7 +48,7 @@ public class ComputerDAO implements DAO<Computer> {
     private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM computer WHERE computer.name LIKE ?";
 
     /**
-     * The constructor with a Connection.
+     * Private constructor to ensure uniqueness.
      */
     private ComputerDAO() {
     }
@@ -112,7 +112,6 @@ public class ComputerDAO implements DAO<Computer> {
                 .addValue("introduced", introducedSQL)
                 .addValue("discontinued", discontinuedSQL)
                 .addValue("id", computer.getId());
-
 
         if (null == computer.getManufacturer()) {
             ((MapSqlParameterSource) parameterSource).addValue("company_id", null);

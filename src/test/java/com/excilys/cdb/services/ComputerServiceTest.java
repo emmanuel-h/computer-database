@@ -71,18 +71,14 @@ public class ComputerServiceTest {
         computerList.add(computer);
         computers.setResults(computerList);
 
-        try {
-            Mockito.when(computerDAO.findAllWithPaging(1, 10)).thenReturn(computers);
+        Mockito.when(computerDAO.findAllWithPaging(1, 10)).thenReturn(computers);
 
-            Optional<Page<Computer>> resultsPageOptional = service.getAllComputersWithPaging(1, 10);
-            if (resultsPageOptional.isPresent()) {
-                Page<Computer> resultsPage = resultsPageOptional.get();
-                assertTrue(resultsPage.getResults().get(0).equals(computer));
-            }
-            Mockito.verify(computerDAO).findAllWithPaging(1, 10);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
+        Optional<Page<Computer>> resultsPageOptional = service.getAllComputersWithPaging(1, 10);
+        if (resultsPageOptional.isPresent()) {
+            Page<Computer> resultsPage = resultsPageOptional.get();
+            assertTrue(resultsPage.getResults().get(0).equals(computer));
         }
+        Mockito.verify(computerDAO).findAllWithPaging(1, 10);
     }
 
     /**
