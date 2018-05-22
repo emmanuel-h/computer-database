@@ -97,8 +97,6 @@ public class ComputerDAO implements DAO<Computer> {
             return Optional.empty();
         }
         return Optional.of(computer);
-        //return Optional.ofNullable(template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper()));
-
     }
 
     @Override

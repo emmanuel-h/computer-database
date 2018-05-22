@@ -81,21 +81,29 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public Optional<Company> findById(long id) {
-        return Optional.ofNullable(template.queryForObject(FIND_COMPANY_BY_ID, new Object[] {id}, new CompanyRowMapper()));
+
+        Company company;
+        try {
+            company = template.queryForObject(FIND_COMPANY_BY_ID, new Object[] {id}, new CompanyRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+        return Optional.of(company);
     }
 
     @Override
     public long add(Company company) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
-        jdbcInsert.withTableName("computer").usingGeneratedKeyColumns("id");
-        SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("name", company.getName());
+        jdbcInsert.withTableName("company").usingGeneratedKeyColumns("id");
+        SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("name", company.getName())
+                .addValue("id", company.getId());
         return jdbcInsert.executeAndReturnKey(parameterSource).longValue();
     }
 
     @Override
     public boolean delete(long id) {
         template.update(DELETE_COMPUTER_FROM_MANUFACTURER, id);
-        return template.update(DELETE_COMPANY, id) == 0;
+        return !(template.update(DELETE_COMPANY, id) == 0);
     }
 
     @Override

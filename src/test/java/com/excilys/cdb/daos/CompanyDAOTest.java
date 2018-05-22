@@ -4,13 +4,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -26,63 +27,62 @@ public class CompanyDAOTest {
     @Autowired
     private CompanyDAO companyDAO;
 
+    /**
+     * A logger.
+     */
+    private final Logger LOGGER = LoggerFactory.getLogger(CompanyDAOTest.class);
+
 
     /**
      * Test if the findAll method works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findAll() throws SQLException {
+    public void findAll() {
         List<Company> companies = companyDAO.findAll();
         assertTrue(companies.size() == 42);
     }
 
     /**
      * Test if findAll with negative page number returns null.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findAllWithNegativePage() throws SQLException {
+    public void findAllWithNegativePage() {
         Page<Company> companies = companyDAO.findAllWithPaging(-1, 10);
         assertNull(companies);
     }
 
     /**
      * Test if findAll with negative number of results per page returns null.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findAllWithNegativeResultsPerPage() throws SQLException {
+    public void findAllWithNegativeResultsPerPage() {
         Page<Company> companies = companyDAO.findAllWithPaging(1, -1);
         assertNull(companies);
     }
 
     /**
      * Test if findAll with a too big page number return an empty page.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findAllWithTooBigPage() throws SQLException {
+    public void findAllWithTooBigPage() {
         Page<Company> companies = companyDAO.findAllWithPaging(9999999, 10);
         assertTrue(companies.getResults().size() == 0);
     }
 
     /**
      * Test if findAll with a good page number works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findAllWithGoodPageNumber() throws SQLException {
+    public void findAllWithGoodPageNumber() {
         Page<Company> companies = companyDAO.findAllWithPaging(1, 5);
         assertTrue(companies.getResults().size() == 5);
     }
 
     /**
      * Test if the method findById works with a valid id.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findByIdWithGoodId() throws SQLException {
+    public void findByIdWithGoodId() {
         Optional<Company> company = companyDAO.findById(1L);
         assertTrue(company.get().getId() == 1L);
         assertTrue(company.get().getName().equals("Apple Inc."));
@@ -90,20 +90,18 @@ public class CompanyDAOTest {
 
     /**
      * Test if the method findById works with a bad id.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void findByIdWithBadId() throws SQLException {
+    public void findByIdWithBadId() {
         Optional<Company> company = companyDAO.findById(0L);
         assertFalse(company.isPresent());
     }
 
     /**
      * Test if the add method work.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void add() throws SQLException {
+    public void add() {
         Company company = new Company(500L, "test add");
         long addResult = companyDAO.add(company);
         assertTrue(addResult == 44L);
@@ -112,22 +110,21 @@ public class CompanyDAOTest {
 
     /**
      * Test if the add method with an existing id work.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void addWithexistingId() throws SQLException {
+    public void addWithexistingId() {
         Company company = new Company(1L, "test with exisiting id");
         long addResult = companyDAO.add(company);
+        LOGGER.error("DZQDZD : " + addResult);
         assertTrue(addResult == 45L);
         companyDAO.delete(45L);
     }
 
     /**
      * Test if the deletion of a company works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void deleteLegitCompany() throws SQLException {
+    public void deleteLegitCompany() {
         boolean deleteResult = companyDAO.delete(43L);
         assertTrue(deleteResult);
         Optional<Company> company = companyDAO.findById(43L);
@@ -136,30 +133,27 @@ public class CompanyDAOTest {
 
     /**
      * Test if the deletion of a company works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void deleteUnknownCompany() throws SQLException {
+    public void deleteUnknownCompany() {
         boolean deleteResult = companyDAO.delete(50L);
         assertFalse(deleteResult);
     }
 
     /**
      * Test if the deletion of a company with a negative id works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void deleteCompanyWithNegativeId() throws SQLException {
+    public void deleteCompanyWithNegativeId() {
         boolean deleteResult = companyDAO.delete(-1L);
         assertFalse(deleteResult);
     }
 
     /**
      * Test if a complete update of a company works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void updateWithAllFieldsFilled() throws SQLException {
+    public void updateWithAllFieldsFilled() {
         Company companyToUpdate = new Company(5, "test update");
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertTrue(companyUpdated.getName().equals("test update"));
@@ -167,10 +161,9 @@ public class CompanyDAOTest {
 
     /**
      * Test if an update with name null for a company works.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void updateWithNullFields() throws SQLException {
+    public void updateWithNullFields() {
         Company companyToUpdate = new Company(5, null);
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertNull(companyUpdated.getName());
@@ -178,10 +171,9 @@ public class CompanyDAOTest {
 
     /**
      * Test if an update with an unknown id returns null.
-     * @throws SQLException If there is a problem with the database
      */
     @Test
-    public void updateWithBadId() throws SQLException {
+    public void updateWithBadId() {
         Company companyToUpdate = new Company(60, "bad id");
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertNull(companyUpdated);
