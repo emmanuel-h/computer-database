@@ -5,23 +5,24 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.daos.ComputerDAO;
-import com.excilys.cdb.daos.DAOFactory;
 import com.excilys.cdb.exceptions.ComputerServiceException;
-import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.ComputerValidator;
 import com.excilys.cdb.validators.ComputersToDeleteValidator;
 
+@Service
 public class ComputerService {
 
-    private static ComputerService service;
-
+    @Autowired
     private ComputerDAO computerDAO;
 
+    @Autowired
     private CompanyService companyService;
 
     /**
@@ -37,23 +38,8 @@ public class ComputerService {
 
     /**
      * Constructor initializing the DAO.
-     * @throws FactoryException  If the factory raise an exception
      */
-    private ComputerService() throws FactoryException {
-        this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPUTER);
-        companyService = CompanyService.getInstance();
-    }
-
-    /**
-     * Initiate the singleton's instance of the ComputerService.
-     * @return                   The singleton's instance of the CompanyService
-     * @throws FactoryException  If an exception is raise during the service execution
-     */
-    public static ComputerService getInstance() throws FactoryException {
-        if (null == service) {
-            service = new ComputerService();
-        }
-        return service;
+    private ComputerService() {
     }
 
     /**

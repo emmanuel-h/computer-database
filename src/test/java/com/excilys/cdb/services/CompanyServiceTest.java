@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.daos.ComputerDAO;
-import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -51,16 +50,6 @@ public class CompanyServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-    }
-
-    /**
-     * Test if the singleton's instance is well-created.
-     * @throws FactoryException If there is an exception during instantiating the connection
-     */
-    @Test
-    public void getInstance() throws FactoryException {
-        CompanyService serviceTest = CompanyService.getInstance();
-        assertTrue(serviceTest instanceof CompanyService);
     }
 
     /**

@@ -5,17 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.excilys.cdb.dtos.ComputerDTO;
-import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.utils.ComputerConvertor;
@@ -30,26 +30,16 @@ public class DashBoardServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    @Autowired
     private ComputerService computerService;
-
-    /**
-     * A logger.
-     */
-    private final Logger LOGGER = LoggerFactory.getLogger(DashBoardServlet.class);
 
     private final String DELETE_COMPUTER = "deleteComputer";
     private final String SEARCH_COMPUTER = "search";
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public DashBoardServlet() {
-        super();
-        try {
-            computerService = ComputerService.getInstance();
-        } catch (FactoryException e) {
-            LOGGER.warn("Error when creating the service: " + e.getMessage());
-        }
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     /**

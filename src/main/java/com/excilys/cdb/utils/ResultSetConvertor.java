@@ -50,7 +50,6 @@ public class ResultSetConvertor {
                     .manufacturer(company).build());
         }
 
-
         Page<Computer> page = new Page<>();
         page.setResultsPerPage(maxResults);
         double maxPage = (double) totalComputers / page.getResultsPerPage();

@@ -7,17 +7,17 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.daos.CompanyDAO;
-import com.excilys.cdb.daos.DAOFactory;
-import com.excilys.cdb.exceptions.FactoryException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
+@Service
 public class CompanyService {
 
-    private static CompanyService service;
-
+    @Autowired
     private CompanyDAO companyDAO;
 
     /**
@@ -29,22 +29,8 @@ public class CompanyService {
 
     /**
      * Constructor initializing the DAO.
-     * @throws FactoryException  If the factory raise an exception
      */
-    private CompanyService() throws FactoryException {
-        this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOFactory.DaoTypes.COMPANY);
-    }
-
-    /**
-     * Initiate the singleton's instance of the CompanyService.
-     * @return                   The singleton's instance of the CompanyService
-     * @throws FactoryException  If an exception is raise during the service execution
-     */
-    public static CompanyService getInstance() throws FactoryException {
-        if (null == service) {
-            service = new CompanyService();
-        }
-        return service;
+    private CompanyService() {
     }
 
     /**

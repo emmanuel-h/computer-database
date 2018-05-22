@@ -9,8 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
@@ -19,12 +23,11 @@ import com.excilys.cdb.utils.Page;
  * ComputerDAO make the link between the database and the model.
  * @author emmanuelh
  */
+@Repository
 public class CompanyDAO implements DAO<Company> {
 
-    /**
-     * The singleton's instance of CompanyDAO.
-     */
-    private static CompanyDAO companyDAO;
+    @Autowired
+    private DataSource dataSource;
 
     private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company";
     private final String FIND_ALL_COMPANIES_WITH_PAGING = "SELECT id, name FROM company LIMIT ?,?";
@@ -46,17 +49,6 @@ public class CompanyDAO implements DAO<Company> {
     private CompanyDAO() {
     }
 
-    /**
-     * Return the singleton's instance of companyDAO.
-     * @return The companyDAO's instance
-     */
-    public static CompanyDAO getInstance() {
-        if (null == companyDAO) {
-            companyDAO = new CompanyDAO();
-        }
-        return companyDAO;
-    }
-
     @Override
     public Page<Company> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
         if (currentPage < 1 || maxResults < 1) {
@@ -65,7 +57,7 @@ public class CompanyDAO implements DAO<Company> {
         Page<Company> page = new Page<>();
         List<Company> companies = new ArrayList<>();
 
-        try (Connection con = DAOFactory.getConnection();
+        try (Connection con = dataSource.getConnection();
                 PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPANIES_WITH_PAGING)) {
             statement.setInt(1, (currentPage - 1) * page.getResultsPerPage());
             statement.setInt(2, page.getResultsPerPage());
@@ -75,7 +67,7 @@ public class CompanyDAO implements DAO<Company> {
                 }
             }
         }
-        try (Connection con = DAOFactory.getConnection();
+        try (Connection con = dataSource.getConnection();
                 PreparedStatement statement = con.prepareStatement(COUNT_COMPANIES);
                 ResultSet rs = statement.executeQuery()) {
             if (rs.next()) {
@@ -92,7 +84,7 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public Optional<Company> findById(long id) throws SQLException {
         Optional<Company> company = Optional.empty();
-        try (Connection con = DAOFactory.getConnection();
+        try (Connection con = dataSource.getConnection();
                 PreparedStatement statement = con.prepareStatement(FIND_COMPANY_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -106,7 +98,7 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public long add(Company company) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ADD_COMPANY, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, company.getName());
             statement.executeUpdate();
@@ -122,7 +114,7 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public boolean delete(long id) throws SQLException {
         boolean result = false;
-        Connection connection = DAOFactory.getConnection();
+        Connection connection = dataSource.getConnection();
         PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY);
         PreparedStatement statementComputers = connection.prepareStatement(DELETE_COMPUTER_FROM_MANUFACTURER);
         try {
@@ -157,7 +149,7 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public Company update(Company company) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_COMPANY)) {
             statement.setString(1, company.getName());
             statement.setLong(2, company.getId());
@@ -175,7 +167,7 @@ public class CompanyDAO implements DAO<Company> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public List<Company> findAll() throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(FIND_ALL_COMPANIES);
                 ResultSet rs = statement.executeQuery()) {
             List<Company> companies = new ArrayList<>();
