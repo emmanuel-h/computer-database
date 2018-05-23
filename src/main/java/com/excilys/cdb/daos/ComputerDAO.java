@@ -80,7 +80,7 @@ public class ComputerDAO implements DAO<Computer> {
         }
         int total = template.queryForObject(COUNT_COMPUTERS, Integer.class);
 
-        double maxPage = total / page.getResultsPerPage();
+        double maxPage = total / maxResults;
         page.setMaxPage((int) Math.ceil(maxPage));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
@@ -195,8 +195,6 @@ public class ComputerDAO implements DAO<Computer> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public Page<Computer> searchComputer(String search, int currentPage, int maxResults) {
-
-
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
@@ -217,7 +215,7 @@ public class ComputerDAO implements DAO<Computer> {
         }
         int total = countSearchedComputers(search);
 
-        double maxPage = total / page.getResultsPerPage();
+        double maxPage = total / maxResults;
         page.setMaxPage((int) Math.ceil(maxPage));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);

@@ -2,10 +2,11 @@ package com.excilys.cdb.launchers;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
 
 import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 public class SpringLaunch implements WebApplicationInitializer {
 
@@ -13,8 +14,10 @@ public class SpringLaunch implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.register(SpringConfig.class);
-        ContextLoaderListener listener = new ContextLoaderListener(context);
-        servletContext.addListener(listener);
+
+        ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", new DispatcherServlet(context));
+        registration.setLoadOnStartup(1);
+        registration.addMapping("/");
     }
 
 }

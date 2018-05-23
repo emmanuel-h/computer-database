@@ -12,15 +12,11 @@ public class Link extends SimpleTagSupport {
     String page;
     String limit;
     String search;
-    String todo;
 
     @Override
     public void doTag() throws JspException, IOException {
         JspWriter outJspWriter = getJspContext().getOut();
         StringBuilder stringBuilder = new StringBuilder("?");
-        if (null != todo) {
-            stringBuilder.append("todo=" + todo + '&');
-        }
         if (null != search) {
             stringBuilder.append("search=" + search + '&');
         }
@@ -38,10 +34,6 @@ public class Link extends SimpleTagSupport {
 
     public void setLimit(String limit) {
         this.limit = limit;
-    }
-
-    public void setTodo(String todo) {
-        this.todo = todo;
     }
 
     public void setSearch(String search) {

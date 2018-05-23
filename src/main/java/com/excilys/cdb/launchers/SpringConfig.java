@@ -11,12 +11,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+@EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"com.excilys.cdb.controllers.servlets", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
+@ComponentScan(basePackages = {"com.excilys.cdb.controllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
 public class SpringConfig {
 
     /**
@@ -44,5 +49,19 @@ public class SpringConfig {
             LOGGER.warn("Error the class name " + e.getMessage());
         }
         return dataSource;
+    }
+
+    /**
+     * Setup the view resolver.
+     * @return  The view resolver
+     */
+    @Bean
+    public ViewResolver viewResolver() {
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+        viewResolver.setViewClass(JstlView.class);
+        viewResolver.setPrefix("/WEB-INF/pages/");
+        viewResolver.setSuffix(".jsp");
+
+        return viewResolver;
     }
 }

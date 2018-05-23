@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="mylib" uri="/WEB-INF/taglibs/mylib.tld"%>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,7 +29,6 @@
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
 					<form id="searchForm" action="dashboard" method="GET" class="form-inline">
-					    <input type="hidden" name="todo" value="search" />
 						<input type="search" id="searchbox" name="search"
 							class="form-control" placeholder="Search name" />
 						 <input type="submit" id="searchsubmit" value="Filter by name"
@@ -45,9 +43,8 @@
 			</div>
 		</div>
 
-		<form id="deleteForm" action="dashboard" method="POST">
+		<form id="deleteForm" action="deleteComputers" method="POST">
 			<input type="hidden" name="selection" value="">
-			<input type="hidden" name="todo" value = "deleteComputer">
 		</form>
 
 		<div class="container" style="margin-top: 10px;">
@@ -98,18 +95,18 @@
 		<div class="container text-center">
 			<mylib:pagination uri="dashboard"
 				page="${page}" totalPages="${maxPage}"
-				results="${results}" todo="${todo}" search="${search}"/>
+				results="${results}" search="${search}"/>
 
 			<div class="btn-group btn-group-sm pull-right" role="group">
-            <c:if test="${not empty todo}">
+            <c:if test="${not empty search}">
                 <a class="btn btn-default"
-                    href=<mylib:link target="dashboard" page="${page}" limit="10" todo="${todo}" search="${search}"/>>10</a> <a
+                    href=<mylib:link target="dashboard" page="${page}" limit="10" search="${search}"/>>10</a> <a
                     class="btn btn-default"
-                    href=<mylib:link target="dashboard" page="${page}" limit="50" todo="${todo}" search="${search}"/>>50</a> <a
+                    href=<mylib:link target="dashboard" page="${page}" limit="50" search="${search}"/>>50</a> <a
                     class="btn btn-default"
-                    href=<mylib:link target="dashboard" page="${page}" limit="100" todo="${todo}" search="${search}"/>>100</a>
+                    href=<mylib:link target="dashboard" page="${page}" limit="100" search="${search}"/>>100</a>
             </c:if>
-            <c:if test="${empty todo}">
+            <c:if test="${empty search}">
                 <a class="btn btn-default"
                     href=<mylib:link target="dashboard" page="${page}" limit="10"/>>10</a> <a
                     class="btn btn-default"
