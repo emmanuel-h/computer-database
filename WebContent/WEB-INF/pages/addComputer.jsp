@@ -26,7 +26,7 @@
 			<div class="row">
 				<div class="col-xs-8 col-xs-offset-2 box">
 					<h1>Add Computer</h1>
-					<form action="addComputer" method="POST" id="addComputerForm">
+					<form action="createComputer" method="POST" id="addComputerForm">
 						<fieldset>
 							<div class="form-group">
 								<label for="computerName">Computer name</label> <input
@@ -55,8 +55,8 @@
 							</div>
 						</fieldset>
 						<div class="actions pull-right">
-							<input type="submit" value="add" name="todo"
-								class="btn btn-primary"> or <a href="dashboard.html"
+							<input type="submit" value="add"
+								class="btn btn-primary"> or <a href="dashboard"
 								class="btn btn-default">Cancel</a>
 						</div>
 					</form>

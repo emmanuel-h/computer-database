@@ -13,6 +13,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
@@ -22,7 +24,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = {"com.excilys.cdb.controllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
-public class SpringConfig {
+public class SpringConfig implements WebMvcConfigurer {
 
     /**
      * A logger.
@@ -63,5 +65,10 @@ public class SpringConfig {
         viewResolver.setSuffix(".jsp");
 
         return viewResolver;
+    }
+
+    @Override
+    public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**").addResourceLocations("/");
     }
 }

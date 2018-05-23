@@ -71,8 +71,7 @@ public class CompanyDAO implements DAO<Company> {
         }
         int total = template.queryForObject(COUNT_COMPANIES, Integer.class);
 
-        double maxPage = total / maxResults;
-        page.setMaxPage((int) Math.ceil(maxPage));
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
         page.setResults(companies);
