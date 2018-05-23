@@ -74,7 +74,7 @@ public class DashBoardServlet extends HttpServlet {
         if (pageOptional.isPresent()) {
             Page<Computer> page = pageOptional.get();
             for (Computer computer : page.getResults()) {
-                computerList.add(ComputerConvertor.computerToDTO(computer));
+                computerList.add(ComputerConvertor.toDTO(computer));
             }
             request.setAttribute("nbComputers", numberOfComputers);
             request.setAttribute("computerList", computerList);

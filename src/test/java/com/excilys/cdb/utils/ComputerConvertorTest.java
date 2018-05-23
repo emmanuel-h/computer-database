@@ -20,7 +20,7 @@ public class ComputerConvertorTest {
     @Test
     public void computerToDTOWithNullFields() {
         Computer computer = new Computer.Builder("test").build();
-        ComputerDTO computerDTO = ComputerConvertor.computerToDTO(computer);
+        ComputerDTO computerDTO = ComputerConvertor.toDTO(computer);
         assertTrue(computerDTO.getId() == 0L);
         assertTrue(computerDTO.getName().equals("test"));
         assertNull(computerDTO.getIntroduced());
@@ -40,7 +40,7 @@ public class ComputerConvertorTest {
                 .discontinued(LocalDate.of(2008, 11, 11))
                 .manufacturer(company)
                 .build();
-        ComputerDTO computerDTO = ComputerConvertor.computerToDTO(computer);
+        ComputerDTO computerDTO = ComputerConvertor.toDTO(computer);
         assertTrue(computerDTO.getId() == 1L);
         assertTrue(computerDTO.getName().equals("test"));
         assertEquals(LocalDate.of(2007, 11, 11).toString(), computerDTO.getIntroduced());
@@ -55,7 +55,7 @@ public class ComputerConvertorTest {
     public void dTOToComputerWithNullFields() {
         ComputerDTO computerDTO = new ComputerDTO();
         computerDTO.setName("test computer dto");
-        Computer computer = ComputerConvertor.dTOToComputer(computerDTO);
+        Computer computer = ComputerConvertor.fromDTO(computerDTO);
         assertTrue(computer.getId() == 0L);
         assertTrue(computer.getName().equals("test computer dto"));
         assertNull(computer.getIntroduced());
@@ -77,7 +77,7 @@ public class ComputerConvertorTest {
         computerDTO.setDiscontinued(LocalDate.of(2008, 11, 11).toString());
         computerDTO.setManufacturer("company test");
 
-        Computer computer = ComputerConvertor.dTOToComputer(computerDTO);
+        Computer computer = ComputerConvertor.fromDTO(computerDTO);
         assertTrue(computer.getId() == 1L);
         assertTrue(computer.getName().equals("test computer dto"));
         assertEquals(LocalDate.of(2007, 11, 11), computer.getIntroduced());

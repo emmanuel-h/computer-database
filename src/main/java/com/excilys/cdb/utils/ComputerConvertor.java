@@ -13,7 +13,7 @@ public class ComputerConvertor {
      * @param computer  The computer to transform
      * @return          The generated ComputerDTO.
      */
-    public static ComputerDTO computerToDTO(Computer computer) {
+    public static ComputerDTO toDTO(Computer computer) {
         ComputerDTO computerDTO = new ComputerDTO(computer);
         return computerDTO;
     }
@@ -23,7 +23,7 @@ public class ComputerConvertor {
      * @param computerDTO   The computerDTO to transform
      * @return              The generated Computer
      */
-    public static Computer dTOToComputer(ComputerDTO computerDTO) {
+    public static Computer fromDTO(ComputerDTO computerDTO) {
         Computer computer = new Computer.Builder(computerDTO.getName())
                 .id(computerDTO.getId())
                 .build();

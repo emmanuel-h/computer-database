@@ -78,8 +78,7 @@ public class EditComputerServlet extends HttpServlet {
                     .build();
             try {
                 Optional<Computer> computer2 = computerService.updateComputer(computer);
-                System.out.println(computer2);
-                message = "Computer succesfully modified";
+                message = "Computer " + computer2.get().getId() + "succesfully modified";
             } catch (ComputerServiceException e) {
                 message = "Update not applied";
             }
@@ -88,7 +87,7 @@ public class EditComputerServlet extends HttpServlet {
         }
         try {
             Computer computerFull = computerService.getOneComputer(id);
-            ComputerDTO computer = ComputerConvertor.computerToDTO(computerFull);
+            ComputerDTO computer = ComputerConvertor.toDTO(computerFull);
             request.setAttribute("computer", computer);
             if (null != computerFull.getManufacturer()) {
                 request.setAttribute("companyId", computerFull.getManufacturer().getId());
