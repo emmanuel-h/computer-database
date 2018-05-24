@@ -1,7 +1,5 @@
 package com.excilys.cdb.controllers.jspControllers;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.excilys.cdb.dtos.ComputerDTO;
@@ -172,27 +169,22 @@ public class ComputerController {
      * Display the page allowing the create a computer.
      * @param computerDTO   The computer to validate
      * @param locale        The user locale
-     * @param bindingResult dsefsef
+     * @param bindingResult The binding result
      * @return              The redirection
      */
     @PostMapping("/createComputer")
     public String addComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, Locale locale,
             BindingResult bindingResult) {
-
         if (bindingResult.hasErrors()) {
             return "redirect:/400";
         }
-
         final List<Company> companies = companyService.findAllCompanies();
-
         Computer computer = ComputerConvertor.fromDTO(computerDTO);
-
         Company company = companies.stream()
                 .filter(c -> c.getId() == Long.parseLong(computerDTO.getManufacturer()))
                 .findFirst()
                 .orElse(null);
         computer.setManufacturer(company);
-
         try {
             final long idNewComputer = computerService.createComputer(computer);
             message = messageSource.getMessage("dashboard.message.computerCreated", new Object[] {idNewComputer}, locale);
@@ -207,6 +199,7 @@ public class ComputerController {
      * Display the page to edit a computer.
      * @param id        The computer's identifier
      * @param locale    The user locale
+     * @param model     The model
      * @return          The ModelAndView
      */
     @GetMapping(value = "/editComputer", params = {"id"})
@@ -232,32 +225,25 @@ public class ComputerController {
 
     /**
      * Save the modification of a computer.
-     * @param request   The web request
-     * @param locale    The user locale
-     * @return          The redirection
+     * @param computerDTO   The computer send by the jsp
+     * @param locale        The user locale
+     * @param bindingResult The BindingResult
+     * @return              The redirection
      */
     @PostMapping(value = "/editComputerAction", params = {"id"})
-    public String saveEditComputer(WebRequest request, Locale locale) {
+    public String saveEditComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
+            Locale locale, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/400";
+        }
         final List<Company> companies = companyService.findAllCompanies();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        long id = Long.parseLong(request.getParameter("id"));
-        String name = request.getParameter("computerName");
-        String introduced = request.getParameter("introduced");
-        String discontinued = request.getParameter("discontinued");
-        LocalDate introducedDate =  introduced == null || introduced.trim().isEmpty() ? null : LocalDate.parse(introduced, formatter);
-        LocalDate discontinuedDate = discontinued == null || discontinued.trim().isEmpty() ? null : LocalDate.parse(discontinued, formatter);
-        long companyId = Long.parseLong(request.getParameter("companyId"));
         Company company = companies.stream()
-                .filter(c -> c.getId() == companyId)
+                .filter(c -> c.getId() == Long.parseLong(computerDTO.getManufacturer()))
                 .findFirst()
                 .orElse(null);
 
-        Computer computer = new Computer.Builder(name)
-                .id(id)
-                .introduced(introducedDate)
-                .discontinued(discontinuedDate)
-                .manufacturer(company)
-                .build();
+        Computer computer = ComputerConvertor.fromDTO(computerDTO);
+        computer.setManufacturer(company);
         try {
             Optional<Computer> computer2 = computerService.updateComputer(computer);
             message = messageSource.getMessage("dashboard.message.computerModified", new Object[] {computer2.get().getId()}, locale);
