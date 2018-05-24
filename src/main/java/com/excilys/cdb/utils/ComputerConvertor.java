@@ -1,6 +1,7 @@
 package com.excilys.cdb.utils;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.model.Company;
@@ -13,7 +14,7 @@ public class ComputerConvertor {
      * @param computer  The computer to transform
      * @return          The generated ComputerDTO.
      */
-    public static ComputerDTO computerToDTO(Computer computer) {
+    public static ComputerDTO toDTO(Computer computer) {
         ComputerDTO computerDTO = new ComputerDTO(computer);
         return computerDTO;
     }
@@ -23,20 +24,21 @@ public class ComputerConvertor {
      * @param computerDTO   The computerDTO to transform
      * @return              The generated Computer
      */
-    public static Computer dTOToComputer(ComputerDTO computerDTO) {
+    public static Computer fromDTO(ComputerDTO computerDTO) {
         Computer computer = new Computer.Builder(computerDTO.getName())
                 .id(computerDTO.getId())
                 .build();
-        if (null == computerDTO.getIntroduced()) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        if (null == computerDTO.getIntroduced() || computerDTO.getIntroduced().trim().isEmpty()) {
             computer.setIntroduced(null);
         } else {
-            LocalDate introduced = LocalDate.parse(computerDTO.getIntroduced());
+            LocalDate introduced = LocalDate.parse(computerDTO.getIntroduced(), formatter);
             computer.setIntroduced(introduced);
         }
-        if (null == computerDTO.getDiscontinued()) {
+        if (null == computerDTO.getDiscontinued() || computerDTO.getDiscontinued().trim().isEmpty()) {
             computer.setDiscontinued(null);
         } else {
-            LocalDate discontinued = LocalDate.parse(computerDTO.getDiscontinued());
+            LocalDate discontinued = LocalDate.parse(computerDTO.getDiscontinued(), formatter);
             computer.setDiscontinued(discontinued);
         }
         if (null == computerDTO.getManufacturer()) {

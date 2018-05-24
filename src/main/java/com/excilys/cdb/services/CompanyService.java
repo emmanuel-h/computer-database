@@ -1,31 +1,23 @@
 package com.excilys.cdb.services;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
 @Service
+@Transactional(readOnly = true)
 public class CompanyService {
 
     @Autowired
     private CompanyDAO companyDAO;
-
-    /**
-     * A logger.
-     */
-    private final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
-
-    private final String SQL_EXCEPTION = "SQL Exception : ";
 
     /**
      * Constructor initializing the DAO.
@@ -40,12 +32,7 @@ public class CompanyService {
      * @return              The page object corresponding to the criteria
      */
     public Optional<Page<Company>> getAllCompaniesWithPaging(int currentPage, int maxResults) {
-        try {
-            return Optional.ofNullable(this.companyDAO.findAllWithPaging(currentPage, maxResults));
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.companyDAO.findAllWithPaging(currentPage, maxResults));
     }
 
     /**
@@ -53,12 +40,7 @@ public class CompanyService {
      * @return  The list of companies
      */
     public List<Company> findAllCompanies() {
-        try {
-            return companyDAO.findAll();
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return new ArrayList<Company>();
+        return companyDAO.findAll();
     }
 
     /**
@@ -66,13 +48,9 @@ public class CompanyService {
      * @param id    The company identifier to delete
      * @return      True if the company has been successfully deleted, false if not
      */
+    @Transactional(readOnly = false, rollbackFor = SQLException.class)
     public boolean deleteCompany(long id) {
-        try {
-            return companyDAO.delete(id);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return false;
+        return companyDAO.delete(id);
     }
 
     /**
@@ -81,11 +59,8 @@ public class CompanyService {
      * @return      The company found
      */
     public Optional<Company> getOneCompany(long id) {
-        try {
-            return companyDAO.findById(id);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+
+        return companyDAO.findById(id);
+
     }
 }

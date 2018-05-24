@@ -5,7 +5,7 @@
 
   <groupId>com.excilys.cdb</groupId>
   <artifactId>computerdb</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>4.5.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>computerdb</name>
@@ -13,6 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>4.12</junit.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <slf4j.version>1.7.25</slf4j.version>
@@ -26,16 +27,29 @@
     <maven.lang.version>3.7</maven.lang.version>
     <hikari.version>2.7.8</hikari.version>
     <spring.version>5.0.6.RELEASE</spring.version>
+    <javax-validation.version>2.0.1.Final</javax-validation.version>
+    <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
   </properties>
 
   <dependencies>
+  
+    <!--  Tests -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!--  Logs -->
+    
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -48,18 +62,15 @@
       <version>${logback.version}</version>
     </dependency>
 
+    <!--  SQL -->
+
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>${mysql.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
+    <!-- Servlets -->
 
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -78,18 +89,25 @@
       <version>${javax.servlet.jsp.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <!-- Apache Lang -->
+    
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${maven.lang.version}</version>
     </dependency>
 
+    <!--  Connection pool -->
+    
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
       <version>${hikari.version}</version>
       <scope>compile</scope>
     </dependency>
+    
+    <!--  Spring -->
     
     <dependency>
         <groupId>org.springframework</groupId>
@@ -102,11 +120,7 @@
         </exclusions>
         <version>${spring.version}</version>
     </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
-        <version>${spring.version}</version>
-    </dependency>
+    
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
@@ -114,13 +128,30 @@
         <scope>test</scope>
     </dependency>
     
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
     
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>${javax-validation.version}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate-validator.version}</version>
+    </dependency>
+        
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
-	  		 <!-- ( 1 ) plugin info -->
+	  		 <!-- plugin info -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sql-maven-plugin</artifactId>
         <version>${mysql.maven.version}</version>
@@ -133,7 +164,7 @@
           </dependency>
         </dependencies>
 
-      <!-- ( 3 ) connection settings -->
+      <!-- connection settings -->
         <configuration>
           <driver>com.mysql.jdbc.Driver</driver>
           <url>jdbc:mysql://localhost:3306/computer-database-test?useSSL=false</url>

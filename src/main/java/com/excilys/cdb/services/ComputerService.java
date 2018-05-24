@@ -1,6 +1,5 @@
 package com.excilys.cdb.services;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -30,7 +29,6 @@ public class ComputerService {
      */
     private final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 
-    private final String SQL_EXCEPTION = "SQL Exception : ";
     private final String NULL_COMPUTER = "The computer is null";
     private final String UNNAMED_COMPUTER = "The computer does not have a name";
     private final String DATE_PROBLEM = "Discontinued date is before introduced date";
@@ -49,12 +47,7 @@ public class ComputerService {
      * @return The page object corresponding to the criteria
      */
     public Optional<Page<Computer>> getAllComputersWithPaging(int currentPage, int maxResults) {
-        try {
-            return Optional.ofNullable(this.computerDAO.findAllWithPaging(currentPage, maxResults));
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.computerDAO.findAllWithPaging(currentPage, maxResults));
     }
 
     /**
@@ -64,15 +57,11 @@ public class ComputerService {
      * @throws ComputerServiceException if there is no corresponding computer
      */
     public Computer getOneComputer(long id) throws ComputerServiceException {
-        try {
-            Optional<Computer> computerOptional =  this.computerDAO.findById(id);
-            if (!computerOptional.isPresent()) {
-                throw new ComputerServiceException("The computer is not found");
-            } else {
-                return computerOptional.get();
-            }
-        } catch (SQLException e) {
-            throw new ComputerServiceException(NULL_COMPUTER);
+        Optional<Computer> computerOptional = this.computerDAO.findById(id);
+        if (!computerOptional.isPresent()) {
+            throw new ComputerServiceException("The computer is not found");
+        } else {
+            return computerOptional.get();
         }
     }
 
@@ -95,18 +84,13 @@ public class ComputerService {
                 throw new ComputerServiceException(DATE_PROBLEM);
             }
         }
-        try {
-            if (null != computer.getManufacturer()) {
-                Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
-                if (!company.isPresent()) {
-                    throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
-                }
+        if (null != computer.getManufacturer()) {
+            Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
+            if (!company.isPresent()) {
+                throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
             }
-            return this.computerDAO.add(computer);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return 0L;
+        return this.computerDAO.add(computer);
     }
 
     /**
@@ -128,18 +112,18 @@ public class ComputerService {
                 throw new ComputerServiceException(DATE_PROBLEM);
             }
         }
-        try {
-            if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
-                Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
-                if (!company.isPresent()) {
-                    throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
-                }
+        if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
+            Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
+            if (!company.isPresent()) {
+                throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
             }
-            return Optional.ofNullable(computerDAO.update(computer));
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
         }
-        return Optional.empty();
+        try {
+            return Optional.ofNullable(computerDAO.update(computer));
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            LOGGER.warn("Problem when updating the Computer : " + e);
+            throw new ComputerServiceException("Problem when updating the computer");
+        }
     }
 
     /**
@@ -149,12 +133,7 @@ public class ComputerService {
      * @throws ComputerServiceException If there is no computer matching this id
      */
     public boolean deleteComputer(long id) {
-        try {
-            return computerDAO.delete(id);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return false;
+        return computerDAO.delete(id);
     }
 
     /**
@@ -162,12 +141,7 @@ public class ComputerService {
      * @return  The number of computers
      */
     public int countComputers() {
-        try {
-            return computerDAO.count();
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return -1;
+        return computerDAO.count();
     }
 
     /**
@@ -177,11 +151,7 @@ public class ComputerService {
      */
     public boolean deleteMultipleComputers(String toDelete) {
         if (ComputersToDeleteValidator.verifyListToDelete(toDelete)) {
-            try {
-                return computerDAO.deleteMultiple(toDelete);
-            } catch (SQLException e) {
-                LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-            }
+            return computerDAO.deleteMultiple(toDelete);
         }
         return false;
     }
@@ -194,12 +164,7 @@ public class ComputerService {
      * @return              The result of the search
      */
     public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults) {
-        try {
-            return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults));
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults));
     }
 
     /**
@@ -208,11 +173,6 @@ public class ComputerService {
      * @return          The number of computers
      */
     public int countSearchedComputers(String search) {
-        try {
-            return computerDAO.countSearchedComputers(search);
-        } catch (SQLException e) {
-            LOGGER.warn(SQL_EXCEPTION + e.getMessage());
-        }
-        return -1;
+        return computerDAO.countSearchedComputers(search);
     }
 }

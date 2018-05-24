@@ -1,22 +1,26 @@
 package com.excilys.cdb.daos;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
+import com.excilys.cdb.daos.mapper.ComputerRowMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.DateConvertor;
 import com.excilys.cdb.utils.Page;
-import com.excilys.cdb.utils.ResultSetConvertor;
 
 /**
  * ComputerDAO make the link between the database and the model.
@@ -28,12 +32,12 @@ public class ComputerDAO implements DAO<Computer> {
     @Autowired
     private DataSource dataSource;
 
+    private JdbcTemplate template;
+
     private final String FIND_ALL_COMPUTERS = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id LIMIT ?,?";
     private final String FIND_COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
-    private final String ADD_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id, id)"
-            + "VALUES (?, ?, ?, ?, ?)";
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
     private final String DELETE_MULTIPLE_COMPUTER = "DELETE FROM computer WHERE id in %s";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
@@ -44,122 +48,121 @@ public class ComputerDAO implements DAO<Computer> {
     private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM computer WHERE computer.name LIKE ?";
 
     /**
-     * The constructor with a Connection.
+     * Private constructor to ensure uniqueness.
      */
     private ComputerDAO() {
     }
 
+    @PostConstruct
+    private void initializeConnection() {
+        template = new JdbcTemplate(dataSource);
+    }
+
     @Override
-    public Page<Computer> findAllWithPaging(int currentPage, int maxResults) throws SQLException {
+    public Page<Computer> findAllWithPaging(int currentPage, int maxResults) {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
-        try (Connection con = dataSource.getConnection();
-                PreparedStatement statement = con.prepareStatement(FIND_ALL_COMPUTERS)) {
-            statement.setInt(1, (currentPage - 1) * maxResults);
-            statement.setInt(2, maxResults);
-            try (ResultSet rs = statement.executeQuery()) {
-                int totalComputers = count();
-                return ResultSetConvertor.resultSetToComputerPage(rs, maxResults, totalComputers, currentPage);
-            }
+
+        Page<Computer> page = new Page<>();
+        List<Computer> computers = new ArrayList<>();
+
+        try {
+            computers = template.query(FIND_ALL_COMPUTERS,
+                    new Object[] {(currentPage - 1) * maxResults, maxResults},
+                    new ComputerRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            page.setMaxPage(1);
+            page.setCurrentPage(currentPage);
+            page.setResultsPerPage(maxResults);
+            page.setResults(computers);
+            return page;
         }
+        int total = template.queryForObject(COUNT_COMPUTERS, Integer.class);
+
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(computers);
+        return page;
     }
 
     @Override
-    public Optional<Computer> findById(long id) throws SQLException {
-        Optional<Computer> computer;
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(FIND_COMPUTER_BY_ID)) {
-            statement.setLong(1, id);
-            try (ResultSet rSet = statement.executeQuery()) {
-                computer = ResultSetConvertor.resultSetToOptionalComputer(rSet);
-            }
+    public Optional<Computer> findById(long id) {
+        Computer computer;
+        try {
+            computer = template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
-        return computer;
+        return Optional.of(computer);
     }
 
     @Override
-    public long add(Computer computer) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(ADD_COMPUTER, Statement.RETURN_GENERATED_KEYS)) {
+    public long add(Computer computer) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
+        jdbcInsert.withTableName("computer").usingGeneratedKeyColumns("id");
 
-            Timestamp introducedSQL = null;
-            Timestamp discontinuedSQL = null;
-
-            if (null != computer.getIntroduced()) {
-                introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
-            }
-            if (null != computer.getDiscontinued()) {
-                discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
-            }
-
-            statement.setString(1, computer.getName());
-            statement.setTimestamp(2, introducedSQL);
-            statement.setTimestamp(3, discontinuedSQL);
-            if (null == computer.getManufacturer()) {
-                statement.setObject(4, null);
-            } else {
-                statement.setLong(4, computer.getManufacturer().getId());
-            }
-            statement.setLong(5, computer.getId());
-
-            statement.executeUpdate();
-
-            try (ResultSet rSet = statement.getGeneratedKeys()) {
-                if (rSet.next()) {
-                    return rSet.getInt(1);
-                }
-            }
+        Timestamp introducedSQL = null;
+        Timestamp discontinuedSQL = null;
+        if (null != computer.getIntroduced()) {
+            introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
         }
-        return 0;
+        if (null != computer.getDiscontinued()) {
+            discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
+        }
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("name", computer.getName())
+                .addValue("introduced", introducedSQL)
+                .addValue("discontinued", discontinuedSQL)
+                .addValue("id", computer.getId());
+
+        if (null == computer.getManufacturer()) {
+            ((MapSqlParameterSource) parameterSource).addValue("company_id", null);
+        } else {
+            ((MapSqlParameterSource) parameterSource).addValue("company_id", computer.getManufacturer().getId());
+        }
+
+        return jdbcInsert.executeAndReturnKey(parameterSource).longValue();
+
     }
 
     @Override
-    public boolean delete(long id) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER)) {
-            statement.setLong(1, id);
-            int result = statement.executeUpdate();
-            if (result == 0) {
-                return false;
-            }
-        }
-        return true;
+    public boolean delete(long id) {
+        int result = template.update(DELETE_COMPUTER, id);
+        return !(result == 0);
     }
 
     @Override
-    public Computer update(Computer computer) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER)) {
-
-            Timestamp introducedSQL = null;
-            Timestamp discontinuedSQL = null;
-
-            // Check if the dates are null or not
-            if (null != computer.getIntroduced()) {
-                introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
-            }
-            if (null != computer.getDiscontinued()) {
-                discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
-            }
-
-            // Give the statement parameters
-            statement.setString(1, computer.getName());
-            statement.setTimestamp(2, introducedSQL);
-            statement.setTimestamp(3, discontinuedSQL);
-            if (null == computer.getManufacturer()) {
-                statement.setObject(4, null);
-            } else {
-                statement.setLong(4, computer.getManufacturer().getId());
-            }
-            statement.setLong(5, computer.getId());
-
-            int result = statement.executeUpdate();
-            if (result == 0) {
-                return null;
-            }
+    public Computer update(Computer computer) {
+        Timestamp introducedSQL = null;
+        Timestamp discontinuedSQL = null;
+        if (null != computer.getIntroduced()) {
+            introducedSQL = DateConvertor.localDateToTimeStamp(computer.getIntroduced());
         }
-        return computer;
+        if (null != computer.getDiscontinued()) {
+            discontinuedSQL = DateConvertor.localDateToTimeStamp(computer.getDiscontinued());
+        }
+
+        Object[] args = new Object[5];
+        args[0] = computer.getName();
+        args[1] = introducedSQL;
+        args[2] = discontinuedSQL;
+
+        if (null == computer.getManufacturer()) {
+            args[3] = null;
+        } else {
+            args[3] = computer.getManufacturer().getId();
+        }
+        args[4] = computer.getId();
+
+        int result = template.update(UPDATE_COMPUTER, args);
+
+        if (result == 0) {
+            return null;
+        } else {
+            return computer;
+        }
     }
 
     /**
@@ -167,15 +170,8 @@ public class ComputerDAO implements DAO<Computer> {
      * @return              The number of computers
      * @throws SQLException If there is a problem with the SQL request
      */
-    public int count() throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(COUNT_COMPUTERS);
-                ResultSet rSet = statement.executeQuery()) {
-            if (rSet.next()) {
-                return rSet.getInt(1);
-            }
-        }
-        return -1;
+    public int count() {
+        return template.queryForObject(COUNT_COMPUTERS, Integer.class);
     }
 
     /**
@@ -184,16 +180,9 @@ public class ComputerDAO implements DAO<Computer> {
      * @return              true if the computers have been deleted, false if not
      * @throws SQLException If there is a problem with the SQL request
      */
-    public boolean deleteMultiple(String toDelete) throws SQLException {
-        String query = String.format(DELETE_MULTIPLE_COMPUTER, toDelete);
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(query)) {
-            int result = statement.executeUpdate();
-            if (result == 0) {
-                return false;
-            }
-        }
-        return true;
+    public boolean deleteMultiple(String toDelete) {
+        int result = template.update(String.format(DELETE_MULTIPLE_COMPUTER, toDelete));
+        return !(result == 0);
     }
 
     /**
@@ -204,17 +193,32 @@ public class ComputerDAO implements DAO<Computer> {
      * @return              The list found
      * @throws SQLException If there is a problem with the SQL request
      */
-    public Page<Computer> searchComputer(String search, int currentPage, int maxResults) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(SEARCH_COMPUTERS)) {
-            statement.setString(1, '%' + search + '%');
-            statement.setInt(2, (currentPage - 1) * maxResults);
-            statement.setInt(3, maxResults);
-            try (ResultSet rs = statement.executeQuery()) {
-                int totalComputers = countSearchedComputers(search);
-                return ResultSetConvertor.resultSetToComputerPage(rs, maxResults, totalComputers, currentPage);
-            }
+    public Page<Computer> searchComputer(String search, int currentPage, int maxResults) {
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
         }
+
+        Page<Computer> page = new Page<>();
+        List<Computer> computers = new ArrayList<>();
+
+        try {
+            computers = template.query(SEARCH_COMPUTERS,
+                    new Object[] {'%' + search + '%', (currentPage - 1) * maxResults, maxResults},
+                    new ComputerRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            page.setMaxPage(1);
+            page.setCurrentPage(currentPage);
+            page.setResultsPerPage(maxResults);
+            page.setResults(computers);
+            return page;
+        }
+        int total = countSearchedComputers(search);
+
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(computers);
+        return page;
     }
 
     /**
@@ -223,16 +227,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @return              The number of computers
      * @throws SQLException If there is a problem with the SQL request
      */
-    public int countSearchedComputers(String search) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(COUNT_SEARCHED_COMPUTERS)) {
-            statement.setString(1, '%' + search + '%');
-            try (ResultSet rSet = statement.executeQuery()) {
-                if (rSet.next()) {
-                    return rSet.getInt(1);
-                }
-            }
-        }
-        return -1;
+    public int countSearchedComputers(String search) {
+        return template.queryForObject(COUNT_SEARCHED_COMPUTERS, new Object[] {'%' + search + '%'}, Integer.class);
     }
 }

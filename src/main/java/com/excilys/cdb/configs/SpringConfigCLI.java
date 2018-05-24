@@ -1,4 +1,4 @@
-package com.excilys.cdb.launcher;
+package com.excilys.cdb.configs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,13 +16,13 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@ComponentScan(basePackages = {"com.excilys.cdb"})
-public class SpringConfigTest {
+@ComponentScan(basePackages = {"com.excilys.cdb.daos", "com.excilys.cdb.services"})
+public class SpringConfigCLI {
 
     /**
      * A logger.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigCLI.class);
 
     /**
      * Setup the datasource via Hikari connection pool.
