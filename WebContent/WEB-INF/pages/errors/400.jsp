@@ -17,9 +17,9 @@
 	</header>
 
 	<section id="main">
-		<div class="container">
+		<div class="container">	
 			<div class="alert alert-danger">
-				<spring:message code="errors.403message"/>
+				<spring:message code="errors.400message"/>
 				<br/>
 				<!-- stacktrace -->
 			</div>

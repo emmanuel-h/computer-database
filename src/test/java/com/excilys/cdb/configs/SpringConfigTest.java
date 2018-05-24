@@ -1,4 +1,4 @@
-package com.excilys.cdb.launcher;
+package com.excilys.cdb.configs;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -4,11 +4,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +31,9 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 
 @Controller
 public class ComputerController {
+
+    @Autowired
+    private MessageSource messageSource;
 
     private ComputerService computerService;
     private CompanyService companyService;
@@ -55,14 +60,16 @@ public class ComputerController {
 
     /**
      * Display the original dashboard with paging.
-     * @param currentPage      The page to display
-     * @param resultsPerPage   The number of results per page to display
-     * @return          The ModelAndView completed
+     * @param currentPage       The page to display
+     * @param resultsPerPage    The number of results per page to display
+     * @param locale            The user locale
+     * @return                  The ModelAndView completed
      */
     @GetMapping(value = {"/", "/dashboard"})
     public ModelAndView dashboard(
             @RequestParam(value = "page", defaultValue = CURRENT_PAGE) int currentPage,
-            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage) {
+            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
+            Locale locale) {
         int numberOfComputers = computerService.countComputers();
 
         if (currentPage * resultsPerPage > numberOfComputers) {
@@ -85,16 +92,18 @@ public class ComputerController {
 
     /**
      * Display the dashboard with the result of a paginated search.
-     * @param currentPage      The page to display
-     * @param resultsPerPage   The number of results per page to display
-     * @param search    The search asked by the user
-     * @return          The ModelAndView completed
+     * @param currentPage       The page to display
+     * @param resultsPerPage    The number of results per page to display
+     * @param search            The search asked by the user
+     * @param locale            The user locale
+     * @return                  The ModelAndView completed
      */
     @GetMapping(value = {"/dashboard"}, params = {"search"})
     public ModelAndView dashboardWithSearch(
             @RequestParam(value = "search") String search,
             @RequestParam(value = "page", defaultValue = CURRENT_PAGE) int currentPage,
-            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage) {
+            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
+            Locale locale) {
         int numberOfComputers = computerService.countSearchedComputers(search);
 
         if (currentPage * resultsPerPage > numberOfComputers) {
@@ -123,10 +132,12 @@ public class ComputerController {
     /**
      * Delete the selected computers.
      * @param selection The computers identifiers
+     * @param locale    The user locale
      * @return          The modelAndView
      */
     @PostMapping("/deleteComputers")
-    public String deleteComputers(@RequestBody String selection) {
+    public String deleteComputers(@RequestBody String selection,
+            Locale locale) {
         selection = selection.replace("%2C", ",");
         selection = selection.replace("selection=", "");
         StringBuilder stringBuilder = new StringBuilder(selection);
@@ -140,10 +151,11 @@ public class ComputerController {
 
     /**
      * Display the page allowing the create a computer.
-     * @return  THe ModelAndView
+     * @param locale    The user locale
+     * @return          The ModelAndView
      */
     @GetMapping("/addComputer")
-    public ModelAndView displayAddComputer() {
+    public ModelAndView displayAddComputer(Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
         ModelAndView modelAndView = new ModelAndView("addComputer");
         modelAndView.addObject("companies", companies);
@@ -153,10 +165,11 @@ public class ComputerController {
     /**
      * Display the page allowing the create a computer.
      * @param request   The web request
+     * @param locale    The user locale
      * @return          The redirection
      */
     @PostMapping("/createComputer")
-    public String addComputer(WebRequest request) {
+    public String addComputer(WebRequest request, Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String name = request.getParameter("name");
@@ -177,21 +190,22 @@ public class ComputerController {
                 .build();
         try {
             final long idNewComputer = computerService.createComputer(computer);
-            message = "Computer created with id " + idNewComputer;
+            message = messageSource.getMessage("dashboard.message.computerCreated", new Object[] {idNewComputer}, locale);
         } catch (ComputerServiceException e) {
-            LOGGER.warn(e.getMessage());
-            message = "Computer has not been created : " + e.getMessage();
+            LOGGER.warn(e.toString());
+            message = messageSource.getMessage("dashboard.message.computerNotCreated", new Object[] {e.getMessage()}, locale);
         }
         return "redirect:/dashboard";
     }
 
     /**
      * Display the page to edit a computer.
-     * @param id    The computer's identifier
-     * @return      The ModelAndView
+     * @param id        The computer's identifier
+     * @param locale    The user locale
+     * @return          The ModelAndView
      */
     @GetMapping(value = "/editComputer", params = {"id"})
-    public ModelAndView displayEditComputer(@RequestParam(value = "id") long id) {
+    public ModelAndView displayEditComputer(@RequestParam(value = "id") long id, Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
         ModelAndView modelAndView = new ModelAndView("editComputer");
         Computer computerFull;
@@ -206,7 +220,7 @@ public class ComputerController {
             }
             modelAndView.addObject("companies", companies);
         } catch (ComputerServiceException e) {
-            message = "Identifier is not valid";
+            message = messageSource.getMessage("dashboard.message.badId", null, locale);
         }
         return modelAndView;
     }
@@ -214,10 +228,11 @@ public class ComputerController {
     /**
      * Save the modification of a computer.
      * @param request   The web request
+     * @param locale    The user locale
      * @return          The redirection
      */
     @PostMapping(value = "/editComputerAction", params = {"id"})
-    public String saveEditComputer(WebRequest request) {
+    public String saveEditComputer(WebRequest request, Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         long id = Long.parseLong(request.getParameter("id"));
@@ -240,9 +255,9 @@ public class ComputerController {
                 .build();
         try {
             Optional<Computer> computer2 = computerService.updateComputer(computer);
-            message = "Computer " + computer2.get().getId() + " succesfully modified";
+            message = messageSource.getMessage("dashboard.message.computerModified", new Object[] {computer2.get().getId()}, locale);
         } catch (ComputerServiceException e) {
-            message = "Update not applied";
+            message = messageSource.getMessage("dashboard.message.updateFailed", new Object[] {null}, locale);
         }
         return "redirect:/dashboard";
     }
