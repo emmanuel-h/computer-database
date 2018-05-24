@@ -1,8 +1,12 @@
 package com.excilys.cdb.dtos;
 
+import java.io.Serializable;
+
 import com.excilys.cdb.model.Computer;
 
-public class ComputerDTO {
+public class ComputerDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private long id;
     private String name;

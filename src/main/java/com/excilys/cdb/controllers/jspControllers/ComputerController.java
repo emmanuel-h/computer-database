@@ -1,4 +1,4 @@
-package com.excilys.cdb.controllers;
+package com.excilys.cdb.controllers.jspControllers;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

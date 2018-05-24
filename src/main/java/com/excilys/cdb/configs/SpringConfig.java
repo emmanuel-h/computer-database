@@ -1,4 +1,4 @@
-package com.excilys.cdb.launchers;
+package com.excilys.cdb.configs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"com.excilys.cdb.controllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
+@ComponentScan(basePackages = {"com.excilys.cdb.controllers.jspControllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
 public class SpringConfig implements WebMvcConfigurer {
 
     /**

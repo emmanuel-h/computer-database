@@ -3,8 +3,8 @@ package com.excilys.cdb;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
+import com.excilys.cdb.configs.SpringConfig;
 import com.excilys.cdb.controllers.CLIController;
-import com.excilys.cdb.launchers.SpringConfig;
 import com.excilys.cdb.ui.CLI;
 
 public class Main {
