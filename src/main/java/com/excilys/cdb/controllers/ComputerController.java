@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.excilys.cdb.controllers.servlets.AddComputerServlet;
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.exceptions.ComputerServiceException;
 import com.excilys.cdb.model.Company;
@@ -41,7 +40,7 @@ public class ComputerController {
     /**
      * A logger.
      */
-    private final Logger LOGGER = LoggerFactory.getLogger(AddComputerServlet.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(ComputerController.class);
 
     /**
      * Initialize the services.
@@ -153,7 +152,8 @@ public class ComputerController {
 
     /**
      * Display the page allowing the create a computer.
-     * @return  THe ModelAndView
+     * @param request   The web request
+     * @return          The redirection
      */
     @PostMapping("/createComputer")
     public String addComputer(WebRequest request) {
@@ -191,8 +191,60 @@ public class ComputerController {
      * @return      The ModelAndView
      */
     @GetMapping(value = "/editComputer", params = {"id"})
-    public ModelAndView displayEditComputer(@RequestParam(value = "id") int id) {
-        return new ModelAndView("editComputer");
+    public ModelAndView displayEditComputer(@RequestParam(value = "id") long id) {
+        final List<Company> companies = companyService.findAllCompanies();
+        ModelAndView modelAndView = new ModelAndView("editComputer");
+        Computer computerFull;
+        try {
+            computerFull = computerService.getOneComputer(id);
+            ComputerDTO computer = ComputerConvertor.toDTO(computerFull);
+            modelAndView.addObject("computer", computer);
+            if (null != computerFull.getManufacturer()) {
+                modelAndView.addObject("companyId", computerFull.getManufacturer().getId());
+            } else {
+                modelAndView.addObject("companyId", -1L);
+            }
+            modelAndView.addObject("companies", companies);
+        } catch (ComputerServiceException e) {
+            message = "Identifier is not valid";
+        }
+        return modelAndView;
+    }
+
+    /**
+     * Save the modification of a computer.
+     * @param request   The web request
+     * @return          The redirection
+     */
+    @PostMapping(value = "/editComputerAction", params = {"id"})
+    public String saveEditComputer(WebRequest request) {
+        final List<Company> companies = companyService.findAllCompanies();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        long id = Long.parseLong(request.getParameter("id"));
+        String name = request.getParameter("computerName");
+        String introduced = request.getParameter("introduced");
+        String discontinued = request.getParameter("discontinued");
+        LocalDate introducedDate =  introduced == null || introduced.trim().isEmpty() ? null : LocalDate.parse(introduced, formatter);
+        LocalDate discontinuedDate = discontinued == null || discontinued.trim().isEmpty() ? null : LocalDate.parse(discontinued, formatter);
+        long companyId = Long.parseLong(request.getParameter("companyId"));
+        Company company = companies.stream()
+                .filter(c -> c.getId() == companyId)
+                .findFirst()
+                .orElse(null);
+
+        Computer computer = new Computer.Builder(name)
+                .id(id)
+                .introduced(introducedDate)
+                .discontinued(discontinuedDate)
+                .manufacturer(company)
+                .build();
+        try {
+            Optional<Computer> computer2 = computerService.updateComputer(computer);
+            message = "Computer " + computer2.get().getId() + " succesfully modified";
+        } catch (ComputerServiceException e) {
+            message = "Update not applied";
+        }
+        return "redirect:/dashboard";
     }
 
     /**

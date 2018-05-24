@@ -28,7 +28,7 @@
                     </div>
                     <h1>Edit Computer</h1>
 
-                    <form action="editComputer" method="POST">
+                    <form action="editComputerAction" method="POST">
                         <input type="hidden" value="${computer.id}" name="id"/>
                         <fieldset>
                             <div class="form-group">
@@ -59,7 +59,7 @@
                             </div>            
                         </fieldset>
                         <div class="actions pull-right">
-                            <input type="submit" value="Edit" name="todo" class="btn btn-primary">
+                            <input type="submit" value="Edit" class="btn btn-primary">
                             or
                             <a href="dashboard" class="btn btn-default">Cancel</a>
                         </div>
