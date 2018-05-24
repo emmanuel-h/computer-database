@@ -21,7 +21,6 @@
 			<div class="alert alert-danger">
 				<spring:message code="errors.500message"/>
 				<br/>
-				<!-- stacktrace -->
 			</div>
 		</div>
 	</section>

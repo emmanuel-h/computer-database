@@ -1,14 +1,14 @@
 package com.excilys.cdb.dtos;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
 
 import com.excilys.cdb.model.Computer;
 
-public class ComputerDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class ComputerDTO {
 
     private long id;
+
+    @NotBlank
     private String name;
     private String introduced;
     private String discontinued;

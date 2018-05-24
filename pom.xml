@@ -27,6 +27,8 @@
     <maven.lang.version>3.7</maven.lang.version>
     <hikari.version>2.7.8</hikari.version>
     <spring.version>5.0.6.RELEASE</spring.version>
+    <javax-validation.version>2.0.1.Final</javax-validation.version>
+    <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
   </properties>
 
   <dependencies>
@@ -132,6 +134,18 @@
         <version>${spring.version}</version>
     </dependency>
     
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>${javax-validation.version}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate-validator.version}</version>
+    </dependency>
+        
   </dependencies>
 
   <build>

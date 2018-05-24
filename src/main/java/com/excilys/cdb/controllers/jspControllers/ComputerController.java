@@ -7,12 +7,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -158,36 +163,36 @@ public class ComputerController {
     public ModelAndView displayAddComputer(Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
         ModelAndView modelAndView = new ModelAndView("addComputer");
+        modelAndView.addObject("computer", new ComputerDTO());
         modelAndView.addObject("companies", companies);
         return modelAndView;
     }
 
     /**
      * Display the page allowing the create a computer.
-     * @param request   The web request
-     * @param locale    The user locale
-     * @return          The redirection
+     * @param computerDTO   The computer to validate
+     * @param locale        The user locale
+     * @param bindingResult dsefsef
+     * @return              The redirection
      */
     @PostMapping("/createComputer")
-    public String addComputer(WebRequest request, Locale locale) {
+    public String addComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, Locale locale,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return "redirect:/400";
+        }
+
         final List<Company> companies = companyService.findAllCompanies();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String name = request.getParameter("name");
-        String introduced = request.getParameter("introduced");
-        String discontinued = request.getParameter("discontinued");
-        LocalDate introducedDate =  introduced == null || introduced.trim().isEmpty() ? null : LocalDate.parse(introduced, formatter);
-        LocalDate discontinuedDate = discontinued == null || discontinued.trim().isEmpty() ? null : LocalDate.parse(discontinued, formatter);
-        long companyId = request.getParameter("company") != null ? Long.parseLong(request.getParameter("company")) : -1;
+
+        Computer computer = ComputerConvertor.fromDTO(computerDTO);
+
         Company company = companies.stream()
-                .filter(c -> c.getId() == companyId)
+                .filter(c -> c.getId() == Long.parseLong(computerDTO.getManufacturer()))
                 .findFirst()
                 .orElse(null);
+        computer.setManufacturer(company);
 
-        Computer computer = new Computer.Builder(name)
-                .introduced(introducedDate)
-                .discontinued(discontinuedDate)
-                .manufacturer(company)
-                .build();
         try {
             final long idNewComputer = computerService.createComputer(computer);
             message = messageSource.getMessage("dashboard.message.computerCreated", new Object[] {idNewComputer}, locale);
@@ -205,24 +210,24 @@ public class ComputerController {
      * @return          The ModelAndView
      */
     @GetMapping(value = "/editComputer", params = {"id"})
-    public ModelAndView displayEditComputer(@RequestParam(value = "id") long id, Locale locale) {
+    public String displayEditComputer(@RequestParam(value = "id") long id, Locale locale, ModelMap model) {
         final List<Company> companies = companyService.findAllCompanies();
-        ModelAndView modelAndView = new ModelAndView("editComputer");
         Computer computerFull;
         try {
             computerFull = computerService.getOneComputer(id);
             ComputerDTO computer = ComputerConvertor.toDTO(computerFull);
-            modelAndView.addObject("computer", computer);
+            model.addAttribute("computer", computer);
             if (null != computerFull.getManufacturer()) {
-                modelAndView.addObject("companyId", computerFull.getManufacturer().getId());
+                model.addAttribute("companyId", computerFull.getManufacturer().getId());
             } else {
-                modelAndView.addObject("companyId", -1L);
+                model.addAttribute("companyId", -1L);
             }
-            modelAndView.addObject("companies", companies);
+            model.addAttribute("companies", companies);
         } catch (ComputerServiceException e) {
             message = messageSource.getMessage("dashboard.message.badId", null, locale);
+            return "redirect:/dashboard";
         }
-        return modelAndView;
+        return "editComputer";
     }
 
     /**
