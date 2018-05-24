@@ -29,12 +29,12 @@ import com.zaxxer.hikari.HikariDataSource;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = {"com.excilys.cdb.controllers.jspControllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
-public class SpringConfig implements WebMvcConfigurer {
+public class SpringConfigWeb implements WebMvcConfigurer {
 
     /**
      * A logger.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigWeb.class);
 
     /**
      * Setup the datasource via Hikari connection pool.

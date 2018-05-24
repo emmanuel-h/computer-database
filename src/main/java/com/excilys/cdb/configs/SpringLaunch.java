@@ -13,7 +13,7 @@ public class SpringLaunch implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SpringConfig.class);
+        context.register(SpringConfigWeb.class);
 
         ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", new DispatcherServlet(context));
         registration.setLoadOnStartup(1);
