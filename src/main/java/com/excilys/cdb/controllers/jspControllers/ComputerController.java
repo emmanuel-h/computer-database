@@ -199,7 +199,7 @@ public class ComputerController {
         } catch (ComputerServiceException e) {
             LOGGER.warn(e.toString());
             messageType = MessageType.ERROR;
-            message = messageSource.getMessage("dashboard.message.computerNotCreated", new Object[] {e.getMessage()}, locale);
+            message = messageSource.getMessage("dashboard.message.computerNotCreated", null, locale);
         }
         return "redirect:/dashboard";
     }
