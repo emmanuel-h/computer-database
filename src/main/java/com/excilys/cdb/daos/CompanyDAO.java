@@ -27,7 +27,6 @@ import com.excilys.cdb.utils.Page;
 @Repository
 public class CompanyDAO implements DAO<Company> {
 
-    @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate template;
@@ -42,8 +41,11 @@ public class CompanyDAO implements DAO<Company> {
 
     /**
      * Private constructor to ensure uniqueness.
+     * @param dataSource    The datasource to connect
      */
-    private CompanyDAO() {
+    @Autowired
+    private CompanyDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @PostConstruct

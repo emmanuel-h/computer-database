@@ -34,9 +34,7 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 @Controller
 public class ComputerController {
 
-    @Autowired
     private MessageSource messageSource;
-
     private ComputerService computerService;
     private CompanyService companyService;
 
@@ -47,8 +45,6 @@ public class ComputerController {
 
     /**
      * Which type of message to display in the dashboard.
-     * @author emmanuelh
-     *
      */
     private enum MessageType { INFO, ERROR, CREATION };
 
@@ -61,11 +57,13 @@ public class ComputerController {
      * Initialize the services.
      * @param computerService   The computer service
      * @param companyService    The company service
+     * @param messageSource     The message source
      */
     @Autowired
-    public ComputerController(ComputerService computerService, CompanyService companyService) {
+    public ComputerController(ComputerService computerService, CompanyService companyService, MessageSource messageSource) {
         this.computerService = computerService;
         this.companyService = companyService;
+        this.messageSource = messageSource;
     }
 
     /**

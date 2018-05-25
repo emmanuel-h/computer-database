@@ -18,10 +18,8 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 @Service
 public class ComputerService {
 
-    @Autowired
     private ComputerDAO computerDAO;
 
-    @Autowired
     private CompanyService companyService;
 
     /**
@@ -36,8 +34,11 @@ public class ComputerService {
 
     /**
      * Constructor initializing the DAO.
+     * @param computerDAO   The computer's DAO
      */
-    private ComputerService() {
+    @Autowired
+    private ComputerService(ComputerDAO computerDAO) {
+        this.computerDAO = computerDAO;
     }
 
     /**

@@ -16,13 +16,15 @@ import com.excilys.cdb.utils.Page;
 @Transactional(readOnly = true)
 public class CompanyService {
 
-    @Autowired
     private CompanyDAO companyDAO;
 
     /**
      * Constructor initializing the DAO.
+     * @param companyDAO    The DAO regarding the company
      */
-    private CompanyService() {
+    @Autowired
+    private CompanyService(CompanyDAO companyDAO) {
+        this.companyDAO = companyDAO;
     }
 
     /**

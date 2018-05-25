@@ -29,7 +29,6 @@ import com.excilys.cdb.utils.Page;
 @Repository
 public class ComputerDAO implements DAO<Computer> {
 
-    @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate template;
@@ -49,8 +48,11 @@ public class ComputerDAO implements DAO<Computer> {
 
     /**
      * Private constructor to ensure uniqueness.
+     * @param dataSource    The datasource to connect
      */
-    private ComputerDAO() {
+    @Autowired
+    private ComputerDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @PostConstruct
