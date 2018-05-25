@@ -209,7 +209,7 @@ public class ComputerController {
      * @param id        The computer's identifier
      * @param locale    The user locale
      * @param model     The model
-     * @return          The ModelAndView
+     * @return          The desired redirection
      */
     @GetMapping(value = "/editComputer", params = {"id"})
     public String displayEditComputer(@RequestParam(value = "id") long id, Locale locale, ModelMap model) {
