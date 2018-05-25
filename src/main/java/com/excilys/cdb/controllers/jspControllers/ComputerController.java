@@ -43,6 +43,14 @@ public class ComputerController {
     private static final String RESULTS_PER_PAGE = "10";
     private static final String CURRENT_PAGE = "1";
     private String message = null;
+    private MessageType messageType = MessageType.INFO;
+
+    /**
+     * Which type of message to display in the dashboard.
+     * @author emmanuelh
+     *
+     */
+    private enum MessageType { INFO, ERROR, CREATION };
 
     /**
      * A logger.
@@ -89,6 +97,7 @@ public class ComputerController {
         constructModelAndView(modelAndView, numberOfComputers, computerList, resultsPerPage,
                 pageComputer.getMaxPage(), pageComputer.getCurrentPage());
         modelAndView.addObject("message", message);
+        modelAndView.addObject("messageType", messageType);
         return modelAndView;
     }
 
@@ -188,8 +197,10 @@ public class ComputerController {
         try {
             final long idNewComputer = computerService.createComputer(computer);
             message = messageSource.getMessage("dashboard.message.computerCreated", new Object[] {idNewComputer}, locale);
+            messageType = MessageType.CREATION;
         } catch (ComputerServiceException e) {
             LOGGER.warn(e.toString());
+            messageType = MessageType.ERROR;
             message = messageSource.getMessage("dashboard.message.computerNotCreated", new Object[] {e.getMessage()}, locale);
         }
         return "redirect:/dashboard";
@@ -217,6 +228,7 @@ public class ComputerController {
             }
             model.addAttribute("companies", companies);
         } catch (ComputerServiceException e) {
+            messageType = MessageType.ERROR;
             message = messageSource.getMessage("dashboard.message.badId", null, locale);
             return "redirect:/dashboard";
         }
@@ -230,7 +242,7 @@ public class ComputerController {
      * @param bindingResult The BindingResult
      * @return              The redirection
      */
-    @PostMapping(value = "/editComputerAction", params = {"id"})
+    @PostMapping(value = "/editComputerAction")
     public String saveEditComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
             Locale locale, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -246,8 +258,10 @@ public class ComputerController {
         computer.setManufacturer(company);
         try {
             Optional<Computer> computer2 = computerService.updateComputer(computer);
+            messageType = MessageType.CREATION;
             message = messageSource.getMessage("dashboard.message.computerModified", new Object[] {computer2.get().getId()}, locale);
         } catch (ComputerServiceException e) {
+            messageType = MessageType.ERROR;
             message = messageSource.getMessage("dashboard.message.updateFailed", new Object[] {null}, locale);
         }
         return "redirect:/dashboard";
@@ -271,5 +285,4 @@ public class ComputerController {
         modelAndView.addObject("maxPage", maxPage);
         modelAndView.addObject("page", currentPage);
     }
-
 }

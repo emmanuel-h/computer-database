@@ -22,8 +22,14 @@
 
 	<section id="main">
 		<div class="container">
-            <c:if test="${not empty message}">
-                <div class="alert alert-warning">${message}</div>
+            <c:if test="${not empty message and messageType eq 'INFO'}">
+                <div class="alert alert-info">${message}</div>
+            </c:if>
+            <c:if test="${not empty message and messageType eq 'ERROR'}">
+                <div class="alert alert-error">${message}</div>
+            </c:if>
+            <c:if test="${not empty message and messageType eq 'CREATION'}">
+                <div class="alert alert-success">${message}</div>
             </c:if>
 			<h1 id="homeTitle"><spring:message code="dashboard.computersFound" arguments="${nbComputers}"/></h1>
 			<div id="actions" class="form-horizontal">
