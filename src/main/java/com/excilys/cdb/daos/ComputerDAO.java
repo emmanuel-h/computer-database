@@ -9,6 +9,8 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,7 +38,7 @@ public class ComputerDAO implements DAO<Computer> {
     private final String FIND_ALL_COMPUTERS = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, company.id, company.name "
             + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id LIMIT ?,?";
     private final String FIND_COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced, computer.discontinued, company.id, company.name "
-            + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
+            + "FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=:id";
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
     private final String DELETE_MULTIPLE_COMPUTER = "DELETE FROM computer WHERE id in %s";
     private final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, "
@@ -91,13 +93,14 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Optional<Computer> findById(long id) {
-        Computer computer;
-        try {
-            computer = template.queryForObject(FIND_COMPUTER_BY_ID, new Object[] {id}, new ComputerRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+        Computer computer = null;
+        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            System.out.println(session);
+            computer = session.get(Computer.class, id);
         }
-        return Optional.of(computer);
+        return Optional.ofNullable(computer);
     }
 
     @Override

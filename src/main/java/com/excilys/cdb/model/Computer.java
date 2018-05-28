@@ -2,35 +2,54 @@ package com.excilys.cdb.model;
 
 import java.time.LocalDate;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 /**
  * The class describing a computer.
  * @author emmanuelh
  */
+@Entity
+@Table(name = "computer")
 public class Computer {
 
     /**
      * The identifier of the computer.
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private long id;
 
     /**
      * The name of the computer (mandatory).
      */
+    @Column(name = "name")
     private String name;
 
     /**
      * The introduced date.
      */
+    @Column(name = "introduced")
     private LocalDate introduced;
 
     /**
      * The discontinued date.
      */
+    @Column(name = "discontinued")
     private LocalDate discontinued;
 
     /**
      * The manufacturer of the computer.
      */
+    @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company manufacturer;
 
     public static class Builder {
