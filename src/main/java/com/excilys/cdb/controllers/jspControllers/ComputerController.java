@@ -40,6 +40,34 @@ public class ComputerController {
 
     private static final String RESULTS_PER_PAGE = "10";
     private static final String CURRENT_PAGE = "1";
+    private static final String DASHBOARD = "dashboard";
+    private static final String PAGE = "page";
+    private static final String MAX_PAGE = "maxPage";
+    private static final String RESULTS = "results";
+    private static final String NB_COMPUTERS = "nbComputers";
+    private static final String COMPUTER_LIST = "computerList";
+    private static final String MESSAGE = "message";
+    private static final String MESSAGE_TYPE = "messageType";
+    private static final String SEARCH = "search";
+    private static final String DELETE_COMPUTERS = "deleteComputers";
+    private static final String REDIRECT_DASHBOARD = "redirect:/dashboard";
+    private static final String ADD_COMPUTER = "addComputer";
+    private static final String EDIT_COMPUTER = "editComputer";
+    private static final String COMPUTER = "computer";
+    private static final String COMPANY = "company";
+    private static final String COMPANY_ID = "companyId";
+    private static final String COMPUTER_ID = "computerId";
+    private static final String COMPANIES = "companies";
+    private static final String ID = "id";
+    private static final String CREATE_COMPUTER = "createComputer";
+    private static final String REDIRECT_400 = "redirect:/400";
+    private static final String DASHBOARD_MESSAGE_COMPUTERCREATED = "dashboard.message.computerCreated";
+    private static final String DASHBOARD_MESSAGE_COMPUTERNOTCREATED = "dashboard.message.computerNotCreated";
+    private static final String DASHBOARD_MESSAGE_COMPUTERMODIFIED = "dashboard.message.computerModified";
+    private static final String DASHBOARD_MESSAGE_UPDATE_FAILED = "dashboard.message.updateFailed";
+    private static final String DASHBOARD_MESSAGE_BADID = "dashboard.message.badId";
+    private static final String EDIT_COMPUTER_ACTION = "editComputerAction";
+
     private String message = null;
     private MessageType messageType = MessageType.INFO;
 
@@ -73,10 +101,10 @@ public class ComputerController {
      * @param locale            The user locale
      * @return                  The ModelAndView completed
      */
-    @GetMapping(value = {"/", "/dashboard"})
+    @GetMapping(value = {"/", "/" + DASHBOARD})
     public ModelAndView dashboard(
-            @RequestParam(value = "page", defaultValue = CURRENT_PAGE) int currentPage,
-            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
+            @RequestParam(value = PAGE, defaultValue = CURRENT_PAGE) int currentPage,
+            @RequestParam(value = RESULTS, defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
             Locale locale) {
         int numberOfComputers = computerService.countComputers();
 
@@ -91,11 +119,11 @@ public class ComputerController {
         for (Computer computer : pageComputer.getResults()) {
             computerList.add(ComputerConvertor.toDTO(computer));
         }
-        ModelAndView modelAndView = new ModelAndView("dashboard");
+        ModelAndView modelAndView = new ModelAndView(DASHBOARD);
         constructModelAndView(modelAndView, numberOfComputers, computerList, resultsPerPage,
                 pageComputer.getMaxPage(), pageComputer.getCurrentPage());
-        modelAndView.addObject("message", message);
-        modelAndView.addObject("messageType", messageType);
+        modelAndView.addObject(MESSAGE, message);
+        modelAndView.addObject(MESSAGE_TYPE, messageType);
         return modelAndView;
     }
 
@@ -107,11 +135,11 @@ public class ComputerController {
      * @param locale            The user locale
      * @return                  The ModelAndView completed
      */
-    @GetMapping(value = {"/dashboard"}, params = {"search"})
+    @GetMapping(value = {"/" + DASHBOARD}, params = {SEARCH})
     public ModelAndView dashboardWithSearch(
-            @RequestParam(value = "search") String search,
-            @RequestParam(value = "page", defaultValue = CURRENT_PAGE) int currentPage,
-            @RequestParam(value = "results", defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
+            @RequestParam(value = SEARCH) String search,
+            @RequestParam(value = PAGE, defaultValue = CURRENT_PAGE) int currentPage,
+            @RequestParam(value = RESULTS, defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
             Locale locale) {
         int numberOfComputers = computerService.countSearchedComputers(search);
 
@@ -121,8 +149,8 @@ public class ComputerController {
 
         Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, currentPage, resultsPerPage);
 
-        ModelAndView modelAndView = new ModelAndView("dashboard");
-        modelAndView.addObject("search", search);
+        ModelAndView modelAndView = new ModelAndView(DASHBOARD);
+        modelAndView.addObject(SEARCH, search);
 
         List<ComputerDTO> computerList = new ArrayList<>();
         if (pageOptional.isPresent()) {
@@ -144,7 +172,7 @@ public class ComputerController {
      * @param locale    The user locale
      * @return          The modelAndView
      */
-    @PostMapping("/deleteComputers")
+    @PostMapping("/" + DELETE_COMPUTERS)
     public String deleteComputers(@RequestBody String selection,
             Locale locale) {
         selection = selection.replace("%2C", ",");
@@ -155,7 +183,7 @@ public class ComputerController {
         if (ComputersToDeleteValidator.verifyListToDelete(stringBuilder.toString())) {
             computerService.deleteMultipleComputers(stringBuilder.toString());
         }
-        return "redirect:/dashboard";
+        return REDIRECT_DASHBOARD;
     }
 
     /**
@@ -163,12 +191,12 @@ public class ComputerController {
      * @param locale    The user locale
      * @return          The ModelAndView
      */
-    @GetMapping("/addComputer")
+    @GetMapping("/" + ADD_COMPUTER)
     public ModelAndView displayAddComputer(Locale locale) {
         final List<Company> companies = companyService.findAllCompanies();
-        ModelAndView modelAndView = new ModelAndView("addComputer");
-        modelAndView.addObject("computer", new ComputerDTO());
-        modelAndView.addObject("companies", companies);
+        ModelAndView modelAndView = new ModelAndView(ADD_COMPUTER);
+        modelAndView.addObject(COMPUTER, new ComputerDTO());
+        modelAndView.addObject(COMPANY, companies);
         return modelAndView;
     }
 
@@ -179,11 +207,11 @@ public class ComputerController {
      * @param bindingResult The binding result
      * @return              The redirection
      */
-    @PostMapping("/createComputer")
-    public String addComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, Locale locale,
+    @PostMapping("/" + CREATE_COMPUTER)
+    public String addComputer(@ModelAttribute(COMPUTER) @Valid ComputerDTO computerDTO, Locale locale,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "redirect:/400";
+            return REDIRECT_400;
         }
         final List<Company> companies = companyService.findAllCompanies();
         Computer computer = ComputerConvertor.fromDTO(computerDTO);
@@ -194,14 +222,14 @@ public class ComputerController {
         computer.setManufacturer(company);
         try {
             final long idNewComputer = computerService.createComputer(computer);
-            message = messageSource.getMessage("dashboard.message.computerCreated", new Object[] {idNewComputer}, locale);
+            message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERCREATED, new Object[] {idNewComputer}, locale);
             messageType = MessageType.CREATION;
         } catch (ComputerServiceException e) {
             LOGGER.warn(e.toString());
             messageType = MessageType.ERROR;
-            message = messageSource.getMessage("dashboard.message.computerNotCreated", null, locale);
+            message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERNOTCREATED, null, locale);
         }
-        return "redirect:/dashboard";
+        return REDIRECT_DASHBOARD;
     }
 
     /**
@@ -211,26 +239,26 @@ public class ComputerController {
      * @param model     The model
      * @return          The desired redirection
      */
-    @GetMapping(value = "/editComputer", params = {"id"})
-    public String displayEditComputer(@RequestParam(value = "id") long id, Locale locale, ModelMap model) {
+    @GetMapping(value = "/" + EDIT_COMPUTER, params = {ID})
+    public String displayEditComputer(@RequestParam(value = ID) long id, Locale locale, ModelMap model) {
         final List<Company> companies = companyService.findAllCompanies();
         Computer computerFull;
         try {
             computerFull = computerService.getOneComputer(id);
             ComputerDTO computer = ComputerConvertor.toDTO(computerFull);
-            model.addAttribute("computer", computer);
+            model.addAttribute(COMPUTER, computer);
             if (null != computerFull.getManufacturer()) {
-                model.addAttribute("companyId", computerFull.getManufacturer().getId());
+                model.addAttribute(COMPUTER_ID, computerFull.getManufacturer().getId());
             } else {
-                model.addAttribute("companyId", -1L);
+                model.addAttribute(COMPANY_ID, -1L);
             }
-            model.addAttribute("companies", companies);
+            model.addAttribute(COMPANIES, companies);
         } catch (ComputerServiceException e) {
             messageType = MessageType.ERROR;
-            message = messageSource.getMessage("dashboard.message.badId", null, locale);
-            return "redirect:/dashboard";
+            message = messageSource.getMessage(DASHBOARD_MESSAGE_BADID, null, locale);
+            return REDIRECT_DASHBOARD;
         }
-        return "editComputer";
+        return EDIT_COMPUTER;
     }
 
     /**
@@ -240,11 +268,11 @@ public class ComputerController {
      * @param bindingResult The BindingResult
      * @return              The redirection
      */
-    @PostMapping(value = "/editComputerAction")
-    public String saveEditComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
+    @PostMapping(value = "/" + EDIT_COMPUTER_ACTION)
+    public String saveEditComputer(@ModelAttribute(COMPUTER) @Valid ComputerDTO computerDTO,
             Locale locale, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "redirect:/400";
+            return REDIRECT_400;
         }
         final List<Company> companies = companyService.findAllCompanies();
         Company company = companies.stream()
@@ -257,12 +285,12 @@ public class ComputerController {
         try {
             Optional<Computer> computer2 = computerService.updateComputer(computer);
             messageType = MessageType.CREATION;
-            message = messageSource.getMessage("dashboard.message.computerModified", new Object[] {computer2.get().getId()}, locale);
+            message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERMODIFIED, new Object[] {computer2.get().getId()}, locale);
         } catch (ComputerServiceException e) {
             messageType = MessageType.ERROR;
-            message = messageSource.getMessage("dashboard.message.updateFailed", new Object[] {null}, locale);
+            message = messageSource.getMessage(DASHBOARD_MESSAGE_UPDATE_FAILED, new Object[] {null}, locale);
         }
-        return "redirect:/dashboard";
+        return REDIRECT_DASHBOARD;
     }
 
     /**
@@ -277,10 +305,10 @@ public class ComputerController {
     private void constructModelAndView(ModelAndView modelAndView,
             int numberOfComputers, List<ComputerDTO> computerList, int resultsPerPage,
             int maxPage, int currentPage) {
-        modelAndView.addObject("nbComputers", numberOfComputers);
-        modelAndView.addObject("computerList", computerList);
-        modelAndView.addObject("results", resultsPerPage);
-        modelAndView.addObject("maxPage", maxPage);
-        modelAndView.addObject("page", currentPage);
+        modelAndView.addObject(NB_COMPUTERS, numberOfComputers);
+        modelAndView.addObject(COMPUTER_LIST, computerList);
+        modelAndView.addObject(RESULTS, resultsPerPage);
+        modelAndView.addObject(MAX_PAGE, maxPage);
+        modelAndView.addObject(PAGE, currentPage);
     }
 }

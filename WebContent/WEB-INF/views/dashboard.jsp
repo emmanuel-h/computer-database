@@ -26,7 +26,7 @@
                 <div class="alert alert-info">${message}</div>
             </c:if>
             <c:if test="${not empty message and messageType eq 'ERROR'}">
-                <div class="alert alert-error">${message}</div>
+                <div class="alert alert-danger">${message}</div>
             </c:if>
             <c:if test="${not empty message and messageType eq 'CREATION'}">
                 <div class="alert alert-success">${message}</div>
