@@ -40,6 +40,8 @@ public class ComputerController {
 
     private static final String RESULTS_PER_PAGE = "10";
     private static final String CURRENT_PAGE = "1";
+
+    // Arguments
     private static final String DASHBOARD = "dashboard";
     private static final String PAGE = "page";
     private static final String MAX_PAGE = "maxPage";
@@ -49,24 +51,30 @@ public class ComputerController {
     private static final String MESSAGE = "message";
     private static final String MESSAGE_TYPE = "messageType";
     private static final String SEARCH = "search";
+    private static final String CREATE_COMPUTER = "createComputer";
+
+    // Actions
     private static final String DELETE_COMPUTERS = "deleteComputers";
     private static final String REDIRECT_DASHBOARD = "redirect:/dashboard";
     private static final String ADD_COMPUTER = "addComputer";
     private static final String EDIT_COMPUTER = "editComputer";
+    private static final String EDIT_COMPUTER_ACTION = "editComputerAction";
+    private static final String REDIRECT_400 = "redirect:/400";
+
+    // Parameters
     private static final String COMPUTER = "computer";
     private static final String COMPANY = "company";
     private static final String COMPANY_ID = "companyId";
     private static final String COMPUTER_ID = "computerId";
     private static final String COMPANIES = "companies";
     private static final String ID = "id";
-    private static final String CREATE_COMPUTER = "createComputer";
-    private static final String REDIRECT_400 = "redirect:/400";
+
+    // Dashboard messages
     private static final String DASHBOARD_MESSAGE_COMPUTERCREATED = "dashboard.message.computerCreated";
     private static final String DASHBOARD_MESSAGE_COMPUTERNOTCREATED = "dashboard.message.computerNotCreated";
     private static final String DASHBOARD_MESSAGE_COMPUTERMODIFIED = "dashboard.message.computerModified";
     private static final String DASHBOARD_MESSAGE_UPDATE_FAILED = "dashboard.message.updateFailed";
     private static final String DASHBOARD_MESSAGE_BADID = "dashboard.message.badId";
-    private static final String EDIT_COMPUTER_ACTION = "editComputerAction";
 
     private String message = null;
     private MessageType messageType = MessageType.INFO;
