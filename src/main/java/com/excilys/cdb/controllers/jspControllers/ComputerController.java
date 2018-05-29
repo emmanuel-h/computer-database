@@ -206,7 +206,7 @@ public class ComputerController {
         final List<Company> companies = companyService.findAllCompanies();
         ModelAndView modelAndView = new ModelAndView(ADD_COMPUTER);
         modelAndView.addObject(COMPUTER, new ComputerDTO());
-        modelAndView.addObject(COMPANY, companies);
+        modelAndView.addObject(COMPANIES, companies);
         return modelAndView;
     }
 
@@ -258,7 +258,7 @@ public class ComputerController {
             ComputerDTO computer = ComputerConvertor.toDTO(computerFull);
             model.addAttribute(COMPUTER, computer);
             if (null != computerFull.getManufacturer()) {
-                model.addAttribute(COMPUTER_ID, computerFull.getManufacturer().getId());
+                model.addAttribute(COMPANY_ID, computerFull.getManufacturer().getId());
             } else {
                 model.addAttribute(COMPANY_ID, -1L);
             }

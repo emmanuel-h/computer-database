@@ -28,8 +28,8 @@ public class ComputerDAO implements DAO<Computer> {
     private final String UPDATE_COMPUTER = "UPDATE Computer SET name = :name, introduced = :introduced, "
             + "discontinued = :discontinued, manufacturer= :manufacturer WHERE id = :id";
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM Computer";
-    private final String SEARCH_COMPUTERS = "FROM Computer computer WHERE computer.name LIKE :search";
-    private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer computer WHERE computer.name LIKE :search";
+    private final String SEARCH_COMPUTERS = "FROM Computer WHERE name LIKE :search";
+    private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
 
     /**
      * Private constructor to ensure uniqueness.
