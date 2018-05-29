@@ -235,7 +235,7 @@ public class ComputerDAOTest {
                 .id(2L)
                 .manufacturer(new Company(500L))
                 .build();
-        exception.expect(org.springframework.dao.DataIntegrityViolationException.class);
+        exception.expect(org.hibernate.exception.ConstraintViolationException.class);
         computerDAO.update(computerToUpdate);
     }
 

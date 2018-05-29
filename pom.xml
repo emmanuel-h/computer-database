@@ -154,6 +154,13 @@
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate-validator.version}</version>
     </dependency>
+    
+    <dependency>
+        <groupId>org.unitils</groupId>
+        <artifactId>unitils-orm</artifactId>
+        <version>3.4.2</version>
+        <scope>test</scope>
+    </dependency>
         
   </dependencies>
 

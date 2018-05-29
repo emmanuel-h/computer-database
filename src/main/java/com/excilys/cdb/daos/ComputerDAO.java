@@ -10,6 +10,7 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.Computer;
@@ -23,7 +24,7 @@ import com.excilys.cdb.utils.Page;
 public class ComputerDAO implements DAO<Computer> {
 
     private final String FIND_ALL_COMPUTERS = "FROM Computer";
-    private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = :id";
+    private final String DELETE_COMPUTER = "DELETE FROM Computer WHERE id = :id";
     private final String DELETE_MULTIPLE_COMPUTER = "DELETE FROM Computer WHERE id in %s";
     private final String UPDATE_COMPUTER = "UPDATE Computer SET name = :name, introduced = :introduced, "
             + "discontinued = :discontinued, manufacturer= :manufacturer WHERE id = :id";
@@ -31,10 +32,15 @@ public class ComputerDAO implements DAO<Computer> {
     private final String SEARCH_COMPUTERS = "FROM Computer WHERE name LIKE :search";
     private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
 
+    private SessionFactory sessionFactory;
+
     /**
      * Private constructor to ensure uniqueness.
+     * @param sessionFactory    The session factory
      */
-    private ComputerDAO() {
+    @Autowired
+    private ComputerDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -45,7 +51,6 @@ public class ComputerDAO implements DAO<Computer> {
 
         Page<Computer> page = new Page<>();
         List<Computer> computers = new ArrayList<>();
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             TypedQuery<Computer> query = session.createQuery(FIND_ALL_COMPUTERS, Computer.class)
@@ -65,7 +70,6 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public Optional<Computer> findById(long id) {
         Computer computer = null;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             computer = session.get(Computer.class, id);
@@ -76,7 +80,6 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public long add(Computer computer) {
         long id = -1;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             id = (long) session.save(computer);
@@ -88,7 +91,6 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public boolean delete(long id) {
         int result = 0;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(DELETE_COMPUTER);
@@ -100,7 +102,7 @@ public class ComputerDAO implements DAO<Computer> {
 
     @Override
     public Computer update(Computer computer) {
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
+        long result = 0;
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(UPDATE_COMPUTER);
@@ -109,9 +111,13 @@ public class ComputerDAO implements DAO<Computer> {
             query.setParameter("discontinued", computer.getDiscontinued());
             query.setParameter("manufacturer", computer.getManufacturer());
             query.setParameter("id", computer.getId());
-            query.executeUpdate();
+            result = query.executeUpdate();
         }
-        return computer;
+        if (result == 0) {
+            return null;
+        } else {
+            return computer;
+        }
     }
 
     /**
@@ -121,7 +127,6 @@ public class ComputerDAO implements DAO<Computer> {
      */
     public int count() {
         long total = 0;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(COUNT_COMPUTERS);
@@ -138,7 +143,6 @@ public class ComputerDAO implements DAO<Computer> {
      */
     public boolean deleteMultiple(String toDelete) {
         int result = 0;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(String.format(DELETE_MULTIPLE_COMPUTER, toDelete));
@@ -162,7 +166,6 @@ public class ComputerDAO implements DAO<Computer> {
 
         Page<Computer> page = new Page<>();
         List<Computer> computers = new ArrayList<>();
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             TypedQuery<Computer> query = session.createQuery(SEARCH_COMPUTERS, Computer.class)
@@ -188,7 +191,6 @@ public class ComputerDAO implements DAO<Computer> {
      */
     public int countSearchedComputers(String search) {
         long total = 0;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(COUNT_SEARCHED_COMPUTERS);

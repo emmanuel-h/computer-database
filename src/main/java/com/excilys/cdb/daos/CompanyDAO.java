@@ -11,6 +11,7 @@ import javax.persistence.TypedQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.Company;
@@ -30,10 +31,15 @@ public class CompanyDAO implements DAO<Company> {
     private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM Company";
     private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM Computer WHERE manufacturer = :manufacturer";
 
+    private SessionFactory sessionFactory;
+
     /**
      * Private constructor to ensure uniqueness.
+     * @param sessionFactory    The session factory
      */
-    private CompanyDAO() {
+    @Autowired
+    private CompanyDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -45,7 +51,6 @@ public class CompanyDAO implements DAO<Company> {
 
         Page<Company> page = new Page<>();
         List<Company> computers = new ArrayList<>();
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             TypedQuery<Company> query = session.createQuery(FIND_ALL_COMPANIES_WITH_PAGING, Company.class)
@@ -69,7 +74,6 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public Optional<Company> findById(long id) {
         Company company = null;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             company = session.get(Company.class, id);
@@ -80,7 +84,6 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public long add(Company company) {
         long id = -1;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             id = (long) session.save(company);
@@ -92,18 +95,19 @@ public class CompanyDAO implements DAO<Company> {
     public boolean delete(long id) {
         int result = 0;
         Transaction transaction = null;
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             transaction = session.beginTransaction();
+            Company manufacturer = new Company(id);
             Query query = session.createQuery(DELETE_COMPUTER_FROM_MANUFACTURER);
-            query.setParameter("id", id);
+            query.setParameter("manufacturer", manufacturer);
             query.executeUpdate();
             query = session.createQuery(DELETE_COMPANY);
             query.setParameter("id", id);
             result = query.executeUpdate();
             transaction.commit();
         } catch (RuntimeException e) {
-            if (null != transaction) {
+            e.printStackTrace();
+            if (null != transaction && !transaction.isActive()) {
                 transaction.rollback();
             }
         }
@@ -112,16 +116,19 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public Company update(Company company) {
-
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
+        long result;
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Query query = session.createQuery(UPDATE_COMPANY);
             query.setParameter("name", company.getName());
             query.setParameter("id", company.getId());
-            query.executeUpdate();
+            result = query.executeUpdate();
         }
-        return company;
+        if (result == 0) {
+            return null;
+        } else {
+            return company;
+        }
     }
 
     /**
@@ -131,7 +138,6 @@ public class CompanyDAO implements DAO<Company> {
      */
     public List<Company> findAll() {
         List<Company> companies = new ArrayList<>();
-        SessionFactory sessionFactory = SessionFactoryManager.INSTANCE.getSessionFactory();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             TypedQuery<Company> query = session.createQuery(FIND_ALL_COMPANIES, Company.class);
