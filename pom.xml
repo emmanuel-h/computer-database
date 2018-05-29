@@ -5,7 +5,7 @@
 
   <groupId>com.excilys.cdb</groupId>
   <artifactId>computerdb</artifactId>
-  <version>4.5.5-SNAPSHOT</version>
+  <version>4.6.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>computerdb</name>
@@ -29,6 +29,8 @@
     <spring.version>5.0.6.RELEASE</spring.version>
     <javax-validation.version>2.0.1.Final</javax-validation.version>
     <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
+    <jpa.version>2.0.7.RELEASE</jpa.version>
+    <hibernate.version>5.3.1.Final</hibernate.version>
   </properties>
 
   <dependencies>
@@ -133,17 +135,31 @@
         <artifactId>spring-jdbc</artifactId>
         <version>${spring.version}</version>
     </dependency>
-    
+
     <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
         <version>${javax-validation.version}</version>
     </dependency>
-    
+                
+        <!-- Hibernate -->
+        
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${hibernate.version}</version>
+    </dependency>
     <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate-validator.version}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.unitils</groupId>
+        <artifactId>unitils-orm</artifactId>
+        <version>3.4.2</version>
+        <scope>test</scope>
     </dependency>
         
   </dependencies>

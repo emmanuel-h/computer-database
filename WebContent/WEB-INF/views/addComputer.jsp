@@ -33,7 +33,7 @@
 								<label for="computerName"><spring:message code="addComputer.name"/></label> <form:input
 									type="text" class="form-control" name="name" id="name"
 									placeholder="Computer name" path="name" required="true"/>
-									<label id="nameProblem" hidden=true class="error text-danger">This field is required</label>
+									<label id="nameProblem" hidden=true class="error text-danger"><spring:message code="javascript.blankfield"/></label>
 							</div>
 							<div class="form-group">
 								<label for="introduced"><spring:message code="addComputer.introduced"/></label> <form:input

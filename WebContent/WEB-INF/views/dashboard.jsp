@@ -26,7 +26,7 @@
                 <div class="alert alert-info">${message}</div>
             </c:if>
             <c:if test="${not empty message and messageType eq 'ERROR'}">
-                <div class="alert alert-error">${message}</div>
+                <div class="alert alert-danger">${message}</div>
             </c:if>
             <c:if test="${not empty message and messageType eq 'CREATION'}">
                 <div class="alert alert-success">${message}</div>
@@ -95,6 +95,10 @@
 	</section>
 
 	<footer class="navbar-fixed-bottom">
+            <div class="btn-group btn-group-sm pull-left" role="group">
+             <a href="dashboard?lang=en"><img src="images/english-flag.png" alt="English flag" style="width:30px;height:20px;"></a>
+             <a href="dashboard?lang=fr"><img src="images/french-flag.png" alt="French flag" style="width:30px;height:20px;"> </a>
+            </div>
 		<div class="container text-center">
 			<mylib:pagination uri="dashboard"
 				page="${page}" totalPages="${maxPage}"

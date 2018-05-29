@@ -1,19 +1,32 @@
 package com.excilys.cdb.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * The class describing a company.
  * @author emmanuelh
  */
+@Entity
+@Table(name = "company")
 public class Company {
 
     /**
      * The identifier of the company.
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     /**
      * The name of the company.
      */
+    @Column(name = "name")
     private String name;
 
     /**

@@ -5,18 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.cdb.daos.mapper.CompanyRowMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -27,89 +23,105 @@ import com.excilys.cdb.utils.Page;
 @Repository
 public class CompanyDAO implements DAO<Company> {
 
-    private DataSource dataSource;
+    private final String FIND_ALL_COMPANIES = "FROM Company";
+    private final String FIND_ALL_COMPANIES_WITH_PAGING = "FROM Company";
+    private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
+    private final String UPDATE_COMPANY = "UPDATE Company SET name = :name WHERE id = :id";
+    private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM Company";
+    private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM Computer WHERE manufacturer = :manufacturer";
 
-    private JdbcTemplate template;
-
-    private final String FIND_ALL_COMPANIES = "SELECT id, name FROM company";
-    private final String FIND_ALL_COMPANIES_WITH_PAGING = "SELECT id, name FROM company LIMIT ?,?";
-    private final String FIND_COMPANY_BY_ID = "SELECT id, name FROM company WHERE id=?";
-    private final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
-    private final String UPDATE_COMPANY = "UPDATE company SET company.name = ? WHERE company.id = ?";
-    private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM company";
-    private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM computer WHERE computer.company_id = ?";
+    private SessionFactory sessionFactory;
 
     /**
      * Private constructor to ensure uniqueness.
-     * @param dataSource    The datasource to connect
+     * @param sessionFactory    The session factory
      */
-    @Autowired
-    private CompanyDAO(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    @PostConstruct
-    private void initializeConnection() {
-        template = new JdbcTemplate(dataSource);
+    private CompanyDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
     public Page<Company> findAllWithPaging(int currentPage, int maxResults) {
+
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
-        Page<Company> page = new Page<>();
-        List<Company> companies = new ArrayList<>();
-        try {
-            companies = template.query(FIND_ALL_COMPANIES_WITH_PAGING,
-                    new Object[] {(currentPage - 1) * maxResults, maxResults},
-                    new CompanyRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-            page.setMaxPage(1);
-            page.setCurrentPage(currentPage);
-            page.setResultsPerPage(maxResults);
-            page.setResults(companies);
-            return page;
-        }
-        int total = template.queryForObject(COUNT_COMPANIES, Integer.class);
 
-        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        Page<Company> page = new Page<>();
+        List<Company> computers = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(FIND_ALL_COMPANIES_WITH_PAGING, Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            computers = query.getResultList();
+        }
+        int total = 1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPANIES);
+            total = (int) (long) query.getResultList().get(0);
+        }
+        page.setMaxPage(total);
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
-        page.setResults(companies);
+        page.setResults(computers);
         return page;
     }
 
     @Override
     public Optional<Company> findById(long id) {
-
-        Company company;
-        try {
-            company = template.queryForObject(FIND_COMPANY_BY_ID, new Object[] {id}, new CompanyRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+        Company company = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            company = session.get(Company.class, id);
         }
-        return Optional.of(company);
+        return Optional.ofNullable(company);
     }
 
     @Override
     public long add(Company company) {
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
-        jdbcInsert.withTableName("company").usingGeneratedKeyColumns("id");
-        SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("name", company.getName())
-                .addValue("id", company.getId());
-        return jdbcInsert.executeAndReturnKey(parameterSource).longValue();
+        long id = -1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            id = (long) session.save(company);
+        }
+        return id;
     }
 
     @Override
     public boolean delete(long id) {
-        template.update(DELETE_COMPUTER_FROM_MANUFACTURER, id);
-        return !(template.update(DELETE_COMPANY, id) == 0);
+        int result = 0;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            Company manufacturer = new Company(id);
+            Query query = session.createQuery(DELETE_COMPUTER_FROM_MANUFACTURER);
+            query.setParameter("manufacturer", manufacturer);
+            query.executeUpdate();
+            query = session.createQuery(DELETE_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate();
+            transaction.commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            if (null != transaction && !transaction.isActive()) {
+                transaction.rollback();
+            }
+        }
+        return !(result == 0);
     }
 
     @Override
     public Company update(Company company) {
-        int result = template.update(UPDATE_COMPANY, new Object[] {company.getName(), company.getId()});
+        long result;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(UPDATE_COMPANY);
+            query.setParameter("name", company.getName());
+            query.setParameter("id", company.getId());
+            result = query.executeUpdate();
+        }
         if (result == 0) {
             return null;
         } else {
@@ -123,6 +135,12 @@ public class CompanyDAO implements DAO<Company> {
      * @throws SQLException If there is a problem with the SQL request
      */
     public List<Company> findAll() {
-        return template.query(FIND_ALL_COMPANIES, new CompanyRowMapper());
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(FIND_ALL_COMPANIES, Company.class);
+            companies = query.getResultList();
+        }
+        return companies;
     }
 }
