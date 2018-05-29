@@ -11,7 +11,6 @@ import javax.persistence.TypedQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.Company;
@@ -37,7 +36,6 @@ public class CompanyDAO implements DAO<Company> {
      * Private constructor to ensure uniqueness.
      * @param sessionFactory    The session factory
      */
-    @Autowired
     private CompanyDAO(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }

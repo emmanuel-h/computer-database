@@ -2,6 +2,8 @@ package com.excilys.cdb.dtos;
 
 import javax.validation.constraints.NotBlank;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.excilys.cdb.model.Computer;
 
 public class ComputerDTO {
@@ -10,7 +12,9 @@ public class ComputerDTO {
 
     @NotBlank
     private String name;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String introduced;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String discontinued;
     private String manufacturer;
 

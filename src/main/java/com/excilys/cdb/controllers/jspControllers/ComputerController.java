@@ -9,7 +9,6 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -63,9 +62,7 @@ public class ComputerController {
 
     // Parameters
     private static final String COMPUTER = "computer";
-    private static final String COMPANY = "company";
     private static final String COMPANY_ID = "companyId";
-    private static final String COMPUTER_ID = "computerId";
     private static final String COMPANIES = "companies";
     private static final String ID = "id";
 
@@ -95,7 +92,6 @@ public class ComputerController {
      * @param companyService    The company service
      * @param messageSource     The message source
      */
-    @Autowired
     public ComputerController(ComputerService computerService, CompanyService companyService, MessageSource messageSource) {
         this.computerService = computerService;
         this.companyService = companyService;

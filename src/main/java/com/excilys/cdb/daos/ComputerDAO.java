@@ -10,7 +10,6 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.Computer;
@@ -38,7 +37,6 @@ public class ComputerDAO implements DAO<Computer> {
      * Private constructor to ensure uniqueness.
      * @param sessionFactory    The session factory
      */
-    @Autowired
     private ComputerDAO(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
