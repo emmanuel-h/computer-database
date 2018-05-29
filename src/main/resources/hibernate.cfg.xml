@@ -9,6 +9,7 @@
       <property name = "hibernate.connection.username">admincdb</property>
       <property name = "hibernate.connection.password">qwerty1234</property>
       <property name="hibernate.current_session_context_class">thread</property>
+      <property name="hbm2ddl.auto">update</property>
 
       <mapping class="com.excilys.cdb.model.Company"/>
       <mapping class="com.excilys.cdb.model.Computer"/>

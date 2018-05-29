@@ -119,13 +119,15 @@ public class ComputerController {
         if (currentPage * resultsPerPage > numberOfComputers) {
             currentPage = (int) Math.ceil((double) numberOfComputers / (double) resultsPerPage);
         }
-
         Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(currentPage, resultsPerPage);
 
         List<ComputerDTO> computerList = new ArrayList<>();
-        Page<Computer> pageComputer = pageOptional.get();
-        for (Computer computer : pageComputer.getResults()) {
-            computerList.add(ComputerConvertor.toDTO(computer));
+        Page<Computer> pageComputer = new Page<>();
+        if (pageOptional.isPresent()) {
+            pageComputer = pageOptional.get();
+            for (Computer computer : pageComputer.getResults()) {
+                computerList.add(ComputerConvertor.toDTO(computer));
+            }
         }
         ModelAndView modelAndView = new ModelAndView(DASHBOARD);
         constructModelAndView(modelAndView, numberOfComputers, computerList, resultsPerPage,

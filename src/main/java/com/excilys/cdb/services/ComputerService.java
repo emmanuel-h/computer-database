@@ -34,11 +34,13 @@ public class ComputerService {
 
     /**
      * Constructor initializing the DAO.
-     * @param computerDAO   The computer's DAO
+     * @param computerDAO    The computer's DAO
+     * @param companyService The service regarding the company
      */
     @Autowired
-    private ComputerService(ComputerDAO computerDAO) {
+    private ComputerService(ComputerDAO computerDAO, CompanyService companyService) {
         this.computerDAO = computerDAO;
+        this.companyService = companyService;
     }
 
     /**
@@ -113,6 +115,7 @@ public class ComputerService {
                 throw new ComputerServiceException(DATE_PROBLEM);
             }
         }
+
         if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
             Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
             if (!company.isPresent()) {
