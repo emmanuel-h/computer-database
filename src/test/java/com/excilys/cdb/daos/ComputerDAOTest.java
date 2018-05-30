@@ -260,6 +260,15 @@ public class ComputerDAOTest {
     }
 
     /**
+     * Test if the multiple delete works with no id.
+     */
+    @Test
+    public void deleteMultipleWithNoId() {
+        boolean test = computerDAO.deleteMultiple("(-1)");
+        assertFalse(test);
+    }
+
+    /**
      * Test if the search of a computer works.
      */
     @Test
@@ -269,6 +278,24 @@ public class ComputerDAOTest {
         assertTrue(computers.getResultsPerPage() == 10);
         assertTrue(computers.getMaxPage() == 1);
         assertTrue(computers.getResults().size() == 6);
+    }
+
+    /**
+     * Test if an invalid search return null.
+     */
+    @Test
+    public void searchComputerWithNegativePage() {
+        Page<Computer> computers = computerDAO.searchComputer("pp", -1, 10);
+        assertNull(computers);
+    }
+
+    /**
+     * Test if an invalid search return null.
+     */
+    @Test
+    public void searchComputerWithNegativeResultsPerPage() {
+        Page<Computer> computers = computerDAO.searchComputer("pp", 1, -1);
+        assertNull(computers);
     }
 
     /**

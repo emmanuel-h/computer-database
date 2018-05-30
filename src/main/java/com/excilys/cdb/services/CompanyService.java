@@ -1,18 +1,15 @@
 package com.excilys.cdb.services;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
 @Service
-@Transactional(readOnly = true)
 public class CompanyService {
 
     private CompanyDAO companyDAO;
@@ -48,7 +45,6 @@ public class CompanyService {
      * @param id    The company identifier to delete
      * @return      True if the company has been successfully deleted, false if not
      */
-    @Transactional(readOnly = false, rollbackFor = SQLException.class)
     public boolean deleteCompany(long id) {
         return companyDAO.delete(id);
     }
@@ -59,7 +55,6 @@ public class CompanyService {
      * @return      The company found
      */
     public Optional<Company> getOneCompany(long id) {
-
         return companyDAO.findById(id);
 
     }

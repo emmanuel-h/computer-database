@@ -1,5 +1,6 @@
 package com.excilys.cdb.services;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -83,5 +84,40 @@ public class CompanyServiceTest {
         Optional<Page<Company>> resultsPageNegative = service.getAllCompaniesWithPaging(1, -1);
         assertFalse(resultsPageNegative.isPresent());
         Mockito.verify(companyDAO).findAllWithPaging(1, -1);
+    }
+
+    /**
+     * Test if the findAllCompanies method works properly.
+     */
+    @Test
+    public void findAllCompanies() {
+        Company company = new Company(1, "test");
+        List<Company> companiesList = new ArrayList<>();
+        companiesList.add(company);
+        Mockito.when(companyDAO.findAll()).thenReturn(companiesList);
+        List<Company> resultList = service.findAllCompanies();
+        assertEquals(companiesList, resultList);
+    }
+
+    /**
+     * Test if the legit company deletion works.
+     */
+    @Test
+    public void deleteCompany() {
+        Mockito.when(companyDAO.delete(1)).thenReturn(true);
+        boolean test = service.deleteCompany(1);
+        assertTrue(test);
+    }
+
+    /**
+     * Test if the legit company search works.
+     */
+    @Test
+    public void getOneCompany() {
+        Company company = new Company(1, "test");
+        Mockito.when(companyDAO.findById(1)).thenReturn(Optional.of(company));
+        Optional<Company> result = service.getOneCompany(1);
+        assertTrue(result.isPresent());
+        assertEquals(result.get(), company);
     }
 }

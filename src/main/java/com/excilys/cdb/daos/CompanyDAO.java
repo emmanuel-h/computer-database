@@ -104,7 +104,6 @@ public class CompanyDAO implements DAO<Company> {
             result = query.executeUpdate();
             transaction.commit();
         } catch (RuntimeException e) {
-            e.printStackTrace();
             if (null != transaction && !transaction.isActive()) {
                 transaction.rollback();
             }

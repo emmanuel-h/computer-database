@@ -24,6 +24,9 @@ public class ComputersToDeleteValidator {
         StringBuilder idsToDeleteSB = new StringBuilder(toDelete);
         idsToDeleteSB.deleteCharAt(0);
         idsToDeleteSB.deleteCharAt(idsToDeleteSB.length() - 1);
+        if (StringUtils.isEmpty(idsToDeleteSB.toString())) {
+            return false;
+        }
         StringTokenizer stringTokenizer = new StringTokenizer(idsToDeleteSB.toString(), ",");
         while (stringTokenizer.hasMoreTokens()) {
             String stringToTest = (String) stringTokenizer.nextElement();

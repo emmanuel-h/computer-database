@@ -303,4 +303,76 @@ public class ComputerServiceTest {
         int count = service.countComputers();
         assertEquals(11, count);
     }
+
+    /**
+     * Test if searching a valid computer works.
+     * @throws ComputerServiceException If the search fails
+     */
+    @Test
+    public void getOneComputerPresent() throws ComputerServiceException {
+        Computer computer = new Computer.Builder("test")
+                .id(1L)
+                .build();
+        Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.of(computer));
+        Computer computerToTest = service.getOneComputer(1L);
+        assertEquals(computerToTest, computer);
+    }
+
+    /**
+     * Test if searching an invalid computer doesn't work.
+     * @throws ComputerServiceException If the computer is not found
+     */
+    @Test
+    public void getOneComputerNotPresent() throws ComputerServiceException {
+        Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.empty());
+        exception.expect(ComputerServiceException.class);
+        service.getOneComputer(1L);
+    }
+
+    /**
+     * Test if regular multiple deletion works.
+     */
+    @Test
+    public void deleteMultipleComputers() {
+        Mockito.when(computerDAO.deleteMultiple("(1,2)")).thenReturn(true);
+        boolean test = service.deleteMultipleComputers("(1,2)");
+        assertTrue(test);
+    }
+
+    /**
+     * Test if invalid multiple deletion doesn't works.
+     */
+    @Test
+    public void deleteMultipleComputersWithInvalidString() {
+        boolean test = service.deleteMultipleComputers("1,2)");
+        assertFalse(test);
+    }
+
+    /**
+     * Test if searching a computer works.
+     */
+    @Test
+    public void searchComputer() {
+        List<Computer> computers = new ArrayList<>();
+        computers.add(new Computer.Builder("Test search").build());
+        Page<Computer> page = new Page<>();
+        page.setCurrentPage(1);
+        page.setMaxPage(2);
+        page.setResultsPerPage(10);
+        Mockito.when(computerDAO.searchComputer("pp", 1, 10)).thenReturn(page);
+        Optional<Page<Computer>> pageToTest = service.searchComputer("pp", 1, 10);
+        assertTrue(pageToTest.isPresent());
+        assertEquals(pageToTest.get(), page);
+    }
+
+    /**
+     * Test if counting results of a search works.
+     */
+    @Test
+    public void countSearchedComputers() {
+        Mockito.when(computerDAO.countSearchedComputers("pp")).thenReturn(12);
+        int test = service.countSearchedComputers("pp");
+        assertEquals(test, 12);
+    }
+
 }
