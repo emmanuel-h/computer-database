@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>ComputerDatabase</artifactId>
+    <groupId>com.excilys.cdb</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>webapp</artifactId>
+  <packaging>war</packaging>
+
+  <name>webapp</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
+    <jstl.version>1.2</jstl.version>
+    <javax.servlet.jsp.version>2.3.1</javax.servlet.jsp.version>
+    <service.version>1.0-SNAPSHOT</service.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax.servlet.api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>${jstl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+      <version>${javax.servlet.jsp.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.excilys.cdb</groupId>
+      <artifactId>service</artifactId>
+      <version>${service.version}</version>
+    </dependency>
+        
+  </dependencies>
+</project>

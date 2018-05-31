@@ -1,16 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.excilys.cdb</groupId>
-  <artifactId>computerdb</artifactId>
-  <version>4.6.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <artifactId>ComputerDatabase</artifactId>
+  <version>4.6.2</version>
+  <packaging>pom</packaging>
 
-  <name>computerdb</name>
+  <name>ComputerDatabase</name>
   <url>http://maven.apache.org</url>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.12</junit.version>
@@ -20,17 +18,8 @@
     <logback.version>1.0.9</logback.version>
     <mysql.version>5.1.46</mysql.version>
     <mockito.version>2.18.0</mockito.version>
-    <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
-    <jstl.version>1.2</jstl.version>
-    <javax.servlet.jsp.version>2.3.1</javax.servlet.jsp.version>
-    <mysql.maven.version>1.5</mysql.maven.version>
     <maven.lang.version>3.7</maven.lang.version>
-    <hikari.version>2.7.8</hikari.version>
     <spring.version>5.0.6.RELEASE</spring.version>
-    <javax-validation.version>2.0.1.Final</javax-validation.version>
-    <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
-    <jpa.version>2.0.7.RELEASE</jpa.version>
-    <hibernate.version>5.3.1.Final</hibernate.version>
   </properties>
 
   <dependencies>
@@ -50,6 +39,15 @@
       <scope>test</scope>
     </dependency>
     
+    <!-- Sprint test -->
+    
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
+        <scope>test</scope>
+    </dependency>
+    
     <!--  Logs -->
     
     <dependency>
@@ -63,34 +61,6 @@
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
     </dependency>
-
-    <!--  SQL -->
-
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql.version}</version>
-    </dependency>
-
-    <!-- Servlets -->
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${javax.servlet.api.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>${jstl.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-      <version>${javax.servlet.jsp.version}</version>
-      <scope>provided</scope>
-    </dependency>
     
     <!-- Apache Lang -->
     
@@ -99,141 +69,15 @@
       <artifactId>commons-lang3</artifactId>
       <version>${maven.lang.version}</version>
     </dependency>
-
-    <!--  Connection pool -->
     
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-      <version>${hikari.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    
-    <!--  Spring -->
-    
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <exclusions>
-            <exclusion>
-                <groupId>commons.logging</groupId>
-                <artifactId>commons.logging</artifactId>
-            </exclusion>
-        </exclusions>
-        <version>${spring.version}</version>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
-        <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jdbc</artifactId>
-        <version>${spring.version}</version>
-    </dependency>
-
-    <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${javax-validation.version}</version>
-    </dependency>
-                
-        <!-- Hibernate -->
-        
-    <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.unitils</groupId>
-        <artifactId>unitils-orm</artifactId>
-        <version>3.4.2</version>
-        <scope>test</scope>
-    </dependency>
-        
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-	  		 <!-- plugin info -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>sql-maven-plugin</artifactId>
-        <version>${mysql.maven.version}</version>
-
-        <dependencies>
-          <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
-          </dependency>
-        </dependencies>
-
-      <!-- connection settings -->
-        <configuration>
-          <driver>com.mysql.jdbc.Driver</driver>
-          <url>jdbc:mysql://localhost:3306/computer-database-test?useSSL=false</url>
-          <settingsKey>
-            connection-db-test
-          </settingsKey>
-        </configuration>
-        <executions>
-          <execution>
-          <?m2e execute onConfiguration?>
-            <id>drop-table</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <sqlCommand>DROP TABLE IF EXISTS company</sqlCommand>
-              <sqlCommand>DROP TABLE IF EXISTS computer</sqlCommand>
-            </configuration>
-          </execution>
-
-          <execution>
-          <?m2e execute onConfiguration?>
-            <id>create-table</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <srcFiles>
-                <srcFile>src/test/resources/schema.sql</srcFile>
-              </srcFiles>
-            </configuration>
-          </execution>
-
-          <execution>
-          <?m2e execute onConfiguration?>
-            <id>insert-data</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <srcFiles>
-                <srcFile>src/test/resources/entries.sql</srcFile>
-              </srcFiles>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <modules>
+    <module>core</module>
+    <module>persistence</module>
+    <module>service</module>
+    <module>webapp</module>
+    <module>console</module>
+    <module>binding</module>
+  </modules>
 </project>
