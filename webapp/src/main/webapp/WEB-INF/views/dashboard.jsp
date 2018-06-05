@@ -9,9 +9,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 <!-- Bootstrap -->
-<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="css/main.css" rel="stylesheet" media="screen">
+<link href="resources/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="resources/css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="resources/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -32,6 +32,10 @@
                 <div class="alert alert-success">${message}</div>
             </c:if>
 			<h1 id="homeTitle"><spring:message code="dashboard.computersFound" arguments="${nbComputers}"/></h1>
+			
+	<form action="logout" method="post">
+		<input value="Logout" type="submit">
+	</form>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
 					<form id="searchForm" action="dashboard" method="GET" class="form-inline">
@@ -96,8 +100,8 @@
 
 	<footer class="navbar-fixed-bottom">
             <div class="btn-group btn-group-sm pull-left" role="group">
-             <a href="dashboard?lang=en"><img src="images/english-flag.png" alt="English flag" style="width:30px;height:20px;"></a>
-             <a href="dashboard?lang=fr"><img src="images/french-flag.png" alt="French flag" style="width:30px;height:20px;"> </a>
+             <a href="dashboard?lang=en"><img src="resources/images/english-flag.png" alt="English flag" style="width:30px;height:20px;"></a>
+             <a href="dashboard?lang=fr"><img src="resources/images/french-flag.png" alt="French flag" style="width:30px;height:20px;"> </a>
             </div>
 		<div class="container text-center">
 			<mylib:pagination uri="dashboard"
@@ -123,10 +127,12 @@
             </c:if>
 			</div>
 		</div>
+		
+
 	</footer>
-	<script src="js/jquery.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/dashboard.js"></script>
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/dashboard.js"></script>
 
 </body>
 </html>
