@@ -1,3 +1,4 @@
+<?xml version = "1.0" encoding = "utf-8"?>
 <!DOCTYPE hibernate-configuration SYSTEM
 "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
@@ -12,8 +13,6 @@
 
       <mapping class="com.excilys.cdb.model.Company"/>
       <mapping class="com.excilys.cdb.model.Computer"/>
-      <mapping class="com.excilys.cdb.model.Role"/>
-      <mapping class="com.excilys.cdb.model.User"/>
 
    </session-factory>
 </hibernate-configuration>
