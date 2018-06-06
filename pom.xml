@@ -1,83 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.excilys.cdb</groupId>
-  <artifactId>ComputerDatabase</artifactId>
-  <version>4.6.3</version>
-  <packaging>pom</packaging>
+	<groupId>com.excilys.cdb</groupId>
+	<artifactId>ComputerDatabase</artifactId>
+	<version>${project.version}</version>
+	<packaging>pom</packaging>
 
-  <name>ComputerDatabase</name>
-  <url>http://maven.apache.org</url>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.12</junit.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <slf4j.version>1.7.25</slf4j.version>
-    <logback.version>1.0.9</logback.version>
-    <mysql.version>5.1.46</mysql.version>
-    <mockito.version>2.18.0</mockito.version>
-    <maven.lang.version>3.7</maven.lang.version>
-    <spring.version>5.0.6.RELEASE</spring.version>
-  </properties>
+	<name>ComputerDatabase</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.version>4.6.3</project.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<junit.version>4.12</junit.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<slf4j.version>1.7.25</slf4j.version>
+		<logback.version>1.0.9</logback.version>
+		<mysql.version>5.1.46</mysql.version>
+		<mockito.version>2.18.0</mockito.version>
+		<maven.lang.version>3.7</maven.lang.version>
+		<spring.version>5.0.6.RELEASE</spring.version>
+		<javax-validation.version>2.0.1.Final</javax-validation.version>
+		<hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
+		<hibernate.version>5.3.1.Final</hibernate.version>
+		<spring.context.version>5.0.6.RELEASE</spring.context.version>
+		<spring.security.version>5.0.5.RELEASE</spring.security.version>
+		<mysql.version>5.1.46</mysql.version>
+		<mysql.maven.version>1.5</mysql.maven.version>
+		<javax.servlet.api.version>3.1.0</javax.servlet.api.version>
+		<jstl.version>1.2</jstl.version>
+		<javax.servlet.jsp.version>2.3.1</javax.servlet.jsp.version>
+	</properties>
 
-  <dependencies>
-  
-    <!--  Tests -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
+	<dependencyManagement>
+		<dependencies>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <!-- Sprint test -->
-    
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
-        <scope>test</scope>
-    </dependency>
-    
-    <!--  Logs -->
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
+			<!-- Tests -->
 
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    
-    <!-- Apache Lang -->
-    
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>${maven.lang.version}</version>
-    </dependency>
-    
-  </dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-  <modules>
-    <module>core</module>
-    <module>persistence</module>
-    <module>service</module>
-    <module>webapp</module>
-    <module>console</module>
-    <module>binding</module>
-  </modules>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Spring -->
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${spring.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.context.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<exclusions>
+					<exclusion>
+						<groupId>commons.logging</groupId>
+						<artifactId>commons.logging</artifactId>
+					</exclusion>
+				</exclusions>
+				<version>${spring.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-config</artifactId>
+				<version>${spring.security.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>${spring.security.version}</version>
+			</dependency>
+
+			<!-- Logs -->
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+
+			<!-- Apache Lang -->
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${maven.lang.version}</version>
+			</dependency>
+
+			<!-- Validation -->
+
+			<dependency>
+				<groupId>javax.validation</groupId>
+				<artifactId>validation-api</artifactId>
+				<version>${javax-validation.version}</version>
+			</dependency>
+
+			<!-- Servlets -->
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>${javax.servlet.api.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>${jstl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>javax.servlet.jsp-api</artifactId>
+				<version>${javax.servlet.jsp.version}</version>
+			</dependency>
+
+			<!-- Hibernate -->
+
+			<dependency>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${hibernate-validator.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate.version}</version>
+			</dependency>
+
+			<!-- MySQL -->
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql.version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>core</module>
+		<module>persistence</module>
+		<module>service</module>
+		<module>webapp</module>
+		<module>console</module>
+		<module>binding</module>
+	</modules>
 </project>
