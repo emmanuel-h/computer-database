@@ -17,7 +17,13 @@
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
 			<a class="navbar-brand" href="dashboard"><spring:message code="header.title"/></a>
+            <div class="nav navbar-nav navbar-right">	
+				<form action="logout" method="post">
+					<input value="Logout" type="submit" class="btn btn-link navbar-brand"/>
+				</form>
+			</div>
 		</div>
+				
 	</header>
 
 	<section id="main">
@@ -32,10 +38,7 @@
                 <div class="alert alert-success">${message}</div>
             </c:if>
 			<h1 id="homeTitle"><spring:message code="dashboard.computersFound" arguments="${nbComputers}"/></h1>
-			
-	<form action="logout" method="post">
-		<input value="Logout" type="submit">
-	</form>
+
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
 					<form id="searchForm" action="dashboard" method="GET" class="form-inline">

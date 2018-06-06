@@ -40,6 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     .and()
     .logout().logoutSuccessUrl("/login").permitAll()
     .and()
-    .csrf().disable();
+    .csrf().disable()
+    .sessionManagement().maximumSessions(1).expiredUrl("/login");
   }
 }
