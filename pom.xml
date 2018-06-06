@@ -13,26 +13,33 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.version>4.6.3</project.version>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<junit.version>4.12</junit.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<!-- Tests -->
+		<junit.version>4.12</junit.version>
+		<mockito.version>2.18.0</mockito.version>
+		<!-- Spring -->
+		<spring.version>5.0.6.RELEASE</spring.version>
+		<spring.security.version>5.0.5.RELEASE</spring.security.version>
+		<!-- Logs -->
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.0.9</logback.version>
-		<mysql.version>5.1.46</mysql.version>
-		<mockito.version>2.18.0</mockito.version>
-		<maven.lang.version>3.7</maven.lang.version>
-		<spring.version>5.0.6.RELEASE</spring.version>
-		<javax-validation.version>2.0.1.Final</javax-validation.version>
-		<hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
-		<hibernate.version>5.3.1.Final</hibernate.version>
-		<spring.context.version>5.0.6.RELEASE</spring.context.version>
-		<spring.security.version>5.0.5.RELEASE</spring.security.version>
-		<mysql.version>5.1.46</mysql.version>
-		<mysql.maven.version>1.5</mysql.maven.version>
+		<!-- Apache Lang -->
+		<lang.version>3.7</lang.version>
+		<!-- Validation -->
+		<javax.validation.version>2.0.1.Final</javax.validation.version>
+		<!-- Servlets -->
 		<javax.servlet.api.version>3.1.0</javax.servlet.api.version>
 		<jstl.version>1.2</jstl.version>
 		<javax.servlet.jsp.version>2.3.1</javax.servlet.jsp.version>
+		<!-- Hibernate -->
+		<hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
+		<hibernate.version>5.3.1.Final</hibernate.version>
+		<!-- MySQL -->
+		<mysql.version>5.1.46</mysql.version>
+		<mysql.maven.version>1.5</mysql.maven.version>
 	</properties>
 
 	<dependencyManagement>
@@ -66,7 +73,7 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>${spring.context.version}</version>
+				<version>${spring.version}</version>
 			</dependency>
 
 			<dependency>
@@ -118,7 +125,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>${maven.lang.version}</version>
+				<version>${lang.version}</version>
 			</dependency>
 
 			<!-- Validation -->
@@ -126,7 +133,7 @@
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
-				<version>${javax-validation.version}</version>
+				<version>${javax.validation.version}</version>
 			</dependency>
 
 			<!-- Servlets -->
