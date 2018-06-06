@@ -1,23 +1,25 @@
 package com.excilys.cdb.config;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
+public class SpringLaunch 
+      extends AbstractAnnotationConfigDispatcherServletInitializer {
 
-public class SpringLaunch implements WebApplicationInitializer {
+  // Load database and spring security configuration
+  @Override
+  protected Class<?>[] getRootConfigClasses() {
+    return new Class[] { SpringConfigWeb.class, WebSecurityConfig.class };
+  }
 
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SpringConfigWeb.class);
+  // Load spring web configuration
+  @Override
+  protected Class<?>[] getServletConfigClasses() {
+    return new Class[] { SpringConfigWeb.class };
+  }
 
-        ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", new DispatcherServlet(context));
-        registration.setLoadOnStartup(1);
-        registration.addMapping("/");
-    }
+  @Override
+  protected String[] getServletMappings() {
+    return new String[] { "/" };
+  }
 
 }

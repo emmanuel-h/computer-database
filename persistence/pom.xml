@@ -1,118 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>ComputerDatabase</artifactId>
-    <groupId>com.excilys.cdb</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>ComputerDatabase</artifactId>
+		<groupId>com.excilys.cdb</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>persistence</artifactId>
-  <packaging>jar</packaging>
-  
-  <properties>
-    <spring.version>5.0.6.RELEASE</spring.version>
-    <mysql.version>5.1.46</mysql.version>
-    <mysql.maven.version>1.5</mysql.maven.version>
-  </properties>
+	<artifactId>persistence</artifactId>
+	<packaging>jar</packaging>
 
-  <name>persistence</name>
-  <url>http://maven.apache.org</url>
+	<properties>
+		<spring.version>5.0.6.RELEASE</spring.version>
+		<mysql.version>5.1.46</mysql.version>
+		<mysql.maven.version>1.5</mysql.maven.version>
+	</properties>
 
-  <dependencies>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <exclusions>
-            <exclusion>
-                <groupId>commons.logging</groupId>
-                <artifactId>commons.logging</artifactId>
-            </exclusion>
-        </exclusions>
-        <version>${spring.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>com.excilys.cdb</groupId>
-        <artifactId>core</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
-  
-  <build>
-    <plugins>
-      <plugin>
-	  		 <!-- plugin info -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>sql-maven-plugin</artifactId>
-        <version>${mysql.maven.version}</version>
+	<name>persistence</name>
+	<url>http://maven.apache.org</url>
 
-        <dependencies>
-          <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
-          </dependency>
-        </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons.logging</groupId>
+					<artifactId>commons.logging</artifactId>
+				</exclusion>
+			</exclusions>
+			<version>${spring.version}</version>
+		</dependency>
 
-      <!-- connection settings -->
-        <configuration>
-          <driver>com.mysql.jdbc.Driver</driver>
-          <url>jdbc:mysql://localhost:3306/computer-database-test?useSSL=false</url>
-          <settingsKey>
-            connection-db-test
-          </settingsKey>
-        </configuration>
-        <executions>
-          <execution>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.excilys.cdb</groupId>
+			<artifactId>core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!-- plugin info -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sql-maven-plugin</artifactId>
+				<version>${mysql.maven.version}</version>
+
+				<dependencies>
+					<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>${mysql.version}</version>
+					</dependency>
+				</dependencies>
+
+				<!-- connection settings -->
+				<configuration>
+					<driver>com.mysql.jdbc.Driver</driver>
+					<url>jdbc:mysql://localhost:3306/computer-database-test?useSSL=false</url>
+					<settingsKey>
+						connection-db-test
+					</settingsKey>
+				</configuration>
+				<executions>
+					<execution>
           <?m2e execute onConfiguration?>
-            <id>drop-table</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <sqlCommand>DROP TABLE IF EXISTS company</sqlCommand>
-              <sqlCommand>DROP TABLE IF EXISTS computer</sqlCommand>
-            </configuration>
-          </execution>
+						<id>drop-table</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<autocommit>true</autocommit>
+							<sqlCommand>DROP TABLE IF EXISTS company</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS computer</sqlCommand>
+						</configuration>
+					</execution>
 
-          <execution>
+					<execution>
           <?m2e execute onConfiguration?>
-            <id>create-table</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <srcFiles>
-                <srcFile>src/test/resources/schema.sql</srcFile>
-              </srcFiles>
-            </configuration>
-          </execution>
+						<id>create-table</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<autocommit>true</autocommit>
+							<srcFiles>
+								<srcFile>src/test/resources/schema.sql</srcFile>
+							</srcFiles>
+						</configuration>
+					</execution>
 
-          <execution>
+					<execution>
           <?m2e execute onConfiguration?>
-            <id>insert-data</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <autocommit>true</autocommit>
-              <srcFiles>
-                <srcFile>src/test/resources/entries.sql</srcFile>
-              </srcFiles>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+						<id>insert-data</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<autocommit>true</autocommit>
+							<srcFiles>
+								<srcFile>src/test/resources/entries.sql</srcFile>
+							</srcFiles>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

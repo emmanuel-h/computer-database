@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -98,6 +99,11 @@ public class ComputerController {
         this.messageSource = messageSource;
     }
 
+    @GetMapping(value = "login")
+    public String login() {
+		return "login";
+	}
+    
     /**
      * Display the original dashboard with paging.
      * @param currentPage       The page to display
@@ -178,6 +184,7 @@ public class ComputerController {
      * @param locale    The user locale
      * @return          The modelAndView
      */
+    @PreAuthorize("ROLE_ADMIN")
     @PostMapping("/" + DELETE_COMPUTERS)
     public String deleteComputers(@RequestBody String selection,
             Locale locale) {
