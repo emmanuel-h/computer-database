@@ -71,7 +71,7 @@ public class ComputerController {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<ComputerDTO> changeComputer(@PathVariable("id") long id, @RequestBody ComputerDTO computerDTO) {
+	public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") long id, @RequestBody ComputerDTO computerDTO) {
 		Computer computer = ComputerConvertor.fromDTO(computerDTO);
 		try {
 			Optional<Computer> computerUpdatedOptional = computerService.updateComputer(computer);
@@ -81,7 +81,7 @@ public class ComputerController {
 			ComputerDTO computerDTOUpdated = ComputerConvertor.toDTO(computerUpdatedOptional.get());
 			return new ResponseEntity<>(computerDTOUpdated, HttpStatus.OK);
 		} catch (ComputerServiceException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 		}
 	}
 	
