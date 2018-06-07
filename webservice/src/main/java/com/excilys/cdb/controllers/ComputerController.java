@@ -117,7 +117,7 @@ public class ComputerController {
 		}
 	}
 	
-	@GetMapping("{search}")
+	@GetMapping(params = "search")
 	public ResponseEntity<Collection<ComputerDTO>> searchComputers(@RequestParam("search") String search,
 			@RequestParam(name = "page")int page, @RequestParam(name = "results")int results) {
 		Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
@@ -132,7 +132,7 @@ public class ComputerController {
 		return new ResponseEntity<>(computerDTOs, HttpStatus.OK);
 	}
 	
-	@GetMapping("/count{search}")
+	@GetMapping(value = "/count", params = "search")
 	public ResponseEntity<Integer> countSearchComputers(@RequestParam("search") String search){
 		return new ResponseEntity<>(computerService.countSearchedComputers(search), HttpStatus.OK);
 	}
