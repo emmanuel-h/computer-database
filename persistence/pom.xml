@@ -16,7 +16,7 @@
 	<url>http://maven.apache.org</url>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -56,6 +56,11 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
 		</dependency>
 
 		<dependency>
@@ -101,6 +106,9 @@
 							<autocommit>true</autocommit>
 							<sqlCommand>DROP TABLE IF EXISTS company</sqlCommand>
 							<sqlCommand>DROP TABLE IF EXISTS computer</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS role</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS user</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS user_role</sqlCommand>
 						</configuration>
 					</execution>
 

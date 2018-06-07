@@ -1,4 +1,4 @@
-package com.excilys.cdb.configs;
+package com.excilys.cdb.configpersistence;
 
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @ComponentScan(basePackages = {"com.excilys.cdb.daos"})
-public class SpringConfigTest implements WebMvcConfigurer {
+public class SpringConfigDBTest implements WebMvcConfigurer {
 
     /**
      * Create and configure the session factory.
