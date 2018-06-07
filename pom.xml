@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.excilys.cdb</groupId>
@@ -23,6 +21,7 @@
 		<!-- Spring -->
 		<spring.version>5.0.6.RELEASE</spring.version>
 		<spring.security.version>5.0.5.RELEASE</spring.security.version>
+        <spring.data.rest.version>3.0.7.RELEASE</spring.data.rest.version>
 		<!-- Logs -->
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.0.9</logback.version>
@@ -105,6 +104,12 @@
 				<artifactId>spring-security-web</artifactId>
 				<version>${spring.security.version}</version>
 			</dependency>
+			
+			<dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-rest-webmvc</artifactId>
+                <version>${spring.data.rest.version}</version>
+            </dependency>
 
 			<!-- Logs -->
 
@@ -187,5 +192,6 @@
 		<module>webapp</module>
 		<module>console</module>
 		<module>binding</module>
-	</modules>
+    <module>webservice</module>
+  </modules>
 </project>

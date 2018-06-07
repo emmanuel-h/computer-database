@@ -12,11 +12,16 @@ public class ComputerDTO {
 
     @NotBlank
     private String name;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String introduced;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String discontinued;
+    
     private String manufacturer;
+    
+    private long manufacturer_id;
 
     /**
      * Default constructor for ComputerDTO.
@@ -40,6 +45,7 @@ public class ComputerDTO {
         }
         if (null != computer.getManufacturer()) {
             this.manufacturer = computer.getManufacturer().getName();
+            this.manufacturer_id = computer.getManufacturer().getId();
         }
     }
 
@@ -82,5 +88,13 @@ public class ComputerDTO {
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
+
+	public long getManufacturer_id() {
+		return manufacturer_id;
+	}
+
+	public void setManufacturer_id(long manufacturer_id) {
+		this.manufacturer_id = manufacturer_id;
+	}
 
 }

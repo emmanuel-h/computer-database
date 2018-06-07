@@ -46,6 +46,7 @@ public class ComputerConvertor {
         } else {
             Company company = new Company();
             company.setName(computerDTO.getManufacturer());
+            company.setId(computerDTO.getManufacturer_id());
             computer.setManufacturer(company);
         }
         return computer;
