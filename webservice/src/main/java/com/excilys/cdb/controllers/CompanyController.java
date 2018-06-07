@@ -31,7 +31,7 @@ public class CompanyController {
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		}
 		return new ResponseEntity<>(pageOptional.get().getResults(), HttpStatus.OK);
 	}
@@ -45,9 +45,9 @@ public class CompanyController {
 	public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id) {
 		boolean success = companyService.deleteCompany(id);
 		if(!success) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		} else {
-			return new ResponseEntity<>(HttpStatus.OK);
+			return ResponseEntity.ok().build();
 		}
 	}
 	
@@ -55,7 +55,7 @@ public class CompanyController {
 	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
 		Optional<Company> company = companyService.getOneCompany(id);
 		if(!company.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		} else {
 
 			return new ResponseEntity<>(company.get(), HttpStatus.OK);

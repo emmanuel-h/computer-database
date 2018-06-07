@@ -39,7 +39,7 @@ public class ComputerController {
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		}
 		Collection<Computer> computers = pageOptional.get().getResults();
 		List<ComputerDTO> computerDTOs = new ArrayList<>();
@@ -55,7 +55,7 @@ public class ComputerController {
 			Computer computer = computerService.getOneComputer(id);
 			return new ResponseEntity<>(ComputerConvertor.toDTO(computer), HttpStatus.OK);
 		} catch (ComputerServiceException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		}
 	}
 	
@@ -76,12 +76,12 @@ public class ComputerController {
 		try {
 			Optional<Computer> computerUpdatedOptional = computerService.updateComputer(computer);
 			if(!computerUpdatedOptional.isPresent()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				return ResponseEntity.notFound().build();
 			}
 			ComputerDTO computerDTOUpdated = ComputerConvertor.toDTO(computerUpdatedOptional.get());
 			return new ResponseEntity<>(computerDTOUpdated, HttpStatus.OK);
 		} catch (ComputerServiceException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 		}
 	}
 	
@@ -89,9 +89,9 @@ public class ComputerController {
 	public ResponseEntity<Void> deleteComputer(@PathVariable("id") long id) {
 		boolean deleteSuccess = computerService.deleteComputer(id);
 		if(!deleteSuccess) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		} else {
-			return new ResponseEntity<>(HttpStatus.OK);
+			return ResponseEntity.ok().build();
 		}
 	}
 	
@@ -111,9 +111,9 @@ public class ComputerController {
 		stringBuilder.append(")");
 		boolean deleteSuccess = computerService.deleteMultipleComputers(stringBuilder.toString());
 		if(!deleteSuccess) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		} else {
-			return new ResponseEntity<>(HttpStatus.OK);
+			return ResponseEntity.ok().build();
 		}
 	}
 	
@@ -122,7 +122,7 @@ public class ComputerController {
 			@RequestParam(name = "page")int page, @RequestParam(name = "results")int results) {
 		Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
 		if(!pageOptional.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.notFound().build();
 		}
 		Collection<Computer> computers = pageOptional.get().getResults();
 		List<ComputerDTO> computerDTOs = new ArrayList<>();
