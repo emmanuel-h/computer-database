@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.excilys.cdb.dtos.ComputerDTO;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
+import com.excilys.cdb.exceptions.computer.ComputerException;
 import com.excilys.cdb.mappers.ComputerConvertor;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -237,7 +238,7 @@ public class ComputerController {
             final long idNewComputer = computerService.createComputer(computer);
             message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERCREATED, new Object[] {idNewComputer}, locale);
             messageType = MessageType.CREATION;
-        } catch (ComputerServiceException e) {
+        } catch (ComputerException | CompanyUnknownException e) {
             LOGGER.warn(e.toString());
             messageType = MessageType.ERROR;
             message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERNOTCREATED, null, locale);
@@ -266,7 +267,7 @@ public class ComputerController {
                 model.addAttribute(COMPANY_ID, -1L);
             }
             model.addAttribute(COMPANIES, companies);
-        } catch (ComputerServiceException e) {
+        } catch (ComputerException e) {
             messageType = MessageType.ERROR;
             message = messageSource.getMessage(DASHBOARD_MESSAGE_BADID, null, locale);
             return REDIRECT_DASHBOARD;
@@ -299,7 +300,7 @@ public class ComputerController {
             Optional<Computer> computer2 = computerService.updateComputer(computer);
             messageType = MessageType.CREATION;
             message = messageSource.getMessage(DASHBOARD_MESSAGE_COMPUTERMODIFIED, new Object[] {computer2.get().getId()}, locale);
-        } catch (ComputerServiceException e) {
+        } catch (ComputerException | CompanyUnknownException e) {
             messageType = MessageType.ERROR;
             message = messageSource.getMessage(DASHBOARD_MESSAGE_UPDATE_FAILED, new Object[] {null}, locale);
         }

@@ -1,6 +1,6 @@
-package com.excilys.cdb.exceptions;
+package com.excilys.cdb.exceptions.computer;
 
-public class ComputerServiceException extends Exception {
+public class ComputerException extends Exception {
 
     /**
      * UID for serialization.
@@ -11,7 +11,7 @@ public class ComputerServiceException extends Exception {
      * Default constructor which take a print message.
      * @param message The exception's message
      */
-    public ComputerServiceException(String message) {
+    public ComputerException(String message) {
         super(message);
     }
 

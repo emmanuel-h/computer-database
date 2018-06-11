@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.excilys.cdb.Page;
 import com.excilys.cdb.dtos.ComputerDTO;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
+import com.excilys.cdb.exceptions.computer.ComputerException;
 import com.excilys.cdb.mappers.ComputerConvertor;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.ComputerService;
@@ -54,7 +55,7 @@ public class ComputerController {
 		try {
 			Computer computer = computerService.getOneComputer(id);
 			return new ResponseEntity<>(ComputerConvertor.toDTO(computer), HttpStatus.OK);
-		} catch (ComputerServiceException e) {
+		} catch (ComputerException e) {
 			return ResponseEntity.notFound().build();
 		}
 	}
@@ -65,7 +66,7 @@ public class ComputerController {
 		try {
 			long id = computerService.createComputer(computer);
 			return new ResponseEntity<>(id, HttpStatus.CREATED);
-		} catch (ComputerServiceException e) {
+		} catch (ComputerException | CompanyUnknownException e) {
 			return new ResponseEntity<>(-1L, HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
@@ -81,7 +82,7 @@ public class ComputerController {
 			}
 			ComputerDTO computerDTOUpdated = ComputerConvertor.toDTO(computerUpdatedOptional.get());
 			return new ResponseEntity<>(computerDTOUpdated, HttpStatus.OK);
-		} catch (ComputerServiceException e) {
+		} catch (ComputerException | CompanyUnknownException e) {
 			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 		}
 	}

@@ -1,6 +1,6 @@
-package com.excilys.cdb.exceptions;
+package com.excilys.cdb.exceptions.company;
 
-public class CompanyServiceException extends Exception {
+public class CompanyException extends Exception {
 
     /**
      * UID for serialization.
@@ -11,7 +11,7 @@ public class CompanyServiceException extends Exception {
      * Default constructor which take a print message.
      * @param message The exception's message
      */
-    public CompanyServiceException(String message) {
+    public CompanyException(String message) {
         super(message);
     }
 
