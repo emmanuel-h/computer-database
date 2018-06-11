@@ -18,12 +18,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.excilys.cdb.Page;
-import com.excilys.cdb.configs.SpringConfigTest;
+import com.excilys.cdb.configpersistence.SpringConfigDBTest;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringConfigTest.class)
+@ContextConfiguration(classes = SpringConfigDBTest.class)
 public class ComputerDAOTest {
 
     @Autowired

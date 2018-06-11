@@ -6,22 +6,17 @@
 	<parent>
 		<artifactId>ComputerDatabase</artifactId>
 		<groupId>com.excilys.cdb</groupId>
-		<version>1.0-SNAPSHOT</version>
+		<version>${project.version}</version>
 	</parent>
 
 	<artifactId>persistence</artifactId>
 	<packaging>jar</packaging>
 
-	<properties>
-		<spring.version>5.0.6.RELEASE</spring.version>
-		<mysql.version>5.1.46</mysql.version>
-		<mysql.maven.version>1.5</mysql.maven.version>
-	</properties>
-
 	<name>persistence</name>
 	<url>http://maven.apache.org</url>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -31,25 +26,47 @@
 					<artifactId>commons.logging</artifactId>
 				</exclusion>
 			</exclusions>
-			<version>${spring.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>com.excilys.cdb</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -89,6 +106,9 @@
 							<autocommit>true</autocommit>
 							<sqlCommand>DROP TABLE IF EXISTS company</sqlCommand>
 							<sqlCommand>DROP TABLE IF EXISTS computer</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS role</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS user</sqlCommand>
+							<sqlCommand>DROP TABLE IF EXISTS user_role</sqlCommand>
 						</configuration>
 					</execution>
 

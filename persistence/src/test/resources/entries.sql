@@ -1,3 +1,12 @@
+insert into user(username,password,enabled)	values('admin','$2a$10$ve5xOrCAY/ODasqFpoIRQu2ZH3uByxn7pPvwvWZm9XZ1ITqgZzRHC',true);
+insert into user(username,password,enabled)	values('user','$2a$10$EctXsK1i6NG1t/Vjgt4xMeGhzWz8reQTXKEByVhbxX4cdafnzH5BK',true);
+
+insert into role(role) values('ADMIN');
+insert into role(role) values('USER');
+
+insert into user_role(User_username,roles_role) values('admin','ADMIN');
+insert into user_role(User_username,roles_role) values('user','USER');
+
 insert into company (id,name) values (  1,'Apple Inc.');
 insert into company (id,name) values (  2,'Thinking Machines');
 insert into company (id,name) values (  3,'RCA');

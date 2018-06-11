@@ -7,24 +7,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "user")
+@Table(name="user")
 public class User {
-
+	
 	@Id
-	@Column(name = "USERNAME")
+	@Column(name = "username", nullable = false)
 	private String username;
 
-	@Column(name = "PASSWORD", nullable = false)
+	@Column(name = "password", nullable = false)
 	private String password;
 
-	@Column(name = "ENABLED", nullable = false)
+	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
 	
-	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+	@ManyToMany(fetch=FetchType.EAGER)
 	private List<Role> roles = new ArrayList<>();
 
 	public User() {
@@ -77,6 +77,7 @@ public class User {
 		int result = 1;
 		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
+		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -97,6 +98,11 @@ public class User {
 				return false;
 		} else if (!password.equals(other.password))
 			return false;
+		if (roles == null) {
+			if (other.roles != null)
+				return false;
+		} else if (!roles.equals(other.roles))
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -107,7 +113,9 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", password=" + password + ", enabled=" + enabled + "]";
+		return "User [username=" + username + ", password=" + password + ", enabled=" + enabled
+				+ ", roles=" + roles + "]";
 	}
+
 
 }

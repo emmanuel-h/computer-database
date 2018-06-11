@@ -56,6 +56,5 @@ public class CompanyService {
      */
     public Optional<Company> getOneCompany(long id) {
         return companyDAO.findById(id);
-
     }
 }

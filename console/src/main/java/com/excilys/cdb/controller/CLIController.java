@@ -1,15 +1,18 @@
 package com.excilys.cdb.controller;
 
-import java.util.Optional;
+import java.util.List;
 
-import org.springframework.context.support.AbstractApplicationContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 
 import com.excilys.cdb.Page;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.CompanyService;
-import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.ui.CLI;
 
 /**
@@ -22,16 +25,6 @@ public class CLIController {
      * The displaying UI.
      */
     private CLI ui;
-
-    /**
-     * The computer service connected to the model.
-     */
-    private ComputerService computerService;
-
-    /**
-     * The company service connected to the model.
-     */
-    private CompanyService companyService;
 
     /**
      * ChoiceMenu is used for the switch case concerning the return value of the UI.
@@ -78,12 +71,9 @@ public class CLIController {
     /**
      * Constructor with an UI and a service.
      * @param ui        The UI
-     * @param context   The Spring context
      */
-    public CLIController(CLI ui, AbstractApplicationContext context) {
+    public CLIController(CLI ui) {
         this.ui = ui;
-        this.companyService = context.getBean(CompanyService.class);
-        this.computerService = context.getBean(ComputerService.class);
     }
 
     /**
@@ -92,66 +82,117 @@ public class CLIController {
     public void run() {
         boolean stop = false;
         ChoiceMenu choice;
-        Optional<Page<Computer>> computers;
-        Optional<Page<Company>> companies;
-        Computer computer;
-        Computer computerToUpdate;
+        Page<ComputerDTO> computers;
+        Page<Company> companies;
+        ComputerDTO computerDTO;
+        ComputerDTO computerToUpdate;
         int id;
         String choicePage;
+        
+        Client client;
+        WebTarget webTarget;
+        Invocation.Builder invocationBuilder;
         while (!stop) {
-            try {
-                choice = ChoiceMenu.get(ui.home());
-                switch (choice) {
-                case DELETECOMPANY:
-                    id = ui.askId(COMPANY);
-                    companyService.deleteCompany(id);
-                    break;
-                case LISTCOMPUTERS:
-                    computers = computerService.getAllComputersWithPaging(1, 5);
-                    choicePage = ui.displayComputers(computers);
-                    while (choicePage.equals("p")) {
-                        id = ui.askPage();
-                        computers = computerService.getAllComputersWithPaging(id, 5);
-                        choicePage = ui.displayComputers(computers);
-                    }
-                    break;
-                case LISTCOMPANIES:
-                    companies = companyService.getAllCompaniesWithPaging(1, 5);
-                    choicePage = ui.displayCompanies(companies);
-                    while (choicePage.equals("p")) {
-                        id = ui.askPage();
-                        companies = companyService.getAllCompaniesWithPaging(id, 5);
-                        choicePage = ui.displayCompanies(companies);
-                    }
-                    break;
-                case SHOWCOMPUTERDETAILS:
-                    id = ui.askId(COMPUTER);
-                    computer = computerService.getOneComputer(id);
-                    ui.showComputerDetails(computer);
-                    break;
-                case CREATECOMPUTER:
-                    computer = ui.createComputer();
-                    computerService.createComputer(computer);
-                    break;
-                case UPDATECOMPUTER:
-                    id = ui.askId(COMPUTER);
-                    computerToUpdate = computerService.getOneComputer(id);
-                    computer = ui.updateComputer(computerToUpdate);
-                    computerService.updateComputer(computer);
-                    break;
-                case DELETECOMPUTER:
-                    id = ui.deleteComputer();
-                    computerService.deleteComputer(id);
-                    break;
-                case PAGECOMPANY:
-                case QUIT:
-                    return;
-                default:
-                    break;
-                }
-            } catch (ComputerServiceException e) {
-                ui.displayException(e.getMessage());
-            }
+            choice = ChoiceMenu.get(ui.home());
+			switch (choice) {
+			case DELETECOMPANY:
+			    id = ui.askId(COMPANY);
+
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/company/" + id);
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    invocationBuilder.delete();
+			    break;
+			case LISTCOMPUTERS:
+				computers = new Page<>();
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/computer?page=1&results=5");
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    computers.setResults(invocationBuilder.get(new GenericType<List<ComputerDTO>>() {}));
+			    computers.setCurrentPage(1);
+			    computers.setResultsPerPage(5);
+			    
+			    choicePage = ui.displayComputers(computers);
+			    
+			    while (choicePage.equals("p")) {
+			        id = ui.askPage();
+			        
+				    webTarget = client.target("http://localhost:8081/webservice/computer?page=" + id + "&results=5");
+				    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				    computers.setResults(invocationBuilder.get(new GenericType<List<ComputerDTO>>() {}));
+				    computers.setCurrentPage(id);
+				    
+			        choicePage = ui.displayComputers(computers);
+			    }
+			    break;
+			case LISTCOMPANIES:
+				companies = new Page<>();
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/company?page=1&results=5");
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    companies.setResults(invocationBuilder.get(new GenericType<List<Company>>() {}));
+			    companies.setCurrentPage(1);
+			    companies.setResultsPerPage(5);
+			    
+			    choicePage = ui.displayCompanies(companies);
+			    while (choicePage.equals("p")) {
+			        id = ui.askPage();
+
+				    webTarget = client.target("http://localhost:8081/webservice/company?page=" + id + "&results=5");
+				    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				    companies.setResults(invocationBuilder.get(new GenericType<List<Company>>() {}));
+				    companies.setCurrentPage(1);
+				    
+			        choicePage = ui.displayCompanies(companies);
+			    }
+			    break;
+			case SHOWCOMPUTERDETAILS:
+			    id = ui.askId(COMPUTER);
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/computer/" + id);
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    computerDTO = invocationBuilder.get(ComputerDTO.class);
+			    client.close();
+			    ui.showComputerDetails(computerDTO);
+			    break;
+			case CREATECOMPUTER:
+			    computerDTO = ui.createComputer();
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/computer");
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    invocationBuilder.post(Entity.entity(computerDTO, MediaType.APPLICATION_JSON));
+			    client.close();
+			    break;
+			case UPDATECOMPUTER:
+			    id = ui.askId(COMPUTER);
+			    
+			    // Verify that the computer exists.
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/computer/" + id);
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    computerToUpdate = invocationBuilder.get(ComputerDTO.class);
+			    
+			    // Ask the user the computer's changes to do.
+			    computerDTO = ui.updateComputer(computerToUpdate);
+			    
+			    // Apply the desired changes.
+			    invocationBuilder.put(Entity.entity(computerDTO, MediaType.APPLICATION_JSON));
+			    client.close();
+			    break;
+			case DELETECOMPUTER:
+			    id = ui.deleteComputer();
+
+			    client = ClientBuilder.newClient();
+			    webTarget = client.target("http://localhost:8081/webservice/computer/" + id);
+			    invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			    invocationBuilder.delete();
+			    break;
+			case PAGECOMPANY:
+			case QUIT:
+			    return;
+			default:
+			    break;
+			}
         }
     }
 
