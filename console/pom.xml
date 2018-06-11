@@ -11,11 +11,27 @@
 
   <name>console</name>
   <url>http://maven.apache.org</url>
-
+  
   <dependencies>
+	<dependency>
+	    <groupId>org.glassfish.jersey.core</groupId>
+	    <artifactId>jersey-client</artifactId>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.glassfish.jersey.media</groupId>
+	    <artifactId>jersey-media-json-jackson</artifactId>
+	</dependency>
+	
     <dependency>
         <groupId>com.excilys.cdb</groupId>
-        <artifactId>service</artifactId>
+        <artifactId>core</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.excilys.cdb</groupId>
+        <artifactId>binding</artifactId>
         <version>${project.version}</version>
     </dependency>
   </dependencies>

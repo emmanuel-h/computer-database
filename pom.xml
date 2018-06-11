@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.excilys.cdb</groupId>
@@ -10,7 +12,7 @@
 	<name>ComputerDatabase</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<project.version>4.6.4</project.version>
+		<project.version>4.7.2</project.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -21,7 +23,7 @@
 		<!-- Spring -->
 		<spring.version>5.0.6.RELEASE</spring.version>
 		<spring.security.version>5.0.5.RELEASE</spring.security.version>
-        <spring.data.rest.version>3.0.7.RELEASE</spring.data.rest.version>
+		<spring.data.rest.version>3.0.7.RELEASE</spring.data.rest.version>
 		<!-- Logs -->
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.0.9</logback.version>
@@ -39,6 +41,8 @@
 		<!-- MySQL -->
 		<mysql.version>5.1.46</mysql.version>
 		<mysql.maven.version>1.5</mysql.maven.version>
+		<!-- Jersey -->
+		<jersey.version>2.27</jersey.version>
 	</properties>
 
 	<dependencyManagement>
@@ -104,12 +108,12 @@
 				<artifactId>spring-security-web</artifactId>
 				<version>${spring.security.version}</version>
 			</dependency>
-			
+
 			<dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-rest-webmvc</artifactId>
-                <version>${spring.data.rest.version}</version>
-            </dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-rest-webmvc</artifactId>
+				<version>${spring.data.rest.version}</version>
+			</dependency>
 
 			<!-- Logs -->
 
@@ -182,6 +186,20 @@
 				<version>${mysql.version}</version>
 			</dependency>
 
+			<!-- Jersey -->
+
+			<dependency>
+			    <groupId>org.glassfish.jersey.core</groupId>
+			    <artifactId>jersey-client</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+	
+			<dependency>
+				<groupId>org.glassfish.jersey.media</groupId>
+				<artifactId>jersey-media-json-jackson</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
@@ -192,6 +210,6 @@
 		<module>webapp</module>
 		<module>console</module>
 		<module>binding</module>
-    <module>webservice</module>
-  </modules>
+		<module>webservice</module>
+	</modules>
 </project>

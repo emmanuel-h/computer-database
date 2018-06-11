@@ -41,7 +41,7 @@ public class ComputerConvertor {
             LocalDate discontinued = LocalDate.parse(computerDTO.getDiscontinued(), formatter);
             computer.setDiscontinued(discontinued);
         }
-        if (null == computerDTO.getManufacturer()) {
+        if (null == computerDTO.getManufacturer() && 0 == computerDTO.getManufacturer_id()) {
             computer.setManufacturer(null);
         } else {
             Company company = new Company();

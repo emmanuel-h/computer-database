@@ -1,12 +1,11 @@
 package com.excilys.cdb.ui;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Scanner;
 
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.Page;
+import com.excilys.cdb.dtos.ComputerDTO;
 
 /**
  * Part of the package UI, allowing the app to be displayed in a terminal.
@@ -51,32 +50,28 @@ public class CLI {
 
     /**
      * Display the list of the computers, default is page 1 with 5 results.
-     * @param computersOptional The computers to display
+     * @param computers The computers to display
      * @return m if the user wants to go back to the menu, p if the user wants to
      *         see a particular page
      */
-    public String displayComputers(Optional<Page<Computer>> computersOptional) {
+    public String displayComputers(Page<ComputerDTO> computers) {
         System.out.println("\n*****COMPUTERS LIST*****");
-        if (computersOptional.isPresent()) {
-            for (Computer computer : computersOptional.get().getResults()) {
-                System.out.println(computer);
-            }
+        for (ComputerDTO computer : computers.getResults()) {
+            System.out.println(computer);
         }
         return goToMenu();
     }
 
     /**
      * Display the list of the companies, default is page 1 with 5 results.
-     * @param companiesOptional The companies to display
+     * @param companies The companies to display
      * @return m if the user wants to go back to the menu, p if the user wants to
      *         see a particular page
      */
-    public String displayCompanies(Optional<Page<Company>> companiesOptional) {
+    public String displayCompanies(Page<Company> companies) {
         System.out.println("\n*****COMPANIES LIST*****");
-        if (companiesOptional.isPresent()) {
-            for (Company company : companiesOptional.get().getResults()) {
-                System.out.println(company);
-            }
+        for (Company company : companies.getResults()) {
+            System.out.println(company);
         }
         return goToMenu();
     }
@@ -85,7 +80,7 @@ public class CLI {
      * Display the details of a computer.
      * @param computer The computer to display
      */
-    public void showComputerDetails(Computer computer) {
+    public void showComputerDetails(ComputerDTO computer) {
         System.out.println("\n*****COMPUTER " + computer.getId() + "*****");
         System.out.println(computer);
         System.out.println("m- go back to menu");
@@ -113,7 +108,8 @@ public class CLI {
      * Display a form to create a computer.
      * @return The computer created by the user
      */
-    public Computer createComputer() {
+    public ComputerDTO createComputer() {
+        ComputerDTO computerDTO = new ComputerDTO();
 
         // Get the name
         System.out.println("Name (mandatory)");
@@ -121,6 +117,7 @@ public class CLI {
         do {
             name = scanner.nextLine();
         } while (name.isEmpty());
+        computerDTO.setName(name);
 
         // Get the introduced date
         System.out.println("Introduced Date (yyyy-MM-dd) - s to skip");
@@ -131,6 +128,7 @@ public class CLI {
         LocalDate dateIntroduced = null;
         if (!date.equals("s")) {
             dateIntroduced = LocalDate.parse(date);
+            computerDTO.setIntroduced(dateIntroduced.toString());
         }
 
         // Get the discontinued date
@@ -141,6 +139,7 @@ public class CLI {
         LocalDate dateDiscontinued = null;
         if (!date.equals("s")) {
             dateDiscontinued = LocalDate.parse(date);
+            computerDTO.setDiscontinued(dateDiscontinued.toString());
         }
 
         // Get the manufacturer
@@ -149,18 +148,10 @@ public class CLI {
         do {
             manufacturer = scanner.nextLine();
         } while (!manufacturer.matches("[0-9]+") && !manufacturer.equals("s"));
-        Company company;
-        if (manufacturer.equals("s")) {
-            company = null;
-        } else {
-            company = new Company(Integer.parseInt(manufacturer));
+        if (!manufacturer.equals("s")) {
+            computerDTO.setManufacturer_id(Integer.parseInt(manufacturer));
         }
-
-        // Make the object
-        Computer computer = new Computer.Builder(name).introduced(dateIntroduced).discontinued(dateDiscontinued)
-                .manufacturer(company).build();
-
-        return computer;
+        return computerDTO;
     }
 
     /**
@@ -190,43 +181,37 @@ public class CLI {
      * @param computerToUpdate The original computer
      * @return The modified computer
      */
-    public Computer updateComputer(Computer computerToUpdate) {
+    public ComputerDTO updateComputer(ComputerDTO computerToUpdate) {
+    	ComputerDTO computer = new ComputerDTO();
+    	computer.setId(computerToUpdate.getId());
+    	
         // Get the name
         System.out.println("Name (mandatory) (currently: " + computerToUpdate.getName() + ") - s to skip");
         String name;
         do {
             name = scanner.nextLine();
         } while (name.isEmpty());
+        computer.setName(name);
 
         // Get the introduced date
         System.out.println(
-                "Introduced Date (yyyy-MM-dd) (currently: " + computerToUpdate.getIntroduced() + ") - s to skip");
+                "Introduced Date (yyyy-MM-dd) (currently: " + computerToUpdate.getIntroduced() + ") - s to null");
         String date;
         do {
             date = scanner.nextLine();
         } while (!date.matches(REGEX_DATE) && !date.equals("s"));
-        LocalDate dateIntroduced = null;
         if (!date.equals("s")) {
-            dateIntroduced = LocalDate.parse(date);
-        } else {
-            if (null != computerToUpdate.getIntroduced()) {
-                dateIntroduced = computerToUpdate.getIntroduced();
-            }
+            computer.setIntroduced(date);
         }
 
         // Get the discontinued date
         System.out.println(
-                "Discontinued Date (yyyy-MM-dd) (currently:" + computerToUpdate.getDiscontinued() + ") - s to skip");
+                "Discontinued Date (yyyy-MM-dd) (currently:" + computerToUpdate.getDiscontinued() + ") - s to null");
         do {
             date = scanner.nextLine();
         } while (!date.matches(REGEX_DATE) && !date.equals("s"));
-        LocalDate dateDiscontinued = null;
         if (!date.equals("s")) {
-            dateDiscontinued = LocalDate.parse(date);
-        } else {
-            if (null != computerToUpdate.getDiscontinued()) {
-                dateDiscontinued = computerToUpdate.getDiscontinued();
-            }
+        	computer.setDiscontinued(date);
         }
 
         // Get the manufacturer
@@ -235,27 +220,10 @@ public class CLI {
         do {
             manufacturer = scanner.nextLine();
         } while (!manufacturer.matches("[0-9]+") && !manufacturer.equals("s"));
-        Company company;
-        if (manufacturer.equals("s")) {
-            if (null != computerToUpdate.getManufacturer()) {
-                company = computerToUpdate.getManufacturer();
-            } else {
-                company = null;
-            }
-        } else {
-            company = new Company(Integer.parseInt(manufacturer));
+        if (!manufacturer.equals("s")) {
+        	computer.setManufacturer_id(Integer.parseInt(manufacturer));
         }
-
-        // Make the object
-        Computer computer = new Computer();
-        computer.setId(computerToUpdate.getId());
-        if (!name.equals("s")) {
-            computer.setName(name);
-        }
-        computer.setIntroduced(dateIntroduced);
-        computer.setDiscontinued(dateDiscontinued);
-        computer.setManufacturer(company);
-
+        
         return computer;
     }
 

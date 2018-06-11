@@ -73,6 +73,7 @@ public class ComputerController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") long id, @RequestBody ComputerDTO computerDTO) {
 		Computer computer = ComputerConvertor.fromDTO(computerDTO);
+		System.out.println(computer);
 		try {
 			Optional<Computer> computerUpdatedOptional = computerService.updateComputer(computer);
 			if(!computerUpdatedOptional.isPresent()) {
