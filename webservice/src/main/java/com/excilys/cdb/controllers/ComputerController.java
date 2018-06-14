@@ -38,6 +38,7 @@ public class ComputerController {
 	@GetMapping
 	public ResponseEntity<Collection<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
+		System.out.println("kkkk");
 		Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
@@ -47,7 +48,7 @@ public class ComputerController {
 		for(Computer computer: computers) {
 			computerDTOs.add(ComputerConvertor.toDTO(computer));
 		}
-		return new ResponseEntity<>(computerDTOs, HttpStatus.OK);
+		return ResponseEntity.ok(computerDTOs);
 	}
 	
 	@GetMapping(value = "/{id}")
@@ -83,7 +84,7 @@ public class ComputerController {
 			ComputerDTO computerDTOUpdated = ComputerConvertor.toDTO(computerUpdatedOptional.get());
 			return new ResponseEntity<>(computerDTOUpdated, HttpStatus.OK);
 		} catch (ComputerException | CompanyUnknownException e) {
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
 		}
 	}
 	
@@ -91,7 +92,7 @@ public class ComputerController {
 	public ResponseEntity<Void> deleteComputer(@PathVariable("id") long id) {
 		boolean deleteSuccess = computerService.deleteComputer(id);
 		if(!deleteSuccess) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.noContent().build();
 		} else {
 			return ResponseEntity.ok().build();
 		}
@@ -113,7 +114,7 @@ public class ComputerController {
 		stringBuilder.append(")");
 		boolean deleteSuccess = computerService.deleteMultipleComputers(stringBuilder.toString());
 		if(!deleteSuccess) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.noContent().build();
 		} else {
 			return ResponseEntity.ok().build();
 		}
