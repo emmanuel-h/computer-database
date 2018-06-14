@@ -36,7 +36,7 @@ public class ComputerController {
 		this.computerService = computerService;
 	}
 
-	//@PreAuthorize("hasAuthority('USER')")
+//	@PreAuthorize("hasAuthority('USER')")
 	@GetMapping
 	public ResponseEntity<Collection<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {

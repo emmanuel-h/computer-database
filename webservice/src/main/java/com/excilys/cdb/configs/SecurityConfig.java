@@ -9,16 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.excilys.cdb.services.UserService;
-
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
-    UserService userService;
+    CustomAuthenticationProvider customAuthenticationProvider;
     
-    public SecurityConfig(UserService userService) {
-        this.userService = userService;
+    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {   
+        this.customAuthenticationProvider = customAuthenticationProvider;
     }
     
     @Bean
@@ -26,9 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
     
-    @Override
+    @Override   
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-       auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
+        auth.authenticationProvider(customAuthenticationProvider);
     }
     
     @Override

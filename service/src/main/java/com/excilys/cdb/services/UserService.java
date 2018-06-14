@@ -26,9 +26,8 @@ public class UserService implements UserDetailsService {
 
 	  @Override
 	  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
 	    User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-	    Set<GrantedAuthority> grantedAuthorities = user.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getRole())).collect(Collectors.toSet());         
+	    Set<GrantedAuthority> grantedAuthorities = user.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getRole())).collect(Collectors.toSet());  
 	    return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), grantedAuthorities); 
 	  }
 }
