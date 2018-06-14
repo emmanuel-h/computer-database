@@ -23,7 +23,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.excilys.cdb.Page;
 import com.excilys.cdb.daos.CompanyDAO;
 import com.excilys.cdb.daos.ComputerDAO;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
+import com.excilys.cdb.exceptions.computer.ComputerException;
+import com.excilys.cdb.exceptions.computer.ComputerNamelessException;
+import com.excilys.cdb.exceptions.computer.ComputerNonExistentException;
+import com.excilys.cdb.exceptions.computer.ComputerWithBadDatesException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
@@ -99,32 +103,38 @@ public class ComputerServiceTest {
 
     /**
      * Test if createComputer with a null parameter throws an exception.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer is null
      */
     @Test
-    public void createComputerWithNullParam() throws ComputerServiceException {
-        exception.expect(ComputerServiceException.class);
+    public void createComputerWithNullParam() throws CompanyUnknownException, ComputerException {
+        exception.expect(ComputerNonExistentException.class);
         service.createComputer(null);
     }
 
     /**
      * Test if createComputer with a nameless computer throws an exception.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer is nameless
      */
     @Test
-    public void createComputerWithNoName() throws ComputerServiceException {
+    public void createComputerWithNoName() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer();
         computer.setId(1L);
-        exception.expect(ComputerServiceException.class);
+        exception.expect(ComputerNamelessException.class);
         service.createComputer(computer);
     }
 
     /**
      * Test if createComputer with null dates works.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the DAO throws an exception
      */
     @Test
-    public void createComputerWithNullDates() throws ComputerServiceException {
+    public void createComputerWithNullDates() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .discontinued(null)
@@ -136,40 +146,44 @@ public class ComputerServiceTest {
 
     /**
      * Test if creating a computer with an older introduced date than discontinued fail.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer creation fail
      */
     @Test
-    public void createComputerWithBadDates() throws ComputerServiceException {
+    public void createComputerWithBadDates() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .introduced(LocalDate.of(2009, 11, 11))
                 .discontinued(LocalDate.of(2008, 11, 11))
                 .build();
-        exception.expect(ComputerServiceException.class);
+        exception.expect(ComputerWithBadDatesException.class);
         service.createComputer(computer);
     }
 
     /**
      * Test if creating a computer with a nonexistent company fail.
+     * @throws ComputerException 
      * @throws ComputerServiceException  If the computer creation fail
      */
     @Test
-    public void createComputerWithUnknownManufacturer() throws ComputerServiceException {
+    public void createComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .manufacturer(new Company(2L, "nonexistent company"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
-        exception.expect(ComputerServiceException.class);
+        exception.expect(CompanyUnknownException.class);
         service.createComputer(computer);
     }
 
     /**
      * Test if a regular computer creation works.
+     * @throws ComputerException 
      * @throws ComputerServiceException  If creation fail
      */
     @Test
-    public void createValidComputer() throws ComputerServiceException {
+    public void createValidComputer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .build();
         Mockito.when(computerDAO.add(computer)).thenReturn(1L);
@@ -179,32 +193,38 @@ public class ComputerServiceTest {
 
     /**
      * Test if updateComputer with a null parameter throws an exception.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer is null
      */
     @Test
-    public void updateComputerWithNullParam() throws ComputerServiceException {
-        exception.expect(ComputerServiceException.class);
+    public void updateComputerWithNullParam() throws CompanyUnknownException, ComputerException {
+        exception.expect(ComputerNonExistentException.class);
         service.updateComputer(null);
     }
 
     /**
      * Test if updateComputer with a nameless computer throws an exception.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer is nameless
      */
     @Test
-    public void updateComputerWithNoName() throws ComputerServiceException {
+    public void updateComputerWithNoName() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer();
         computer.setId(1L);
-        exception.expect(ComputerServiceException.class);
+        exception.expect(ComputerNamelessException.class);
         service.updateComputer(computer);
     }
 
     /**
      * Test if updateComputer with null dates works.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the DAO throws an exception
      */
     @Test
-    public void updateComputerWithNullDates() throws ComputerServiceException {
+    public void updateComputerWithNullDates() throws CompanyUnknownException, ComputerException {
         Company manufacturer = new Company(1L, "test company");
         Computer computer = new Computer.Builder("test")
                 .id(1L)
@@ -228,40 +248,44 @@ public class ComputerServiceTest {
 
     /**
      * Test if updating a computer with an older introduced date than discontinued fail.
+     * @throws ComputerException 
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException  If the computer update fail
      */
     @Test
-    public void updateComputerWithBadDates() throws ComputerServiceException {
+    public void updateComputerWithBadDates() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .introduced(LocalDate.of(2009, 11, 11))
                 .discontinued(LocalDate.of(2008, 11, 11))
                 .build();
-        exception.expect(ComputerServiceException.class);
+        exception.expect(ComputerWithBadDatesException.class);
         service.updateComputer(computer);
     }
 
     /**
      * Test if updating a computer with a nonexistent company fail.
+     * @throws ComputerException 
      * @throws ComputerServiceException  If the computer update fail
      */
     @Test
-    public void updateComputerWithUnknownManufacturer() throws ComputerServiceException {
+    public void updateComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .manufacturer(new Company(2L, "nonexistent company"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
-        exception.expect(ComputerServiceException.class);
+        exception.expect(CompanyUnknownException.class);
         service.updateComputer(computer);
     }
 
     /**
      * Test if a regular computer update works.
+     * @throws ComputerException 
      * @throws ComputerServiceException  If update fail
      */
     @Test
-    public void updateValidComputer() throws ComputerServiceException {
+    public void updateValidComputer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .build();
@@ -309,7 +333,7 @@ public class ComputerServiceTest {
      * @throws ComputerServiceException If the search fails
      */
     @Test
-    public void getOneComputerPresent() throws ComputerServiceException {
+    public void getOneComputerPresent() throws ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .build();
@@ -323,9 +347,9 @@ public class ComputerServiceTest {
      * @throws ComputerServiceException If the computer is not found
      */
     @Test
-    public void getOneComputerNotPresent() throws ComputerServiceException {
+    public void getOneComputerNotPresent() throws ComputerException {
         Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.empty());
-        exception.expect(ComputerServiceException.class);
+        exception.expect(ComputerNonExistentException.class);
         service.getOneComputer(1L);
     }
 

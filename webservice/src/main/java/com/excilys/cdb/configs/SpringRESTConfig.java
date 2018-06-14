@@ -7,7 +7,7 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controllers", "com.excilys.cdb.daos", "com.excilys.cdb.services"})
+@ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controllers"})
 public class SpringRESTConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
 
 	  // Load database and spring security configuration

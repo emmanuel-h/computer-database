@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.excilys.cdb.Page;
 import com.excilys.cdb.dtos.ComputerDTO;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
+import com.excilys.cdb.exceptions.computer.ComputerException;
 import com.excilys.cdb.mappers.ComputerConvertor;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.ComputerService;
@@ -37,6 +38,7 @@ public class ComputerController {
 	@GetMapping
 	public ResponseEntity<Collection<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
+		System.out.println("kkkk");
 		Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
@@ -46,7 +48,7 @@ public class ComputerController {
 		for(Computer computer: computers) {
 			computerDTOs.add(ComputerConvertor.toDTO(computer));
 		}
-		return new ResponseEntity<>(computerDTOs, HttpStatus.OK);
+		return ResponseEntity.ok(computerDTOs);
 	}
 	
 	@GetMapping(value = "/{id}")
@@ -54,7 +56,7 @@ public class ComputerController {
 		try {
 			Computer computer = computerService.getOneComputer(id);
 			return new ResponseEntity<>(ComputerConvertor.toDTO(computer), HttpStatus.OK);
-		} catch (ComputerServiceException e) {
+		} catch (ComputerException e) {
 			return ResponseEntity.notFound().build();
 		}
 	}
@@ -65,7 +67,7 @@ public class ComputerController {
 		try {
 			long id = computerService.createComputer(computer);
 			return new ResponseEntity<>(id, HttpStatus.CREATED);
-		} catch (ComputerServiceException e) {
+		} catch (ComputerException | CompanyUnknownException e) {
 			return new ResponseEntity<>(-1L, HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
@@ -81,8 +83,8 @@ public class ComputerController {
 			}
 			ComputerDTO computerDTOUpdated = ComputerConvertor.toDTO(computerUpdatedOptional.get());
 			return new ResponseEntity<>(computerDTOUpdated, HttpStatus.OK);
-		} catch (ComputerServiceException e) {
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+		} catch (ComputerException | CompanyUnknownException e) {
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
 		}
 	}
 	
@@ -90,7 +92,7 @@ public class ComputerController {
 	public ResponseEntity<Void> deleteComputer(@PathVariable("id") long id) {
 		boolean deleteSuccess = computerService.deleteComputer(id);
 		if(!deleteSuccess) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.noContent().build();
 		} else {
 			return ResponseEntity.ok().build();
 		}
@@ -112,7 +114,7 @@ public class ComputerController {
 		stringBuilder.append(")");
 		boolean deleteSuccess = computerService.deleteMultipleComputers(stringBuilder.toString());
 		if(!deleteSuccess) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.noContent().build();
 		} else {
 			return ResponseEntity.ok().build();
 		}

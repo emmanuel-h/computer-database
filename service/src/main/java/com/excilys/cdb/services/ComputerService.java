@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.daos.ComputerDAO;
-import com.excilys.cdb.exceptions.ComputerServiceException;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
+import com.excilys.cdb.exceptions.computer.ComputerException;
+import com.excilys.cdb.exceptions.computer.ComputerNamelessException;
+import com.excilys.cdb.exceptions.computer.ComputerNonExistentException;
+import com.excilys.cdb.exceptions.computer.ComputerWithBadDatesException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.Page;
@@ -58,10 +62,10 @@ public class ComputerService {
      * @return The corresponding computer
      * @throws ComputerServiceException if there is no corresponding computer
      */
-    public Computer getOneComputer(long id) throws ComputerServiceException {
+    public Computer getOneComputer(long id) throws ComputerException {
         Optional<Computer> computerOptional = this.computerDAO.findById(id);
         if (!computerOptional.isPresent()) {
-            throw new ComputerServiceException("The computer is not found");
+            throw new ComputerNonExistentException("The computer " + id + "is not found");
         } else {
             return computerOptional.get();
         }
@@ -71,32 +75,33 @@ public class ComputerService {
      * Ask the DAO to create a computer.
      * @param computer The computer to create
      * @return true if the computer is created, false if not
+     * @throws CompanyUnknownException  If the manufacturer is unknown
      * @throws ComputerServiceException If the computer is null, doesn't have a name,
-     *             dates are incorrect or manufacturer is unknown
+     *             dates are incorrect
      */
-    public long createComputer(Computer computer) throws ComputerServiceException {
+    public long createComputer(Computer computer) throws ComputerException, CompanyUnknownException {
         if (null == computer) {
-            throw new ComputerServiceException(NULL_COMPUTER);
+            throw new ComputerNonExistentException(NULL_COMPUTER);
         }
         if (!ComputerValidator.validName(computer.getName())) {
-            throw new ComputerServiceException(UNNAMED_COMPUTER);
+            throw new ComputerNamelessException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
             if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
-                throw new ComputerServiceException(DATE_PROBLEM);
+                throw new ComputerWithBadDatesException(DATE_PROBLEM);
             }
         }
         if (null != computer.getManufacturer()) {
             Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
             if (!company.isPresent()) {
-                throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
+                throw new CompanyUnknownException(UNKNOWN_MANUFACTURER);
             }
         }
         long id = -1;
         try {
         	id = this.computerDAO.add(computer);
         } catch (org.hibernate.exception.DataException e) {
-        	throw new ComputerServiceException(SQL_EXCEPTION);
+        	throw new ComputerException(SQL_EXCEPTION);
         }
         return id;
     }
@@ -105,33 +110,34 @@ public class ComputerService {
      * Update an existing computer.
      * @param computer The computer to update
      * @return true if the computer is updated, false if not
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException If the computer is null, doesn't have a name,
      *             dates are incorrect or manufacturer is unknown
      */
-    public Optional<Computer> updateComputer(Computer computer) throws ComputerServiceException {
+    public Optional<Computer> updateComputer(Computer computer) throws ComputerException, CompanyUnknownException {
         if (null == computer) {
-            throw new ComputerServiceException(NULL_COMPUTER);
+            throw new ComputerNonExistentException(NULL_COMPUTER);
         }
         if (!ComputerValidator.validName(computer.getName())) {
-            throw new ComputerServiceException(UNNAMED_COMPUTER);
+            throw new ComputerNamelessException(UNNAMED_COMPUTER);
         }
         if (null != computer.getDiscontinued() && null != computer.getIntroduced()) {
             if (!ComputerValidator.discontinuedGreaterThanIntroduced(computer.getIntroduced(), computer.getDiscontinued())) {
-                throw new ComputerServiceException(DATE_PROBLEM);
+                throw new ComputerWithBadDatesException(DATE_PROBLEM);
             }
         }
 
         if (null != computer.getManufacturer() && computer.getManufacturer().getId() != 0) {
             Optional<Company> company = companyService.getOneCompany(computer.getManufacturer().getId());
             if (!company.isPresent()) {
-                throw new ComputerServiceException(UNKNOWN_MANUFACTURER);
+                throw new CompanyUnknownException(UNKNOWN_MANUFACTURER);
             }
         }
         try {
             return Optional.ofNullable(computerDAO.update(computer));
         } catch (RuntimeException e) {
             LOGGER.warn("Problem when updating the Computer : " + e);
-            throw new ComputerServiceException("Problem when updating the computer");
+            throw new ComputerException("Problem when updating the computer");
         }
     }
 
