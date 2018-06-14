@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,10 +36,10 @@ public class ComputerController {
 		this.computerService = computerService;
 	}
 
+	//@PreAuthorize("hasAuthority('USER')")
 	@GetMapping
 	public ResponseEntity<Collection<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
-		System.out.println("kkkk");
 		Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
