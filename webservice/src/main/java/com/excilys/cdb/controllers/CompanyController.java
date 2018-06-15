@@ -94,4 +94,9 @@ public class CompanyController {
 	   return ResponseEntity.ok(companyService.updateCompany(company));
 	}
 
+    @GetMapping(value = "/count")   
+    public ResponseEntity<Integer> countComputers(){
+        return ResponseEntity.ok(companyService.countCompanies());
+    }
+
 }

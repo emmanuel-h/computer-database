@@ -52,7 +52,7 @@ public class ComputerController {
     public ResponseEntity<ComputerDTO> getComputer(@PathVariable("id") long id) {
         try {
             Computer computer = computerService.getOneComputer(id);
-            return new ResponseEntity<>(ComputerConvertor.toDTO(computer), HttpStatus.OK);
+            return ResponseEntity.ok(ComputerConvertor.toDTO(computer));
         } catch (ComputerException e) {
             return ResponseEntity.notFound().build();
         }
@@ -60,7 +60,7 @@ public class ComputerController {
 
     @GetMapping(value = "/count")   
     public ResponseEntity<Integer> countComputers(){
-        return new ResponseEntity<>(computerService.countComputers(), HttpStatus.OK);
+        return ResponseEntity.ok(computerService.countComputers());
     }
 
     @GetMapping(params = "search")
@@ -75,7 +75,7 @@ public class ComputerController {
 
     @GetMapping(value = "/count", params = "search")
     public ResponseEntity<Integer> countSearchComputers(@RequestParam("search") String search){
-        return new ResponseEntity<>(computerService.countSearchedComputers(search), HttpStatus.OK);
+        return ResponseEntity.ok(computerService.countSearchedComputers(search));
     }
 
     @PostMapping
@@ -92,7 +92,6 @@ public class ComputerController {
     @PutMapping(value = "/{id}")
     public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") long id, @RequestBody ComputerDTO computerDTO) {
         Computer computer = ComputerConvertor.fromDTO(computerDTO);
-        System.out.println(computer);
         try {
             Optional<Computer> computerUpdatedOptional = computerService.updateComputer(computer);
             if(!computerUpdatedOptional.isPresent()) {

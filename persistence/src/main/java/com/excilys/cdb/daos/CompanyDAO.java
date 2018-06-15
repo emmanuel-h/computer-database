@@ -1,6 +1,5 @@
 package com.excilys.cdb.daos;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -131,7 +130,6 @@ public class CompanyDAO implements DAO<Company> {
     /**
      * Find all companies.
      * @return The list of companies, or an empty List if there is no one
-     * @throws SQLException If there is a problem with the SQL request
      */
     public List<Company> findAll() {
         List<Company> companies = new ArrayList<>();
@@ -141,5 +139,19 @@ public class CompanyDAO implements DAO<Company> {
             companies = query.getResultList();
         }
         return companies;
+    }
+
+    /**
+     * Count the number of computers in the database.
+     * @return              The number of computers
+     */
+    public int count() {
+        long total = 0;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPANIES);
+            total = (long) query.getResultList().get(0);
+        }
+        return (int) total;
     }
 }

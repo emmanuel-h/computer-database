@@ -1,6 +1,5 @@
 package com.excilys.cdb.daos;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -121,7 +120,6 @@ public class ComputerDAO implements DAO<Computer> {
     /**
      * Count the number of computers in the database.
      * @return              The number of computers
-     * @throws SQLException If there is a problem with the SQL request
      */
     public int count() {
         long total = 0;
@@ -137,7 +135,6 @@ public class ComputerDAO implements DAO<Computer> {
      * Delete a list of computers.
      * @param toDelete      The list to delete
      * @return              true if the computers have been deleted, false if not
-     * @throws SQLException If there is a problem with the SQL request
      */
     public boolean deleteMultiple(String toDelete) {
         int result = 0;
@@ -155,7 +152,6 @@ public class ComputerDAO implements DAO<Computer> {
      * @param currentPage   The page to display
      * @param maxResults    The number of results per page
      * @return              The list found
-     * @throws SQLException If there is a problem with the SQL request
      */
     public Page<Computer> searchComputer(String search, int currentPage, int maxResults) {
         if (currentPage < 1 || maxResults < 1) {
@@ -185,7 +181,6 @@ public class ComputerDAO implements DAO<Computer> {
      * Count the number of computers corresponding to the search.
      * @param search        The researched String
      * @return              The number of computers
-     * @throws SQLException If there is a problem with the SQL request
      */
     public int countSearchedComputers(String search) {
         long total = 0;

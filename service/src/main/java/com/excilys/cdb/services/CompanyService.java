@@ -75,4 +75,8 @@ public class CompanyService {
     public Company updateCompany(final Company company) {
         return companyDAO.update(company);
     }
+    
+    public int countCompanies() {
+    	return companyDAO.count();
+    }
 }
