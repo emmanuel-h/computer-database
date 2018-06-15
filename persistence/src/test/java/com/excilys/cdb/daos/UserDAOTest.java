@@ -21,7 +21,7 @@ public class UserDAOTest {
 	
 	@Test
 	public void findByUsername() {
-		User user = userDAO.findUserByUsername("admin");
+		User user = userDAO.findUserByUsername("admin").get();
 		assertTrue(user.getUsername().equals("admin"));
 		assertTrue(BCrypt.checkpw("admin", user.getPassword()));
 		assertTrue(user.isEnabled());
