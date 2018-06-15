@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +17,10 @@ import com.excilys.cdb.Page;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.services.CompanyService;
 
+
 @RestController
 @RequestMapping("/company")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CompanyController {
 	
 	private CompanyService companyService;
@@ -26,6 +29,7 @@ public class CompanyController {
 		this.companyService = companyService;
 	}
 
+	
 	@GetMapping(params = {"page", "results"})
 	public ResponseEntity<Collection<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
