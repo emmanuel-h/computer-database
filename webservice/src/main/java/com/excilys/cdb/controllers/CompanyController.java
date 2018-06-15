@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,8 +25,10 @@ import com.excilys.cdb.controllers.exception.ConflictUpdateException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.services.CompanyService;
 
+
 @RestController
 @RequestMapping("/company")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CompanyController {
 	
 	private static final String COMPANY_NOT_EXIST_CANNOT_BE_UPDATED = "The company does not exist, cannot be updated";
