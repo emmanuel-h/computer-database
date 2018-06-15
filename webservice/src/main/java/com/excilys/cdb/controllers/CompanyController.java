@@ -1,10 +1,10 @@
 package com.excilys.cdb.controllers;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -46,13 +46,13 @@ public class CompanyController {
 	 * @return 
 	 */
 	@GetMapping(params = {"page", "results"})
-	public ResponseEntity<Page<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
+	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		return new ResponseEntity<>(pageOptional.get(), HttpStatus.OK);
+		return ResponseEntity.ok(pageOptional.get().getResults());
 	}
 	
 	@GetMapping("/{id}")
@@ -61,7 +61,7 @@ public class CompanyController {
 	    if(!company.isPresent()) {
 	        return ResponseEntity.notFound().build();
 	    } else {
-	        return new ResponseEntity<>(company.get(), HttpStatus.OK);
+	        return ResponseEntity.ok(company.get());
 	    }
 	}
 	

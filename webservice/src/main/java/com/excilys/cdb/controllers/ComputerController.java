@@ -1,6 +1,7 @@
 package com.excilys.cdb.controllers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,13 +39,13 @@ public class ComputerController {
 
     //	@PreAuthorize("hasAuthority('USER')")
     @GetMapping
-    public ResponseEntity<Page<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
+    public ResponseEntity<List<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
             @RequestParam(name = "results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
         Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
         Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
         pageComputer.setResults(computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList()));
-        return ResponseEntity.ok(pageComputer);
+        return ResponseEntity.ok(pageComputer.getResults());
     }
 
     @GetMapping(value = "/{id}")
@@ -63,13 +64,13 @@ public class ComputerController {
     }
 
     @GetMapping(params = "search")
-    public ResponseEntity<Page<ComputerDTO>> searchComputers(@RequestParam("search") String search,
+    public ResponseEntity<List<ComputerDTO>> searchComputers(@RequestParam("search") String search,
             @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
         Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
         Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
         pageComputer.setResults(computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList()));
-        return ResponseEntity.ok(pageComputer);
+        return ResponseEntity.ok(pageComputer.getResults());
     }
 
     @GetMapping(value = "/count", params = "search")
