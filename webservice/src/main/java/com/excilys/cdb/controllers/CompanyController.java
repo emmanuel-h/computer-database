@@ -1,6 +1,5 @@
 package com.excilys.cdb.controllers;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -37,19 +36,30 @@ public class CompanyController {
 		this.companyService = companyService;
 	}
 
+	/**
+	 * Get the companies by pages.
+	 * @param page     Page requested
+	 * @param results  Number of results requested
+	 * @return 
+	 */
 	@GetMapping(params = {"page", "results"})
-	public ResponseEntity<Collection<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
+	public ResponseEntity<Page<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		return new ResponseEntity<>(pageOptional.get().getResults(), HttpStatus.OK);
+		return new ResponseEntity<>(pageOptional.get(), HttpStatus.OK);
 	}
 	
-	@GetMapping
-	public ResponseEntity<Collection<Company>> listAllCompanies() {
-		return new ResponseEntity<>(companyService.findAllCompanies(), HttpStatus.OK);
+	@GetMapping("/{id}")
+	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
+	    Optional<Company> company = companyService.getOneCompany(id);
+	    if(!company.isPresent()) {
+	        return ResponseEntity.notFound().build();
+	    } else {
+	        return new ResponseEntity<>(company.get(), HttpStatus.OK);
+	    }
 	}
 	
 	@DeleteMapping("/{id}")
@@ -59,17 +69,6 @@ public class CompanyController {
 			return ResponseEntity.notFound().build();
 		} else {
 			return ResponseEntity.ok().build();
-		}
-	}
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
-		Optional<Company> company = companyService.getOneCompany(id);
-		if(!company.isPresent()) {
-			return ResponseEntity.notFound().build();
-		} else {
-
-			return new ResponseEntity<>(company.get(), HttpStatus.OK);
 		}
 	}
 	
