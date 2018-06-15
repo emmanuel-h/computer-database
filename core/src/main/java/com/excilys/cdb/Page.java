@@ -8,6 +8,24 @@ import java.util.List;
  * @param <T>
  */
 public class Page<T> {
+    
+    /**
+     * Default constructor
+     */
+    public Page(){
+        
+    }
+    
+    /**
+     * Construct a new page with different results. 
+     * @param <E>
+     * @param page page.    
+     */
+    public <E> Page(final Page<E> page) {
+        this.resultsPerPage = page.getResultsPerPage();
+        this.currentPage = page.currentPage;
+        this.maxPage = page.maxPage;
+    }
 
     /**
      * The list of results corresponding to the asked page.

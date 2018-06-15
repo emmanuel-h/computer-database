@@ -57,4 +57,22 @@ public class CompanyService {
     public Optional<Company> getOneCompany(long id) {
         return companyDAO.findById(id);
     }
+    
+    /**
+     * Create a company
+     * @param company   The company model
+     * @return          ID generated
+     */
+    public Long addCompany(final Company company) {
+        return companyDAO.add(company);
+    }
+    
+    /**
+     * Update a company
+     * @param company   The company model
+     * @return          The company saved
+     */
+    public Company updateCompany(final Company company) {
+        return companyDAO.update(company);
+    }
 }

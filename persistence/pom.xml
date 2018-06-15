@@ -88,7 +88,7 @@
 
 				<!-- connection settings -->
 				<configuration>
-					<driver>com.mysql.jdbc.Driver</driver>
+					<driver>com.mysql.jdbc.Driver</driver>         
 					<url>jdbc:mysql://localhost:3306/computer-database-test?useSSL=false</url>
 					<username>admincdb</username>
 					<password>qwerty1234</password>

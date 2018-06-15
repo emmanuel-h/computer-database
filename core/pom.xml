@@ -8,7 +8,7 @@
 		<groupId>com.excilys.cdb</groupId>
 		<version>${project.version}</version>
 	</parent>
-
+    
 	<artifactId>core</artifactId>
 	<packaging>jar</packaging>
 
@@ -16,6 +16,16 @@
 	<url>http://maven.apache.org</url>
 
 	<dependencies>
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>       
 
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,5 +1,7 @@
 package com.excilys.cdb.daos;
 
+import java.util.Optional;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -15,11 +17,11 @@ public class UserDAO {
 		this.sessionFactory = sessionFactory;
 	}
 
-	public User findUserByUsername(String username) {
-		User user;
+	public Optional<User> findUserByUsername(String username) {
+		Optional<User> user = Optional.empty();
 		try (Session session = sessionFactory.getCurrentSession()) {
 			session.beginTransaction();
-			user = session.get(User.class, username);
+			user = Optional.ofNullable(session.get(User.class, username));
 		}
 		return user;
 	}

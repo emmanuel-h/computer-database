@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.excilys.cdb.controllers.exception.CompanyUpdateNotExistingException;
+import com.excilys.cdb.controllers.exception.ConflictUpdateException;
+import com.excilys.cdb.controllers.exception.NoContentFoundException;
 import com.excilys.cdb.exceptions.company.CompanyException;
 import com.excilys.cdb.exceptions.company.CompanyUnknownException;
 import com.excilys.cdb.exceptions.computer.ComputerException;
@@ -80,6 +83,37 @@ public class ExceptionHandlerController extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<ApiException> handleComputerException(ComputerException ex, WebRequest request) {
 		ApiException apiException = new ApiException(ex.getMessage(), ex.getClass().getName());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiException);
+	}
+	
+	/**
+	 * If we try to make an incorect update
+	 * @param ex conflictUpdateException
+	 * @return 409 : Conlict
+	 */
+	@ExceptionHandler(value = {ConflictUpdateException.class})
+    protected ResponseEntity<ApiException> handleConflictUpdateException(final ConflictUpdateException ex) {
+        final ApiException apiException = new ApiException(ex.getMessage(),ex.getClass().getName());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiException);
+    }
+	
+	/**
+	 * If we try to update a company that not exist
+	 * @param ex CompanyUpdateNotExistingException
+	 * @return 204 : Accepted
+	 */
+	@ExceptionHandler(value = {CompanyUpdateNotExistingException.class})
+	protected ResponseEntity<ApiException> handleCompanyUpdateNotExistingException(final CompanyUpdateNotExistingException ex){
+	    final ApiException apiException = new ApiException(ex.getMessage(),ex.getClass().getName());
+	    return ResponseEntity.status(HttpStatus.ACCEPTED).body(apiException);
+	}
+	
+	/**
+	 * If no content 
+	 */
+	@ExceptionHandler(value = {NoContentFoundException.class})
+	protected ResponseEntity<ApiException> handleNoContentFoundException(final NoContentFoundException ex){
+	    final ApiException apiException = new ApiException(ex.getMessage(),ex.getClass().getName());
+	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(apiException);
 	}
 	
 	/**

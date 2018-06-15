@@ -62,7 +62,7 @@ public class CompanyDAO implements DAO<Company> {
             Query query = session.createQuery(COUNT_COMPANIES);
             total = (int) (long) query.getResultList().get(0);
         }
-        page.setMaxPage(total);
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
         page.setResults(computers);
