@@ -21,6 +21,11 @@ local.properties
 .loadpath
 *.hibernate.cfg.xml
 
+persistence/src/main/resources/hibernate.cfg.xml
+persistence/src/test/resources/hibernate.cfg.xml
+
+webservice/WebContent/
+
 # External tool builders
 .externalToolBuilders/
 
