@@ -75,4 +75,33 @@ public class CompanyService {
     public Company updateCompany(final Company company) {
         return companyDAO.update(company);
     }
+    
+    /**
+     * Count the number of companies.
+     * @return	The number of companies
+     */
+    public int countCompanies() {
+    	return companyDAO.count();
+    }
+
+    /**
+     * Search a company or a list of companies.
+     * @param search        The name to search
+     * @param currentPage   The page to display
+     * @param maxResults    The number of results per page
+     * @return              The result of the search
+     */
+    
+    public Optional<Page<Company>> searchCompanies(String search, int currentPage, int maxResults) {
+    	return Optional.ofNullable(companyDAO.searchCompany(search, currentPage, maxResults));
+    }
+
+    /**
+     * Count the number of companies corresponding to the search.
+     * @param search    The String researched
+     * @return          The number of companies
+     */
+    public int countSearchedCompanies(String search) {
+        return companyDAO.countSearchedCompanies(search);
+    }
 }

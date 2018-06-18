@@ -1,10 +1,10 @@
 package com.excilys.cdb.controllers;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.excilys.cdb.Page;
 import com.excilys.cdb.controllers.exception.CompanyUpdateNotExistingException;
 import com.excilys.cdb.controllers.exception.ConflictUpdateException;
+import com.excilys.cdb.controllers.exception.NoContentFoundException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.services.CompanyService;
 
@@ -33,6 +34,8 @@ public class CompanyController {
 	
 	private static final String COMPANY_NOT_EXIST_CANNOT_BE_UPDATED = "The company does not exist, cannot be updated";
     private static final String CONFLICT_UPDATE = "The company cannot be updated at this url";
+    private static final String NO_RESULTS_FOUND = "No results found";
+    
     private CompanyService companyService;
 	
 	public CompanyController(CompanyService companyService) {
@@ -45,15 +48,23 @@ public class CompanyController {
 	 * @param results  Number of results requested
 	 * @return 
 	 */
-	@GetMapping(params = {"page", "results"})
-	public ResponseEntity<Page<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
+	@GetMapping()
+	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		return new ResponseEntity<>(pageOptional.get(), HttpStatus.OK);
+		return ResponseEntity.ok(pageOptional.get().getResults());
 	}
+
+    @GetMapping(params = "search")
+    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") String search,
+            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
+        Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
+        List<Company> companies = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
+       return ResponseEntity.ok(companies);
+    }
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
@@ -61,7 +72,7 @@ public class CompanyController {
 	    if(!company.isPresent()) {
 	        return ResponseEntity.notFound().build();
 	    } else {
-	        return new ResponseEntity<>(company.get(), HttpStatus.OK);
+	        return ResponseEntity.ok(company.get());
 	    }
 	}
 	
@@ -93,5 +104,15 @@ public class CompanyController {
 	   }
 	   return ResponseEntity.ok(companyService.updateCompany(company));
 	}
+
+    @GetMapping(value = "/count")   
+    public ResponseEntity<Integer> countComputers(){
+        return ResponseEntity.ok(companyService.countCompanies());
+    }
+
+    @GetMapping(value = "/count", params = "search")
+    public ResponseEntity<Integer> countSearchCompanies(@RequestParam("search") String search){
+        return ResponseEntity.ok(companyService.countSearchedCompanies(search));
+    }
 
 }

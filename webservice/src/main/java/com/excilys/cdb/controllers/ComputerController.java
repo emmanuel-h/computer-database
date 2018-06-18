@@ -1,6 +1,7 @@
 package com.excilys.cdb.controllers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,20 +39,20 @@ public class ComputerController {
 
     //	@PreAuthorize("hasAuthority('USER')")
     @GetMapping
-    public ResponseEntity<Page<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
+    public ResponseEntity<List<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
             @RequestParam(name = "results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
         Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
         Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
         pageComputer.setResults(computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList()));
-        return ResponseEntity.ok(pageComputer);
+        return ResponseEntity.ok(pageComputer.getResults());
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<ComputerDTO> getComputer(@PathVariable("id") long id) {
         try {
             Computer computer = computerService.getOneComputer(id);
-            return new ResponseEntity<>(ComputerConvertor.toDTO(computer), HttpStatus.OK);
+            return ResponseEntity.ok(ComputerConvertor.toDTO(computer));
         } catch (ComputerException e) {
             return ResponseEntity.notFound().build();
         }
@@ -59,22 +60,21 @@ public class ComputerController {
 
     @GetMapping(value = "/count")   
     public ResponseEntity<Integer> countComputers(){
-        return new ResponseEntity<>(computerService.countComputers(), HttpStatus.OK);
+        return ResponseEntity.ok(computerService.countComputers());
     }
 
     @GetMapping(params = "search")
-    public ResponseEntity<Page<ComputerDTO>> searchComputers(@RequestParam("search") String search,
+    public ResponseEntity<List<ComputerDTO>> searchComputers(@RequestParam("search") String search,
             @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
-        Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
-        Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
-        pageComputer.setResults(computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList()));
-        return ResponseEntity.ok(pageComputer);
+        List<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
+        List<ComputerDTO> computerDTOs = computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList());
+        return ResponseEntity.ok(computerDTOs);
     }
 
     @GetMapping(value = "/count", params = "search")
     public ResponseEntity<Integer> countSearchComputers(@RequestParam("search") String search){
-        return new ResponseEntity<>(computerService.countSearchedComputers(search), HttpStatus.OK);
+        return ResponseEntity.ok(computerService.countSearchedComputers(search));
     }
 
     @PostMapping
@@ -91,7 +91,6 @@ public class ComputerController {
     @PutMapping(value = "/{id}")
     public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") long id, @RequestBody ComputerDTO computerDTO) {
         Computer computer = ComputerConvertor.fromDTO(computerDTO);
-        System.out.println(computer);
         try {
             Optional<Computer> computerUpdatedOptional = computerService.updateComputer(computer);
             if(!computerUpdatedOptional.isPresent()) {
