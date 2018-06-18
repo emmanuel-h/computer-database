@@ -67,10 +67,9 @@ public class ComputerController {
     public ResponseEntity<List<ComputerDTO>> searchComputers(@RequestParam("search") String search,
             @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
-        Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
-        Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
-        pageComputer.setResults(computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList()));
-        return ResponseEntity.ok(pageComputer.getResults());
+        List<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
+        List<ComputerDTO> computerDTOs = computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList());
+        return ResponseEntity.ok(computerDTOs);
     }
 
     @GetMapping(value = "/count", params = "search")

@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.excilys.cdb.Page;
 import com.excilys.cdb.controllers.exception.CompanyUpdateNotExistingException;
 import com.excilys.cdb.controllers.exception.ConflictUpdateException;
+import com.excilys.cdb.controllers.exception.NoContentFoundException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.services.CompanyService;
 
@@ -33,6 +34,8 @@ public class CompanyController {
 	
 	private static final String COMPANY_NOT_EXIST_CANNOT_BE_UPDATED = "The company does not exist, cannot be updated";
     private static final String CONFLICT_UPDATE = "The company cannot be updated at this url";
+    private static final String NO_RESULTS_FOUND = "No results found";
+    
     private CompanyService companyService;
 	
 	public CompanyController(CompanyService companyService) {
@@ -97,6 +100,19 @@ public class CompanyController {
     @GetMapping(value = "/count")   
     public ResponseEntity<Integer> countComputers(){
         return ResponseEntity.ok(companyService.countCompanies());
+    }
+
+    @GetMapping(params = "search")
+    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") String search,
+            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
+        Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
+        List<Company> companies = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
+       return ResponseEntity.ok(companies);
+    }
+
+    @GetMapping(value = "/count", params = "search")
+    public ResponseEntity<Integer> countSearchCompanies(@RequestParam("search") String search){
+        return ResponseEntity.ok(companyService.countSearchedCompanies(search));
     }
 
 }
