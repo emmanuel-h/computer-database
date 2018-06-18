@@ -48,7 +48,7 @@ public class CompanyController {
 	 * @param results  Number of results requested
 	 * @return 
 	 */
-	@GetMapping(params = {"page", "results"})
+	@GetMapping()
 	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
@@ -57,6 +57,14 @@ public class CompanyController {
 		}
 		return ResponseEntity.ok(pageOptional.get().getResults());
 	}
+
+    @GetMapping(params = "search")
+    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") String search,
+            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
+        Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
+        List<Company> companies = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
+       return ResponseEntity.ok(companies);
+    }
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
@@ -100,14 +108,6 @@ public class CompanyController {
     @GetMapping(value = "/count")   
     public ResponseEntity<Integer> countComputers(){
         return ResponseEntity.ok(companyService.countCompanies());
-    }
-
-    @GetMapping(params = "search")
-    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") String search,
-            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
-        Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
-        List<Company> companies = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
-       return ResponseEntity.ok(companies);
     }
 
     @GetMapping(value = "/count", params = "search")
