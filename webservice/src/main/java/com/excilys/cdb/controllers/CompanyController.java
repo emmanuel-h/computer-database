@@ -51,7 +51,7 @@ public class CompanyController {
 	 */
     @PreAuthorize("hasAuthority('USER')")
 	@GetMapping()
-	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
+	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page") final int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
 		if(!pageOptional.isPresent()) {
@@ -61,15 +61,15 @@ public class CompanyController {
 	}
 
     @GetMapping(params = "search")
-    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") String search,
-            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
+    public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") final String search,
+            @RequestParam(name = "page") final int page, @RequestParam(name = "results") final int results) throws NoContentFoundException {
         Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
         List<Company> companies = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
        return ResponseEntity.ok(companies);
     }
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
+	public ResponseEntity<Company> getCompany(@PathVariable("id") final long id) {
 	    Optional<Company> company = companyService.getOneCompany(id);
 	    if(!company.isPresent()) {
 	        return ResponseEntity.notFound().build();
@@ -79,7 +79,7 @@ public class CompanyController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id) {
+	public ResponseEntity<Void> deleteCompany(@PathVariable("id") final long id) {
 		boolean success = companyService.deleteCompany(id);
 		if(!success) {
 			return ResponseEntity.notFound().build();
@@ -107,14 +107,20 @@ public class CompanyController {
 	   return ResponseEntity.ok(companyService.updateCompany(company));
 	}
 
-    @GetMapping(value = "/count")   
+    @GetMapping("/count")
     public ResponseEntity<Integer> countComputers(){
         return ResponseEntity.ok(companyService.countCompanies());
     }
 
     @GetMapping(value = "/count", params = "search")
-    public ResponseEntity<Integer> countSearchCompanies(@RequestParam("search") String search){
+    public ResponseEntity<Integer> countSearchCompanies(@RequestParam("search") final String search){
         return ResponseEntity.ok(companyService.countSearchedCompanies(search));
     }
+    
+    @GetMapping("/{id}/computer/count")
+    public ResponseEntity<Integer> countComputersOfCompany(@PathVariable("id") final long id){
+        return ResponseEntity.ok(companyService.countComputersOfCompany(id));
+    }
+    
 
 }

@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 /**
  * The class describing a company.
@@ -31,6 +30,15 @@ public class Company {
     @Column(name = "name")
     @NotBlank
     private String name;
+    
+
+    @Column(name = "number_of_computers")
+    private int numberOfComputers;
+    
+
+    @Column(name = "image_url")
+    @NotBlank
+    private String imageUrl;
 
     /**
      * Empty constructor.
@@ -47,20 +55,25 @@ public class Company {
     }
 
     /**
-     * Constructor with name and id.
+     * Constructor with all parameters.
      * @param id The identifier
      * @param name The name if the company
      */
-    public Company(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+
+    public Company(long id, @NotBlank String name, int numberOfComputers, @NotBlank String imageUrl) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.numberOfComputers = numberOfComputers;
+		this.imageUrl = imageUrl;
+	}
+    
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+	public void setId(long id) {
         this.id = id;
     }
 
@@ -71,8 +84,25 @@ public class Company {
     public void setName(String name) {
         this.name = name;
     }
+    
 
-    @Override
+    public int getNumberOfComputers() {
+		return numberOfComputers;
+	}
+
+	public void setNumberOfComputers(int numberOfComputers) {
+		this.numberOfComputers = numberOfComputers;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	@Override
     public String toString() {
         return "Company [id=" + id + ", name=" + name + "]";
     }

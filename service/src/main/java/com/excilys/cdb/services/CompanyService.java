@@ -104,4 +104,13 @@ public class CompanyService {
     public int countSearchedCompanies(String search) {
         return companyDAO.countSearchedCompanies(search);
     }
+    
+    /**
+     * Count the number of computers with a certain manufacturer.
+     * @param id	The id of the manufacturer
+     * @return		The number of searched computers
+     */
+    public int countComputersOfCompany(long id) {
+    	return companyDAO.countComputersOfCompany(id);
+    }
 }
