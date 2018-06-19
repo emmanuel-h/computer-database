@@ -33,7 +33,7 @@ public class ComputerConvertorTest {
      */
     @Test
     public void computerToDTOWithAllFields() {
-        Company company = new Company(1L, "company test");
+        Company company = new Company(1L, "company test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .introduced(LocalDate.of(2007, 11, 11))
@@ -68,7 +68,7 @@ public class ComputerConvertorTest {
      */
     @Test
     public void dTOToComputerWithAllFields() {
-        Company company = new Company(1L, "company test");
+        Company company = new Company(1L, "company test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
 
         ComputerDTO computerDTO = new ComputerDTO();
         computerDTO.setName("test computer dto");

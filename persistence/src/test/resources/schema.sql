@@ -28,8 +28,10 @@ drop schema if exists `computer-database-test`;
   ;
 
   create table company (
-    id                        bigint not null auto_increment,
+    id                        bigint NOT NULL auto_increment,
     name                      varchar(255),
+    number_of_computers       int NOT NULL,
+    image_url                 varchar(255) NOT NULL,
     constraint pk_company primary key (id))
   ;
 

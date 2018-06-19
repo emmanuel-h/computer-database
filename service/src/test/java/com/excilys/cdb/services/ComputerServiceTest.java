@@ -170,7 +170,7 @@ public class ComputerServiceTest {
     public void createComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
-                .manufacturer(new Company(2L, "nonexistent company"))
+                .manufacturer(new Company(2L, "nonexistent company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
         exception.expect(CompanyUnknownException.class);
@@ -225,7 +225,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void updateComputerWithNullDates() throws CompanyUnknownException, ComputerException {
-        Company manufacturer = new Company(1L, "test company");
+        Company manufacturer = new Company(1L, "test company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .introduced(LocalDate.of(2007, 11, 11))
@@ -272,7 +272,7 @@ public class ComputerServiceTest {
     public void updateComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
-                .manufacturer(new Company(2L, "nonexistent company"))
+                .manufacturer(new Company(2L, "nonexistent company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
         exception.expect(CompanyUnknownException.class);

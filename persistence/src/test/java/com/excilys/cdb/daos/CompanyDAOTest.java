@@ -102,7 +102,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void add() {
-        Company company = new Company(500L, "test add");
+        Company company = new Company(500L, "test add", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         long addResult = companyDAO.add(company);
         assertTrue(addResult == 44L);
         companyDAO.delete(44L);
@@ -113,7 +113,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void addWithexistingId() {
-        Company company = new Company(1L, "test with exisiting id");
+        Company company = new Company(1L, "test with exisiting id", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         long addResult = companyDAO.add(company);
         LOGGER.error("DZQDZD : " + addResult);
         assertTrue(addResult == 45L);
@@ -154,7 +154,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void updateWithAllFieldsFilled() {
-        Company companyToUpdate = new Company(5, "test update");
+        Company companyToUpdate = new Company(5, "test update", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertTrue(companyUpdated.getName().equals("test update"));
     }
@@ -164,7 +164,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void updateWithNullFields() {
-        Company companyToUpdate = new Company(5, null);
+        Company companyToUpdate = new Company(5, null, 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertNull(companyUpdated.getName());
     }
@@ -174,7 +174,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void updateWithBadId() {
-        Company companyToUpdate = new Company(60, "bad id");
+        Company companyToUpdate = new Company(60, "bad id", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Company companyUpdated = companyDAO.update(companyToUpdate);
         assertNull(companyUpdated);
     }

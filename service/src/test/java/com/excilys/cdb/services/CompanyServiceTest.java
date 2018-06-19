@@ -60,7 +60,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void getAllCompaniesWithValidPageNumber() {
-        Company company = new Company(1, "test");
+        Company company = new Company(1, "test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Page<Company> companies = new Page<>();
         List<Company> companiesList = new ArrayList<>();
         companiesList.add(company);
@@ -99,7 +99,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void findAllCompanies() {
-        Company company = new Company(1, "test");
+        Company company = new Company(1, "test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         List<Company> companiesList = new ArrayList<>();
         companiesList.add(company);
         Mockito.when(companyDAO.findAll()).thenReturn(companiesList);
@@ -122,7 +122,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void getOneCompany() {
-        Company company = new Company(1, "test");
+        Company company = new Company(1, "test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Mockito.when(companyDAO.findById(1)).thenReturn(Optional.of(company));
         Optional<Company> result = service.getOneCompany(1);
         assertTrue(result.isPresent());
@@ -131,28 +131,27 @@ public class CompanyServiceTest {
     
     @Test
     public void addCompany() {
-        Company company = new Company(1,"test");
+        Company company = new Company(1,"test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Mockito.when(companyDAO.add(company)).thenReturn(1L);
         Long id = service.addCompany(company);
         assertSame(1L, id);
         
-        company = new Company();
-        Mockito.when(companyDAO.add(company)).thenReturn(-1L);
-        assertSame(-1L, service.addCompany(company));
-        
-        Mockito.verify(companyDAO,Mockito.times(2)).add(Mockito.any(Company.class));
+        Mockito.verify(companyDAO,Mockito.times(1)).add(Mockito.any(Company.class));
     }
     
     @Test
     public void addCompanyToDatabase() {
-        Company company = new Company(1,"test");
+        Company company = new Company(1,"test", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         assertSame(46L, serviceReal.addCompany(company));
         
         company = new Company();
         company.setName("test");
+        company.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         assertSame(47L, serviceReal.addCompany(company));
         
-        company = new Company();        
+        
+        company = new Company();
+        exception.expect(org.hibernate.exception.ConstraintViolationException.class);
         assertSame(48L, serviceReal.addCompany(company));   
     }
     
@@ -165,9 +164,9 @@ public class CompanyServiceTest {
         serviceReal.updateCompany(company);
         assertEquals(null, serviceReal.getOneCompany(12L).get().getName());
        
-        company = new Company(12,"LOL");
+        company = new Company(12,"companyUpdate", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         serviceReal.updateCompany(company);
-        assertEquals("LOL", serviceReal.getOneCompany(12L).get().getName()); 
+        assertEquals("companyUpdate", serviceReal.getOneCompany(12L).get().getName()); 
     }
     
     
