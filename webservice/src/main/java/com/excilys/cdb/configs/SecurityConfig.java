@@ -32,7 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http.sessionManagement().maximumSessions(1);
-       http.authorizeRequests().and().formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/computer?page=1&results=10",true).failureForwardUrl("/loginError").permitAll();
+       http.authorizeRequests().and().formLogin().loginPage("/login").loginProcessingUrl("/login").failureForwardUrl("/loginError").permitAll();
+       http.authorizeRequests().and().logout().logoutSuccessUrl("/logout").deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
        http.csrf().disable();
     }
     

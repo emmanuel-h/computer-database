@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ import com.excilys.cdb.services.CompanyService;
 
 @RestController
 @RequestMapping("/company")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*", allowCredentials="true", allowedHeaders= {"x-auth-token","x-requested-with","x-xsrf-token","X-Requested-With","Content-Type"})
 public class CompanyController {
 	
 	private static final String COMPANY_NOT_EXIST_CANNOT_BE_UPDATED = "The company does not exist, cannot be updated";
@@ -48,6 +49,7 @@ public class CompanyController {
 	 * @param results  Number of results requested
 	 * @return 
 	 */
+    @PreAuthorize("hasAuthority('USER')")
 	@GetMapping()
 	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page")int page,
 			@RequestParam(name = "results")int results) {
