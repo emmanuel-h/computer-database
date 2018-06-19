@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 /**
  * The class describing a company.
@@ -38,6 +39,7 @@ public class Company {
 
     @Column(name = "image_url")
     @NotBlank
+    @Size(max = 255)
     private String imageUrl;
 
     /**
