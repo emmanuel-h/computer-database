@@ -31,6 +31,8 @@ public class CompanyDAO implements DAO<Company> {
     private final String SEARCH_COMPANIES = "FROM Company WHERE name LIKE :search";
     private final String COUNT_SEARCHED_COMPANIES = "SELECT COUNT(id) FROM Company WHERE name LIKE :search";
     private final String COUNT_COMPUTERS_OF_COMPANY = "SELECT COUNT(id) FROM Computer WHERE manufacturer = :manufacturer";
+    private final String INCREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers + 1 WHERE id = :id";
+    private final String DECREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers - 1 WHERE id = :id";
     
     private SessionFactory sessionFactory;
 
@@ -219,5 +221,27 @@ public class CompanyDAO implements DAO<Company> {
             total = (long) query.getResultList().get(0);
     	}
         return (int) total;
+    }
+    
+    public boolean incrementComputersOfCompany(long id) {
+        long result;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(INCREMENT_COMPUTERS_OF_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate();
+        }
+        return !(result == 0);
+    }
+    
+    public boolean decrementComputersOfCompany(long id) {
+        long result;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(DECREMENT_COMPUTERS_OF_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate();
+        }
+        return !(result == 0);
     }
 }

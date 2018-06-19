@@ -105,7 +105,12 @@ public class ComputerController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteComputer(@PathVariable("id") long id) {
-        boolean deleteSuccess = computerService.deleteComputer(id);
+        boolean deleteSuccess;
+		try {
+			deleteSuccess = computerService.deleteComputer(id);
+		} catch (CompanyUnknownException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
         if(!deleteSuccess) {
             return ResponseEntity.noContent().build();
         } else {

@@ -300,9 +300,10 @@ public class ComputerServiceTest {
 
     /**
      * Test if the deletion of an existing computer works.
+     * @throws CompanyUnknownException 
      */
     @Test
-    public void deleteComputer() {
+    public void deleteComputer() throws CompanyUnknownException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(true);
         boolean resultDelete = service.deleteComputer(1L);
         assertTrue(resultDelete);
@@ -310,9 +311,10 @@ public class ComputerServiceTest {
 
     /**
      * Test if the deletion of an non existing computer works.
+     * @throws CompanyUnknownException 
      */
     @Test
-    public void deleteUnknownComputer() {
+    public void deleteUnknownComputer() throws CompanyUnknownException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(false);
         boolean resultDelete = service.deleteComputer(1L);
         assertFalse(resultDelete);

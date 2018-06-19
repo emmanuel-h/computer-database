@@ -35,6 +35,7 @@ public class ComputerService {
     private final String DATE_PROBLEM = "Discontinued date is before introduced date";
     private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
     private final String SQL_EXCEPTION = "SQL exception encountered";
+    private final String ERROR_WHEN_UPDATE = "Problem when updating the Computer";
 
     /**
      * Constructor initializing the DAO.
@@ -100,6 +101,9 @@ public class ComputerService {
         long id = -1;
         try {
         	id = this.computerDAO.add(computer);
+        	if (id > 0 && null != computer.getManufacturer()) {
+        		companyService.modifyNumberOfComputersOfCompany(true, computer.getManufacturer().getId());
+        	}
         } catch (org.hibernate.exception.DataException e) {
         	throw new ComputerException(SQL_EXCEPTION);
         }
@@ -134,10 +138,30 @@ public class ComputerService {
             }
         }
         try {
-            return Optional.ofNullable(computerDAO.update(computer));
+        	Optional<Computer> computerTestManufacturer = computerDAO.findById(computer.getId());
+            Optional<Computer> computerOptional = Optional.ofNullable(computerDAO.update(computer));
+
+            // If there was a manufacturer in the updated computer and not in the initial one, increase
+            // the company's number of computer
+            if (computerOptional.isPresent()
+            		&& computerTestManufacturer.isPresent()
+            		&& null != computerOptional.get().getManufacturer()
+            		&& null == computerTestManufacturer.get().getManufacturer()) {
+            	companyService.modifyNumberOfComputersOfCompany(true, computerOptional.get().getManufacturer().getId());
+            }
+            // If there was a manufacturer in the initial computer and not in the updated one, decrease
+            // the company's number of computer
+            if (computerOptional.isPresent()
+            		&& computerTestManufacturer.isPresent()
+            		&& null == computerOptional.get().getManufacturer()
+            		&& null != computerTestManufacturer.get().getManufacturer()) {
+            	companyService.modifyNumberOfComputersOfCompany(false, computerTestManufacturer.get().getManufacturer().getId());
+            }
+            
+            return computerOptional;
         } catch (RuntimeException e) {
-            LOGGER.warn("Problem when updating the Computer : " + e);
-            throw new ComputerException("Problem when updating the computer");
+            LOGGER.warn(ERROR_WHEN_UPDATE + " : " + e);
+            throw new ComputerException(ERROR_WHEN_UPDATE);
         }
     }
 
@@ -145,10 +169,16 @@ public class ComputerService {
      * Delete an existing computer.
      * @param id The id of the computer to delete
      * @return true if the computer is deleted, false if not
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException If there is no computer matching this id
      */
-    public boolean deleteComputer(long id) {
-        return computerDAO.delete(id);
+    public boolean deleteComputer(long id) throws CompanyUnknownException {
+    	Optional<Computer> computer = computerDAO.findById(id);
+        boolean success = computerDAO.delete(id);
+        if (computer.isPresent() && null != computer.get().getManufacturer()) {
+        	companyService.modifyNumberOfComputersOfCompany(false, computer.get().getManufacturer().getId());
+        }
+        return success;
     }
 
     /**
