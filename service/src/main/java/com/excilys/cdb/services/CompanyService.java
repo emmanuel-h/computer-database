@@ -6,12 +6,15 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.daos.CompanyDAO;
+import com.excilys.cdb.exceptions.company.CompanyUnknownException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.Page;
 
 @Service
 public class CompanyService {
 
+	private static final String UNKNOWN_COMPANY_UPDATE =  "Unknown Company to update";
+	
     private CompanyDAO companyDAO;
 
     /**
@@ -112,5 +115,23 @@ public class CompanyService {
      */
     public int countComputersOfCompany(long id) {
     	return companyDAO.countComputersOfCompany(id);
+    }
+    
+    /**
+     * Modify the number of computers of a company.
+     * @param ajout						true if an increment is asked, false it is a decrement.
+     * @param id						The company id
+     * @throws CompanyUnknownException	If the company doesn't exist
+     */
+    public boolean modifyNumberOfComputersOfCompany(boolean ajout, long id) throws CompanyUnknownException {
+    	Optional<Company> companyOptional = companyDAO.findById(id);
+    	Company company = companyOptional.orElseThrow(() -> new CompanyUnknownException(UNKNOWN_COMPANY_UPDATE));
+    	if(ajout) {
+    		company.increaseNumberOfComputers();
+    		return companyDAO.incrementComputersOfCompany(id);
+    	} else {
+    		company.decreaseNumberOfComputers();
+    		return companyDAO.decrementComputersOfCompany(id);
+    	}
     }
 }

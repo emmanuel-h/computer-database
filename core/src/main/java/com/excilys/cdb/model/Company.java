@@ -103,6 +103,14 @@ public class Company {
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
+	
+	public void decreaseNumberOfComputers() {
+		this.numberOfComputers --;
+	}
+	
+	public void increaseNumberOfComputers() {
+		this.numberOfComputers ++;
+	}
 
 	@Override
     public String toString() {
