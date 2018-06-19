@@ -30,7 +30,8 @@ public class CompanyDAO implements DAO<Company> {
     private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM Computer WHERE manufacturer = :manufacturer";
     private final String SEARCH_COMPANIES = "FROM Company WHERE name LIKE :search";
     private final String COUNT_SEARCHED_COMPANIES = "SELECT COUNT(id) FROM Company WHERE name LIKE :search";
-
+    private final String COUNT_COMPUTERS_OF_COMPANY = "SELECT COUNT(id) FROM Computer WHERE manufacturer = :manufacturer";
+    
     private SessionFactory sessionFactory;
 
     /**
@@ -201,6 +202,22 @@ public class CompanyDAO implements DAO<Company> {
             query.setParameter("search", '%' + search + '%');
             total = (long) query.getResultList().get(0);
         }
+        return (int) total;
+    }
+    
+    /**
+     * Count the number of computers with a certain manufacturer.
+     * @param id	The id of the manufacturer
+     * @return		The number of searched computers
+     */
+    public int countComputersOfCompany(long id) {
+    	long total = 0;
+    	try (Session session = sessionFactory.getCurrentSession()) {
+    		session.beginTransaction();
+    		Query query = session.createQuery(COUNT_COMPUTERS_OF_COMPANY);
+    		query.setParameter("manufacturer", new Company(id));
+            total = (long) query.getResultList().get(0);
+    	}
         return (int) total;
     }
 }
