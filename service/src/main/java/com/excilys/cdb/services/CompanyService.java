@@ -3,6 +3,7 @@ package com.excilys.cdb.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.daos.CompanyDAO;
@@ -12,6 +13,8 @@ import com.excilys.cdb.Page;
 
 @Service
 public class CompanyService {
+	
+	private enum Sort_Allowed { NAME, NUMBER_OF_COMPUTERS }
 
 	private static final String UNKNOWN_COMPANY_UPDATE =  "Unknown Company to update";
 	
@@ -132,6 +135,14 @@ public class CompanyService {
     	} else {
     		company.decreaseNumberOfComputers();
     		return companyDAO.decrementComputersOfCompany(id);
+    	}
+    }
+    
+    public Optional<Page<Company>> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(companyDAO.findAllWithPagingAndSorting(currentPage, maxResults, sort, asc));
     	}
     }
 }

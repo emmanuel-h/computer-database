@@ -122,5 +122,15 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.countComputersOfCompany(id));
     }
     
+    @GetMapping("/sort")
+    public ResponseEntity<List<Company>> findAllWithPagingAndSorting(
+    		@RequestParam("sort") final String sort, @RequestParam(name = "page") final int page,
+    		@RequestParam(name = "results") final int results, @RequestParam("asc") final boolean asc){
+		Optional<Page<Company>> pageOptional = companyService.findAllWithPagingAndSorting(page, results, sort, asc);
+		if(!pageOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(pageOptional.get().getResults());
+    }
 
 }
