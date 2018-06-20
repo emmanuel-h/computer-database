@@ -29,7 +29,10 @@ public class ComputerDAO implements DAO<Computer> {
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM Computer";
     private final String SEARCH_COMPUTERS = "FROM Computer WHERE name LIKE :search";
     private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
-
+    private final String FIND_ALL_COMPUTERS_WITH_PAGING_AND_SORTING = "FROM Computer ORDER BY ";
+    private final String ASC = " ASC";
+    private final String DESC = " DESC";
+    
     private SessionFactory sessionFactory;
 
     /**

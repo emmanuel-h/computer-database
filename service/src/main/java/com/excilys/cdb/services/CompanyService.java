@@ -145,4 +145,13 @@ public class CompanyService {
     		return Optional.ofNullable(companyDAO.findAllWithPagingAndSorting(currentPage, maxResults, sort, asc));
     	}
     }
+    
+    public Optional<Page<Company>> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(companyDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, sort, asc));
+    	}
+    }
 }

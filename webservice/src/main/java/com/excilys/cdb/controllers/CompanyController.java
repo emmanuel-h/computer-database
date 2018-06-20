@@ -124,9 +124,21 @@ public class CompanyController {
     
     @GetMapping("/sort")
     public ResponseEntity<List<Company>> findAllWithPagingAndSorting(
-    		@RequestParam("sort") final String sort, @RequestParam(name = "page") final int page,
-    		@RequestParam(name = "results") final int results, @RequestParam("asc") final boolean asc){
+    		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
+    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc){
 		Optional<Page<Company>> pageOptional = companyService.findAllWithPagingAndSorting(page, results, sort, asc);
+		if(!pageOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(pageOptional.get().getResults());
+    }
+    
+    @GetMapping(value = "/sort", params = "search")
+    public ResponseEntity<List<Company>> findAllWithPagingAndSortingAndSearch(@RequestParam("search") final String search,
+    		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
+    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc){
+		Optional<Page<Company>> pageOptional = companyService.findAllWithPagingAndSortingAndSearch(
+				search, page, results, sort, asc);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
