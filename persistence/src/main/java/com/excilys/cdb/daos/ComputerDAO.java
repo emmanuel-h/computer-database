@@ -29,7 +29,12 @@ public class ComputerDAO implements DAO<Computer> {
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM Computer";
     private final String SEARCH_COMPUTERS = "FROM Computer WHERE name LIKE :search";
     private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
-
+    private final String SEARCH_COMPUTERS_WITH_SORTING = "FROM Computer WHERE name LIKE :search ORDER BY ";
+    private final String FIND_ALL_COMPUTERS_WITH_PAGING_AND_SORTING = "FROM Computer ORDER BY ";
+    private final String ASC = " ASC";
+    private final String DESC = " DESC";
+    private final String NULLS_LAST = " NULLS LAST";
+    
     private SessionFactory sessionFactory;
 
     /**
@@ -191,5 +196,60 @@ public class ComputerDAO implements DAO<Computer> {
             total = (long) query.getResultList().get(0);
         }
         return (int) total;
+    }
+
+    public Page<Computer> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Computer> page = new Page<>();
+        List<Computer> computers = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> query = session.createQuery(
+            		FIND_ALL_COMPUTERS_WITH_PAGING_AND_SORTING + sort + (asc ? ASC : DESC) + NULLS_LAST, Computer.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            computers = query.getResultList();
+        }
+        int total = 1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPUTERS);
+            total = (int) (long) query.getResultList().get(0);
+        }
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(computers);
+        return page;
+    }
+    
+    public Page<Computer> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Computer> page = new Page<>();
+        List<Computer> computers = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> query = session.createQuery(
+            		SEARCH_COMPUTERS_WITH_SORTING + sort.toLowerCase() + (asc ? ASC : DESC) + NULLS_LAST, Computer.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            query.setParameter("search", '%' + search + '%');
+            computers = query.getResultList();
+        }
+        int total = countSearchedComputers(search);
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(computers);
+        return page;
     }
 }

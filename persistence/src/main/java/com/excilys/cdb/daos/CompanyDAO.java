@@ -33,6 +33,10 @@ public class CompanyDAO implements DAO<Company> {
     private final String COUNT_COMPUTERS_OF_COMPANY = "SELECT COUNT(id) FROM Computer WHERE manufacturer = :manufacturer";
     private final String INCREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers + 1 WHERE id = :id";
     private final String DECREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers - 1 WHERE id = :id";
+    private final String SEARCH_COMPANIES_WITH_SORTING = "FROM Company WHERE name LIKE :search ORDER BY ";
+    private final String FIND_ALL_COMPANIES_WITH_PAGING_AND_SORTING = "FROM Company ORDER BY ";
+    private final String ASC = " ASC";
+    private final String DESC = " DESC";
     
     private SessionFactory sessionFactory;
 
@@ -223,6 +227,11 @@ public class CompanyDAO implements DAO<Company> {
         return (int) total;
     }
     
+    /**
+     * Increment the numbers of computers of a company.
+     * @param id	The id of the company
+     * @return		true if the increment is done, false if not
+     */
     public boolean incrementComputersOfCompany(long id) {
         long result;
         try (Session session = sessionFactory.getCurrentSession()) {
@@ -234,6 +243,11 @@ public class CompanyDAO implements DAO<Company> {
         return !(result == 0);
     }
     
+    /**
+     * Decrement the numbers of computers of a company.
+     * @param id	The id of the company
+     * @return		true if the decrement is done, false if not
+     */
     public boolean decrementComputersOfCompany(long id) {
         long result;
         try (Session session = sessionFactory.getCurrentSession()) {
@@ -243,5 +257,61 @@ public class CompanyDAO implements DAO<Company> {
             result = query.executeUpdate();
         }
         return !(result == 0);
+    }
+
+    public Page<Company> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Company> page = new Page<>();
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(
+            		FIND_ALL_COMPANIES_WITH_PAGING_AND_SORTING + sort.toLowerCase() + (asc ? ASC : DESC), Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            
+            companies = query.getResultList();
+        }
+        int total = 1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPANIES);
+            total = (int) (long) query.getResultList().get(0);
+        }
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
+        return page;
+    }
+    
+    public Page<Company> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Company> page = new Page<>();
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(
+            		SEARCH_COMPANIES_WITH_SORTING + sort.toLowerCase() + (asc ? ASC : DESC), Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            query.setParameter("search", '%' + search + '%');
+            companies = query.getResultList();
+        }
+        int total = countSearchedCompanies(search);
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
+        return page;
     }
 }

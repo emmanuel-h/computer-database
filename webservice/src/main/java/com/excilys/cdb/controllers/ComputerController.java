@@ -134,4 +134,31 @@ public class ComputerController {
             return ResponseEntity.ok().build();
         }
     }
+    
+    @GetMapping("/sort")
+    public ResponseEntity<List<ComputerDTO>> findAllWithPagingAndSorting(
+    		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
+    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc){
+		Optional<Page<Computer>> pageOptional = computerService.findAllWithPagingAndSorting(page, results, sort, asc);
+		if(!pageOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		List<ComputerDTO> computerDTOs = pageOptional.get().getResults().stream().map(
+				computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList());
+		return ResponseEntity.ok(computerDTOs);
+    }
+    
+    @GetMapping(value = "/sort", params = "search")
+    public ResponseEntity<List<ComputerDTO>> findAllWithPagingAndSortingAndSearch(@RequestParam("search") final String search,
+    		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
+    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc){
+		Optional<Page<Computer>> pageOptional = computerService.findAllWithPagingAndSortingAndSearch(
+				search, page, results, sort, asc);
+		if(!pageOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		List<ComputerDTO> computerDTOs = pageOptional.get().getResults().stream().map(
+				computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList());
+		return ResponseEntity.ok(computerDTOs);
+    }
 }
