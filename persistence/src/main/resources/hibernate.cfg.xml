@@ -17,6 +17,5 @@
       <mapping class="com.excilys.cdb.model.Computer"/>
       <mapping class="com.excilys.cdb.model.Role"/>
       <mapping class="com.excilys.cdb.model.User"/>
-
    </session-factory>
 </hibernate-configuration>

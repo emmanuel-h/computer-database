@@ -3,6 +3,7 @@ package com.excilys.cdb.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
@@ -49,8 +50,8 @@ public class CompanyController {
 	 * @param results  Number of results requested
 	 * @return 
 	 */
-    @PreAuthorize("hasAuthority('USER')")
 	@GetMapping(params = {"page", "results"})
+    @PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page") final int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
@@ -66,7 +67,7 @@ public class CompanyController {
     	return ResponseEntity.ok(companies);
     }
 
-    @GetMapping(params = "search")
+    @GetMapping(path="/search", params = "search")
     public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") final String search,
             @RequestParam(name = "page") final int page, @RequestParam(name = "results") final int results) throws NoContentFoundException {
         Optional<Page<Company>> pageOptional = companyService.searchCompanies(search, page, results);
