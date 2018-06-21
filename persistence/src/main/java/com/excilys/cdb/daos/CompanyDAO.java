@@ -258,7 +258,7 @@ public class CompanyDAO implements DAO<Company> {
         }
         return !(result == 0);
     }
-    
+
     public Page<Company> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
 
         if (currentPage < 1 || maxResults < 1) {

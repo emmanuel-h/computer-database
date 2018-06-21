@@ -2,6 +2,7 @@ package com.excilys.cdb.services;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 
 @Service
 public class ComputerService {
+	private enum Sort_Allowed { NAME, INTRODUCED, DISCONTINUED, COMPANY };
+	
 
     private ComputerDAO computerDAO;
 
@@ -219,5 +222,28 @@ public class ComputerService {
      */
     public int countSearchedComputers(String search) {
         return computerDAO.countSearchedComputers(search);
+    }
+    
+    public Optional<Page<Computer>> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+    	if("COMPANY".equals(sort.toUpperCase())) {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSorting(currentPage, maxResults, "manufacturer.name", asc));
+    	}
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSorting(currentPage, maxResults, sort.toLowerCase(), asc));
+    	}
+    }
+    
+    public Optional<Page<Computer>> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+    	if("COMPANY".equals(sort.toUpperCase())) {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, "manufacturer.name", asc));
+    	}
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, sort, asc));
+    	}
     }
 }
