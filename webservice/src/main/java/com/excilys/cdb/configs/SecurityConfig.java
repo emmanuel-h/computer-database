@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -18,7 +17,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
-    CustomAuthenticationProvider customAuthenticationProvider;
+    CustomAuthenticationProvider customAuthenticationProvider;  
     
     public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {   
         this.customAuthenticationProvider = customAuthenticationProvider;
@@ -38,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
        http.sessionManagement().maximumSessions(1);
        http.authorizeRequests().and().formLogin().loginProcessingUrl("/login").defaultSuccessUrl("/login",true).failureForwardUrl("/loginError").permitAll();
-       http.authorizeRequests().and().logout().invalidateHttpSession(true).deleteCookies("JSESSIONID").permitAll();
+       http.authorizeRequests().and().logout().logoutSuccessUrl("/login?logout").deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
        
        RequestMatcher matcher = new AntPathRequestMatcher("/login");
        DelegatingRequestMatcherHeaderWriter headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Origin","http://localhost:4200"));
