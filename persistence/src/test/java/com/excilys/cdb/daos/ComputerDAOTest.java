@@ -273,7 +273,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void searchComputer() {
-        Page<Computer> computers = computerDAO.searchComputer("pp", 1, 10);
+        Page<Computer> computers = computerDAO.searchComputer("pp", 1, 10, true);
         assertTrue(computers.getCurrentPage() == 1);
         assertTrue(computers.getResultsPerPage() == 10);
         assertTrue(computers.getMaxPage() == 1);
@@ -285,7 +285,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void searchComputerWithNegativePage() {
-        Page<Computer> computers = computerDAO.searchComputer("pp", -1, 10);
+        Page<Computer> computers = computerDAO.searchComputer("pp", -1, 10, true);
         assertNull(computers);
     }
 
@@ -294,7 +294,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void searchComputerWithNegativeResultsPerPage() {
-        Page<Computer> computers = computerDAO.searchComputer("pp", 1, -1);
+        Page<Computer> computers = computerDAO.searchComputer("pp", 1, -1, true);
         assertNull(computers);
     }
 

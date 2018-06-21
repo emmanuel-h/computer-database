@@ -385,8 +385,8 @@ public class ComputerServiceTest {
         page.setCurrentPage(1);
         page.setMaxPage(2);
         page.setResultsPerPage(10);
-        Mockito.when(computerDAO.searchComputer("pp", 1, 10)).thenReturn(page);
-        Optional<Page<Computer>> pageToTest = service.searchComputer("pp", 1, 10);
+        Mockito.when(computerDAO.searchComputer("pp", 1, 10, true)).thenReturn(page);
+        Optional<Page<Computer>> pageToTest = service.searchComputer("pp", 1, 10, true);
         assertTrue(pageToTest.isPresent());
         assertEquals(pageToTest.get(), page);
     }
@@ -396,8 +396,8 @@ public class ComputerServiceTest {
      */
     @Test
     public void countSearchedComputers() {
-        Mockito.when(computerDAO.countSearchedComputers("pp")).thenReturn(12);
-        int test = service.countSearchedComputers("pp");
+        Mockito.when(computerDAO.countSearchedComputers("pp", true)).thenReturn(12);
+        int test = service.countSearchedComputers("pp", true);
         assertEquals(test, 12);
     }
 

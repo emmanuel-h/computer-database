@@ -50,7 +50,7 @@ public class CompanyController {
 	 * @return 
 	 */
     @PreAuthorize("hasAuthority('USER')")
-	@GetMapping()
+	@GetMapping(params = {"page", "results"})
 	public ResponseEntity<List<Company>> listCompaniesWithPaging(@RequestParam(name = "page") final int page,
 			@RequestParam(name = "results")int results) {
 		Optional<Page<Company>> pageOptional = companyService.getAllCompaniesWithPaging(page, results);
@@ -59,6 +59,12 @@ public class CompanyController {
 		}
 		return ResponseEntity.ok(pageOptional.get().getResults());
 	}
+    
+    @GetMapping
+    public ResponseEntity<List<Company>> listCompanies() {
+    	List<Company> companies = companyService.findAllCompanies();
+    	return ResponseEntity.ok(companies);
+    }
 
     @GetMapping(params = "search")
     public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") final String search,
