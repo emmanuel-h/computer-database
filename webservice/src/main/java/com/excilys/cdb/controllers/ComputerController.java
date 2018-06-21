@@ -41,8 +41,8 @@ public class ComputerController {
 
     //	@PreAuthorize("hasAuthority('USER')")
     @GetMapping
-    public ResponseEntity<List<ComputerDTO>> listComputer(@RequestParam(name = "page")int page,
-            @RequestParam(name = "results")int results) throws NoContentFoundException {
+    public ResponseEntity<List<ComputerDTO>> listComputer(@RequestParam("page")int page,
+            @RequestParam("results")int results) throws NoContentFoundException {
         Optional<Page<Computer>> pageOptional = computerService.getAllComputersWithPaging(page, results);
         Collection<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
         Page<ComputerDTO>  pageComputer = new Page<>(pageOptional.get());
@@ -67,16 +67,18 @@ public class ComputerController {
 
     @GetMapping(params = "search")
     public ResponseEntity<List<ComputerDTO>> searchComputers(@RequestParam("search") String search,
-            @RequestParam(name = "page")int page, @RequestParam(name = "results")int results) throws NoContentFoundException {
-        Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results);
+            @RequestParam("page")int page, @RequestParam("results")int results,
+            @RequestParam("searchByComputerName") final boolean searchByComputerName) throws NoContentFoundException {
+        Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, page, results, searchByComputerName);
         List<Computer> computers = pageOptional.orElseThrow(() -> new NoContentFoundException(NO_RESULTS_FOUND)).getResults();
         List<ComputerDTO> computerDTOs = computers.stream().map(computer -> ComputerConvertor.toDTO(computer)).collect(Collectors.toList());
         return ResponseEntity.ok(computerDTOs);
     }
 
     @GetMapping(value = "/count", params = "search")
-    public ResponseEntity<Integer> countSearchComputers(@RequestParam("search") String search){
-        return ResponseEntity.ok(computerService.countSearchedComputers(search));
+    public ResponseEntity<Integer> countSearchComputers(@RequestParam("search") String search,
+    		@RequestParam("searchByComputerName") final boolean searchByComputerName){
+        return ResponseEntity.ok(computerService.countSearchedComputers(search, searchByComputerName));
     }
 
     @PostMapping
@@ -153,9 +155,10 @@ public class ComputerController {
     @GetMapping(value = "/sort", params = "search")
     public ResponseEntity<List<ComputerDTO>> findAllWithPagingAndSortingAndSearch(@RequestParam("search") final String search,
     		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
-    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc){
+    		@RequestParam("results") final int results, @RequestParam("asc") final boolean asc,
+    		@RequestParam("searchByComputerName") final boolean searchByComputerName){
 		Optional<Page<Computer>> pageOptional = computerService.findAllWithPagingAndSortingAndSearch(
-				search, page, results, sort, asc);
+				search, page, results, sort, asc, searchByComputerName);
 		if(!pageOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
