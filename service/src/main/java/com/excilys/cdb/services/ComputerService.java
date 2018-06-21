@@ -211,8 +211,8 @@ public class ComputerService {
      * @param maxResults    The number of results per page
      * @return              The result of the search
      */
-    public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults) {
-        return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults));
+    public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults, boolean searchByComputerName) {
+        return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults, searchByComputerName));
     }
 
     /**
@@ -220,8 +220,8 @@ public class ComputerService {
      * @param search    The String researched
      * @return          The number of computers
      */
-    public int countSearchedComputers(String search) {
-        return computerDAO.countSearchedComputers(search);
+    public int countSearchedComputers(String search, boolean searchByComputerName) {
+        return computerDAO.countSearchedComputers(search, searchByComputerName);
     }
     
     public Optional<Page<Computer>> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
@@ -236,14 +236,14 @@ public class ComputerService {
     }
     
     public Optional<Page<Computer>> findAllWithPagingAndSortingAndSearch(
-    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+    		String search, int currentPage, int maxResults, String sort, boolean asc, boolean searchByComputerName) {
     	if("COMPANY".equals(sort.toUpperCase())) {
-    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, "manufacturer.name", asc));
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, "manufacturer.name", asc, searchByComputerName));
     	}
     	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
     		return Optional.empty();
     	} else {
-    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, sort, asc));
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, sort, asc, searchByComputerName));
     	}
     }
 }

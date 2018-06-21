@@ -27,9 +27,12 @@ public class ComputerDAO implements DAO<Computer> {
     private final String UPDATE_COMPUTER = "UPDATE Computer SET name = :name, introduced = :introduced, "
             + "discontinued = :discontinued, manufacturer= :manufacturer WHERE id = :id";
     private final String COUNT_COMPUTERS = "SELECT COUNT(id) FROM Computer";
-    private final String SEARCH_COMPUTERS = "FROM Computer WHERE name LIKE :search";
-    private final String COUNT_SEARCHED_COMPUTERS = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
-    private final String SEARCH_COMPUTERS_WITH_SORTING = "FROM Computer WHERE name LIKE :search ORDER BY ";
+    private final String SEARCH_COMPUTERS_NAME = "FROM Computer WHERE name LIKE :search";
+    private final String SEARCH_COMPUTERS_MANUFACTURER_NAME = "FROM Computer WHERE manufacturer.name LIKE :search";
+    private final String COUNT_SEARCHED_COMPUTERS_NAME = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search";
+    private final String COUNT_SEARCHED_COMPUTERS_MANUFACTURER_NAME = "SELECT COUNT(id) FROM Computer WHERE manufacturer.name LIKE :search";
+    private final String SEARCH_COMPUTERS_NAME_WITH_SORTING = "FROM Computer WHERE name LIKE :search ORDER BY ";
+    private final String SEARCH_COMPUTERS_MANUFACTURER_NAME_WITH_SORTING = "FROM Computer WHERE manufacturer.name LIKE :search ORDER BY ";
     private final String FIND_ALL_COMPUTERS_WITH_PAGING_AND_SORTING = "FROM Computer ORDER BY ";
     private final String ASC = " ASC";
     private final String DESC = " DESC";
@@ -158,7 +161,7 @@ public class ComputerDAO implements DAO<Computer> {
      * @param maxResults    The number of results per page
      * @return              The list found
      */
-    public Page<Computer> searchComputer(String search, int currentPage, int maxResults) {
+    public Page<Computer> searchComputer(String search, int currentPage, int maxResults, boolean searchByComputerName) {
         if (currentPage < 1 || maxResults < 1) {
             return null;
         }
@@ -167,14 +170,15 @@ public class ComputerDAO implements DAO<Computer> {
         List<Computer> computers = new ArrayList<>();
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            TypedQuery<Computer> query = session.createQuery(SEARCH_COMPUTERS, Computer.class)
+            TypedQuery<Computer> query = session.createQuery(
+            		(searchByComputerName ? SEARCH_COMPUTERS_NAME : SEARCH_COMPUTERS_MANUFACTURER_NAME), Computer.class)
                     .setFirstResult((currentPage - 1) * maxResults)
                     .setMaxResults(maxResults);
             query.setParameter("search", '%' + search + '%');
             computers = query.getResultList();
         }
 
-        int total = countSearchedComputers(search);
+        int total = countSearchedComputers(search, searchByComputerName);
         page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
@@ -187,11 +191,11 @@ public class ComputerDAO implements DAO<Computer> {
      * @param search        The researched String
      * @return              The number of computers
      */
-    public int countSearchedComputers(String search) {
+    public int countSearchedComputers(String search, boolean searchByComputerName) {
         long total = 0;
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Query query = session.createQuery(COUNT_SEARCHED_COMPUTERS);
+            Query query = session.createQuery(searchByComputerName ? COUNT_SEARCHED_COMPUTERS_NAME : COUNT_SEARCHED_COMPUTERS_MANUFACTURER_NAME);
             query.setParameter("search", '%' + search + '%');
             total = (long) query.getResultList().get(0);
         }
@@ -228,7 +232,7 @@ public class ComputerDAO implements DAO<Computer> {
     }
     
     public Page<Computer> findAllWithPagingAndSortingAndSearch(
-    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+    		String search, int currentPage, int maxResults, String sort, boolean asc, boolean searchByComputerName) {
 
         if (currentPage < 1 || maxResults < 1) {
             return null;
@@ -239,13 +243,14 @@ public class ComputerDAO implements DAO<Computer> {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             TypedQuery<Computer> query = session.createQuery(
-            		SEARCH_COMPUTERS_WITH_SORTING + sort.toLowerCase() + (asc ? ASC : DESC) + NULLS_LAST, Computer.class)
+            		(searchByComputerName ? SEARCH_COMPUTERS_NAME_WITH_SORTING : SEARCH_COMPUTERS_MANUFACTURER_NAME_WITH_SORTING)
+            		+ sort.toLowerCase() + (asc ? ASC : DESC) + NULLS_LAST, Computer.class)
                     .setFirstResult((currentPage - 1) * maxResults)
                     .setMaxResults(maxResults);
             query.setParameter("search", '%' + search + '%');
             computers = query.getResultList();
         }
-        int total = countSearchedComputers(search);
+        int total = countSearchedComputers(search, searchByComputerName);
         page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
         page.setCurrentPage(currentPage);
         page.setResultsPerPage(maxResults);
