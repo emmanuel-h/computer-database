@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name="role")
@@ -11,6 +12,7 @@ public class Role {
 	
 	@Id
 	@Column(name = "role")
+	@NotBlank
 	private String role;
 
 	public Role() {
