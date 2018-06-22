@@ -57,11 +57,9 @@ public class MainController {
     }
     
     @CrossOrigin(origins = "http://localhost:4200", allowCredentials="true", allowedHeaders= {"Content-Type"})
-    @GetMapping(path="/user/{name}/roles")
-    public Set<String> getRoles(@PathVariable("name") final String name, HttpServletResponse response){
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        final UserDetails userDetails = service.loadUserByUsername(name);
-        return userDetails.getAuthorities().stream().map(us -> us.getAuthority()).collect(Collectors.toSet());
+    @GetMapping(path="/user/roles")
+    public Set<String> getRoles(){
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(a -> a.toString()).collect(Collectors.toSet());
     }
     
     @CrossOrigin(origins = "http://localhost:4200", allowCredentials="true", allowedHeaders= {"Content-Type"})
