@@ -3,7 +3,6 @@ package com.excilys.cdb.controllers;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import org.springframework.http.MediaType;

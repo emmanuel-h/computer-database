@@ -17,6 +17,17 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
+    private static final String PATH = "/";
+    private static final String LOGOUT = "/logout";
+    private static final String JSESSIONID = "JSESSIONID";
+    private static final String LOGIN_LOGOUT = "/login?logout";
+    private static final String LOGIN_ERROR = "/loginError";
+    private static final String LOGIN = "/login";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    private static final String HTTP_LOCALHOST_4200 = "http://localhost:4200";
+    private static final String TRUE = "true";
+    private static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     CustomAuthenticationProvider customAuthenticationProvider;  
     
     public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {   
@@ -36,25 +47,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http.sessionManagement().maximumSessions(1);
-       http.authorizeRequests().and().formLogin().loginProcessingUrl("/login").defaultSuccessUrl("/login",true).failureForwardUrl("/loginError").permitAll();
-       http.authorizeRequests().and().logout().logoutSuccessUrl("/login?logout").deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
+       http.authorizeRequests().and().formLogin().loginProcessingUrl(LOGIN).defaultSuccessUrl(LOGIN,true).failureForwardUrl(LOGIN_ERROR).permitAll();
+       http.authorizeRequests().and().logout().logoutSuccessUrl(LOGIN_LOGOUT).deleteCookies(JSESSIONID).invalidateHttpSession(true).permitAll();
        
-       RequestMatcher matcher = new AntPathRequestMatcher("/login");
-       DelegatingRequestMatcherHeaderWriter headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Origin","http://localhost:4200"));
-       DelegatingRequestMatcherHeaderWriter headerWriterr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Credentials","true"));
+       RequestMatcher matcher = new AntPathRequestMatcher(LOGIN);
+       DelegatingRequestMatcherHeaderWriter headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
+       DelegatingRequestMatcherHeaderWriter headerWriterr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
        
-       matcher = new AntPathRequestMatcher("/login?logout");
-       DelegatingRequestMatcherHeaderWriter headerWriterrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Origin","http://localhost:4200"));
-       DelegatingRequestMatcherHeaderWriter headerWriterrrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Credentials","true"));
+       matcher = new AntPathRequestMatcher(LOGIN_LOGOUT);
+       DelegatingRequestMatcherHeaderWriter headerWriterrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
+       DelegatingRequestMatcherHeaderWriter headerWriterrrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
       
-       matcher = new AntPathRequestMatcher("/logout");
-       DelegatingRequestMatcherHeaderWriter headerLogoutOrigin = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Origin","http://localhost:4200"));;
-       DelegatingRequestMatcherHeaderWriter headerLogoutCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Credentials","true"));
-       DelegatingRequestMatcherHeaderWriter headerLogoutHeader = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Headers", "*"));
+       matcher = new AntPathRequestMatcher(LOGOUT);
+       DelegatingRequestMatcherHeaderWriter headerLogoutOrigin = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));;
+       DelegatingRequestMatcherHeaderWriter headerLogoutCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
+       DelegatingRequestMatcherHeaderWriter headerLogoutHeader = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_HEADERS, "*"));
       
-       matcher = new AntPathRequestMatcher("/");
-       DelegatingRequestMatcherHeaderWriter headerWebService = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Origin","http://localhost:4200"));
-       DelegatingRequestMatcherHeaderWriter headerWebServiceCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter("Access-Control-Allow-Credentials","true"));
+       matcher = new AntPathRequestMatcher(PATH);
+       DelegatingRequestMatcherHeaderWriter headerWebService = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
+       DelegatingRequestMatcherHeaderWriter headerWebServiceCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
        
        http.headers().addHeaderWriter(headerWriter).addHeaderWriter(headerWriterr).addHeaderWriter(headerWebService).addHeaderWriter(headerWebServiceCred)
        .addHeaderWriter(headerLogoutOrigin).addHeaderWriter(headerLogoutCred).addHeaderWriter(headerLogoutHeader).addHeaderWriter(headerWriterrrr).addHeaderWriter(headerWriterrr);
