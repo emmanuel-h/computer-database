@@ -1,5 +1,6 @@
 package com.excilys.cdb.controllers;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +115,12 @@ public class ExceptionHandlerController extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<ApiException> handleNoContentFoundException(final NoContentFoundException ex){
 	    final ApiException apiException = new ApiException(ex.getMessage(),ex.getClass().getName());
 	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(apiException);
+	}
+	
+	@ExceptionHandler({ConstraintViolationException.class})
+	protected ResponseEntity<ApiException> handleConstraintViolationException(final ConstraintViolationException ex){
+	    final ApiException apiException = new ApiException(ex.getMessage(),ex.getClass().getName());
+	    return ResponseEntity.status(HttpStatus.CONFLICT).body(apiException);
 	}
 	
 	/**
