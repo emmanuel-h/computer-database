@@ -45,7 +45,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                http_ip = HTTP_LOCALHOST_4200;
             }
             final String adresse = properties.getProperty("adresse").concat(":").concat(properties.getProperty("port"));
-            System.out.println(adresse);
             http_ip = adresse;
         }
         this.customAuthenticationProvider = customAuthenticationProvider;
