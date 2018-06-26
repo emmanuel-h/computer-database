@@ -1,5 +1,9 @@
 package com.excilys.cdb.configs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,13 +29,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String LOGIN = "/login";
     private static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
     private static final String HTTP_LOCALHOST_4200 = "http://localhost:4200";
+    private static String http_ip;
     private static final String TRUE = "true";
     private static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     CustomAuthenticationProvider customAuthenticationProvider;  
     
     public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {   
+        if(http_ip == null) {
+            Properties properties = new Properties();
+            final InputStream path = getClass().getClassLoader().getResourceAsStream("ws.properties");
+            try {
+                properties.load(path);
+            } catch (IOException e) {
+               http_ip = HTTP_LOCALHOST_4200;
+            }
+            final String adresse = properties.getProperty("adresse").concat(":").concat(properties.getProperty("port"));
+            System.out.println(adresse);
+            http_ip = adresse;
+        }
         this.customAuthenticationProvider = customAuthenticationProvider;
+        
     }
     
     @Bean
@@ -51,24 +69,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        http.authorizeRequests().and().logout().logoutSuccessUrl(LOGIN_LOGOUT).deleteCookies(JSESSIONID).invalidateHttpSession(true).permitAll();
        
        RequestMatcher matcher = new AntPathRequestMatcher(LOGIN);
-       DelegatingRequestMatcherHeaderWriter headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
-       DelegatingRequestMatcherHeaderWriter headerWriterr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
+       DelegatingRequestMatcherHeaderWriter headerWriterIpLogin = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,http_ip));
+       DelegatingRequestMatcherHeaderWriter headerWriterCredentialLogin = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
        
        matcher = new AntPathRequestMatcher(LOGIN_LOGOUT);
-       DelegatingRequestMatcherHeaderWriter headerWriterrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
-       DelegatingRequestMatcherHeaderWriter headerWriterrrr = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
+       DelegatingRequestMatcherHeaderWriter headerWriterIpLO = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,http_ip));
+       DelegatingRequestMatcherHeaderWriter headerWriterCredentialLO = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
       
        matcher = new AntPathRequestMatcher(LOGOUT);
-       DelegatingRequestMatcherHeaderWriter headerLogoutOrigin = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));;
-       DelegatingRequestMatcherHeaderWriter headerLogoutCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
+       DelegatingRequestMatcherHeaderWriter headerWriterIpLogout = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,http_ip));
+       DelegatingRequestMatcherHeaderWriter headerLogoutCredentialLogout= new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
        DelegatingRequestMatcherHeaderWriter headerLogoutHeader = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_HEADERS, "*"));
       
        matcher = new AntPathRequestMatcher(PATH);
-       DelegatingRequestMatcherHeaderWriter headerWebService = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,HTTP_LOCALHOST_4200));
+       DelegatingRequestMatcherHeaderWriter headerWriterWebService = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_ORIGIN,http_ip));
        DelegatingRequestMatcherHeaderWriter headerWebServiceCred = new DelegatingRequestMatcherHeaderWriter(matcher, new StaticHeadersWriter(ACCESS_CONTROL_ALLOW_CREDENTIALS,TRUE));
        
-       http.headers().addHeaderWriter(headerWriter).addHeaderWriter(headerWriterr).addHeaderWriter(headerWebService).addHeaderWriter(headerWebServiceCred)
-       .addHeaderWriter(headerLogoutOrigin).addHeaderWriter(headerLogoutCred).addHeaderWriter(headerLogoutHeader).addHeaderWriter(headerWriterrrr).addHeaderWriter(headerWriterrr);
+       http.headers().addHeaderWriter(headerWriterIpLogin).addHeaderWriter(headerWriterCredentialLogin)
+       .addHeaderWriter(headerWriterIpLO).addHeaderWriter(headerWriterCredentialLO)
+       .addHeaderWriter(headerWriterIpLogout).addHeaderWriter(headerLogoutCredentialLogout).addHeaderWriter(headerLogoutHeader)
+       .addHeaderWriter(headerWriterWebService).addHeaderWriter(headerWebServiceCred);
       
        http.csrf().disable();
     }

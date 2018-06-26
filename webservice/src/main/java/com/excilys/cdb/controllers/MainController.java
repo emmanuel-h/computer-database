@@ -1,5 +1,6 @@
 package com.excilys.cdb.controllers;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,14 +56,16 @@ public class MainController {
         hashMap.put(MESSAGE, YOU_LOGOUT_SUCCESSFULL);
         return hashMap;
     }
-    
-    @CrossOrigin(origins = "http://localhost:4200", allowCredentials="true", allowedHeaders= {"Content-Type"})
+    @CrossOrigin(origins = "*", allowCredentials="true", allowedHeaders= {"Content-Type"})
     @GetMapping(path="/user/roles")
     public Set<String> getRoles(){
+        if(SecurityContextHolder.getContext().getAuthentication().getAuthorities() == null) {
+            return Collections.emptySet();
+        }
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(a -> a.toString()).collect(Collectors.toSet());
     }
     
-    @CrossOrigin(origins = "http://localhost:4200", allowCredentials="true", allowedHeaders= {"Content-Type"})
+    @CrossOrigin(origins = "*", allowCredentials="true", allowedHeaders= {"Content-Type"})
     @PostMapping(path="/user")
     public ResponseEntity<String> inscription(@RequestBody @Valid final User user){    
        this.service.addUser(user);
