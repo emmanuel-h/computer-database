@@ -65,7 +65,7 @@ public class CompanyController {
     	List<Company> companies = companyService.findAllCompanies();
     	return ResponseEntity.ok(companies);
     }
-
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping(path="/search", params = "search")
     public ResponseEntity<List<Company>> searchCompanies(@RequestParam("search") final String search,
             @RequestParam(name = "page") final int page, @RequestParam(name = "results") final int results) throws NoContentFoundException {
@@ -74,6 +74,7 @@ public class CompanyController {
        return ResponseEntity.ok(companies);
     }
 	
+    @PreAuthorize("hasAuthority('USER')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Company> getCompany(@PathVariable("id") final long id) {
 	    Optional<Company> company = companyService.getOneCompany(id);
@@ -84,6 +85,7 @@ public class CompanyController {
 	    }
 	}
 	
+    @PreAuthorize("hasAuthority('ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteCompany(@PathVariable("id") final long id) {
 		boolean success = companyService.deleteCompany(id);
@@ -93,14 +95,16 @@ public class CompanyController {
 			return ResponseEntity.ok().build();
 		}
 	}
-	
+    
+    @PreAuthorize("hasAuthority('USER')")
 	@PostMapping(consumes=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Company> addCompany(@Valid @RequestBody final Company company,final UriComponentsBuilder ucb){
         final Long id = companyService.addCompany(company);
         return ResponseEntity.created(ucb.path("/{id}").buildAndExpand(id).toUri()).build();
 	 
 	}
-	
+    
+    @PreAuthorize("hasAuthority('USER')")
 	@PutMapping(path="/{id}",consumes=MediaType.APPLICATION_JSON_UTF8_VALUE,produces=MediaType.APPLICATION_PROBLEM_JSON_UTF8_VALUE )
 	public ResponseEntity<Company> updateCompany(@Valid @RequestBody final Company company,@PathVariable final Long id) throws ConflictUpdateException, CompanyUpdateNotExistingException{
 	   if(!id.equals(company.getId())) {
@@ -112,7 +116,7 @@ public class CompanyController {
 	   }
 	   return ResponseEntity.ok(companyService.updateCompany(company));
 	}
-
+    
     @GetMapping("/count")
     public ResponseEntity<Integer> countComputers(){
         return ResponseEntity.ok(companyService.countCompanies());
@@ -128,6 +132,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.countComputersOfCompany(id));
     }
     
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/sort")
     public ResponseEntity<List<Company>> findAllWithPagingAndSorting(
     		@RequestParam("sort") final String sort, @RequestParam("page") final int page,
