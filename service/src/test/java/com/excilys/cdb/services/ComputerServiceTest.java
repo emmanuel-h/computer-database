@@ -170,7 +170,7 @@ public class ComputerServiceTest {
     public void createComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
-                .manufacturer(new Company(2L, "nonexistent company"))
+                .manufacturer(new Company(2L, "nonexistent company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
         exception.expect(CompanyUnknownException.class);
@@ -225,7 +225,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void updateComputerWithNullDates() throws CompanyUnknownException, ComputerException {
-        Company manufacturer = new Company(1L, "test company");
+        Company manufacturer = new Company(1L, "test company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         Computer computer = new Computer.Builder("test")
                 .id(1L)
                 .introduced(LocalDate.of(2007, 11, 11))
@@ -272,7 +272,7 @@ public class ComputerServiceTest {
     public void updateComputerWithUnknownManufacturer() throws CompanyUnknownException, ComputerException {
         Computer computer = new Computer.Builder("test")
                 .id(1L)
-                .manufacturer(new Company(2L, "nonexistent company"))
+                .manufacturer(new Company(2L, "nonexistent company", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"))
                 .build();
         Mockito.when(companyService.getOneCompany(2L)).thenReturn(Optional.empty());
         exception.expect(CompanyUnknownException.class);
@@ -300,9 +300,10 @@ public class ComputerServiceTest {
 
     /**
      * Test if the deletion of an existing computer works.
+     * @throws CompanyUnknownException 
      */
     @Test
-    public void deleteComputer() {
+    public void deleteComputer() throws CompanyUnknownException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(true);
         boolean resultDelete = service.deleteComputer(1L);
         assertTrue(resultDelete);
@@ -310,9 +311,10 @@ public class ComputerServiceTest {
 
     /**
      * Test if the deletion of an non existing computer works.
+     * @throws CompanyUnknownException 
      */
     @Test
-    public void deleteUnknownComputer() {
+    public void deleteUnknownComputer() throws CompanyUnknownException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(false);
         boolean resultDelete = service.deleteComputer(1L);
         assertFalse(resultDelete);
@@ -383,8 +385,8 @@ public class ComputerServiceTest {
         page.setCurrentPage(1);
         page.setMaxPage(2);
         page.setResultsPerPage(10);
-        Mockito.when(computerDAO.searchComputer("pp", 1, 10)).thenReturn(page);
-        Optional<Page<Computer>> pageToTest = service.searchComputer("pp", 1, 10);
+        Mockito.when(computerDAO.searchComputer("pp", 1, 10, true)).thenReturn(page);
+        Optional<Page<Computer>> pageToTest = service.searchComputer("pp", 1, 10, true);
         assertTrue(pageToTest.isPresent());
         assertEquals(pageToTest.get(), page);
     }
@@ -394,8 +396,8 @@ public class ComputerServiceTest {
      */
     @Test
     public void countSearchedComputers() {
-        Mockito.when(computerDAO.countSearchedComputers("pp")).thenReturn(12);
-        int test = service.countSearchedComputers("pp");
+        Mockito.when(computerDAO.countSearchedComputers("pp", true)).thenReturn(12);
+        int test = service.countSearchedComputers("pp", true);
         assertEquals(test, 12);
     }
 

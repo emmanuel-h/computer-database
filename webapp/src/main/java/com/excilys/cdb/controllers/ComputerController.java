@@ -154,13 +154,13 @@ public class ComputerController {
             @RequestParam(value = PAGE, defaultValue = CURRENT_PAGE) int currentPage,
             @RequestParam(value = RESULTS, defaultValue = RESULTS_PER_PAGE) int resultsPerPage,
             Locale locale) {
-        int numberOfComputers = computerService.countSearchedComputers(search);
+        int numberOfComputers = computerService.countSearchedComputers(search, true);
 
         if (currentPage * resultsPerPage > numberOfComputers) {
             currentPage = (int) Math.ceil((double) numberOfComputers / (double) resultsPerPage);
         }
 
-        Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, currentPage, resultsPerPage);
+        Optional<Page<Computer>> pageOptional = computerService.searchComputer(search, currentPage, resultsPerPage, true);
 
         ModelAndView modelAndView = new ModelAndView(DASHBOARD);
         modelAndView.addObject(SEARCH, search);

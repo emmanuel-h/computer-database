@@ -9,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="user")
@@ -16,9 +19,11 @@ public class User {
 	
 	@Id
 	@Column(name = "username", nullable = false)
+	@Size(min=5)
 	private String username;
 
 	@Column(name = "password", nullable = false)
+	@Size(min=8)
 	private String password;
 
 	@Column(name = "enabled", nullable = false)

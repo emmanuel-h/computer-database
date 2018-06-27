@@ -2,6 +2,7 @@ package com.excilys.cdb.services;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ import com.excilys.cdb.validators.ComputersToDeleteValidator;
 
 @Service
 public class ComputerService {
+	private enum Sort_Allowed { NAME, INTRODUCED, DISCONTINUED, COMPANY };
+	
 
     private ComputerDAO computerDAO;
 
@@ -35,6 +38,7 @@ public class ComputerService {
     private final String DATE_PROBLEM = "Discontinued date is before introduced date";
     private final String UNKNOWN_MANUFACTURER = "Manufacturer id unknown";
     private final String SQL_EXCEPTION = "SQL exception encountered";
+    private final String ERROR_WHEN_UPDATE = "Problem when updating the Computer";
 
     /**
      * Constructor initializing the DAO.
@@ -100,6 +104,9 @@ public class ComputerService {
         long id = -1;
         try {
         	id = this.computerDAO.add(computer);
+        	if (id > 0 && null != computer.getManufacturer()) {
+        		companyService.modifyNumberOfComputersOfCompany(true, computer.getManufacturer().getId());
+        	}
         } catch (org.hibernate.exception.DataException e) {
         	throw new ComputerException(SQL_EXCEPTION);
         }
@@ -134,10 +141,30 @@ public class ComputerService {
             }
         }
         try {
-            return Optional.ofNullable(computerDAO.update(computer));
+        	Optional<Computer> computerTestManufacturer = computerDAO.findById(computer.getId());
+            Optional<Computer> computerOptional = Optional.ofNullable(computerDAO.update(computer));
+
+            // If there was a manufacturer in the updated computer and not in the initial one, increase
+            // the company's number of computer
+            if (computerOptional.isPresent()
+            		&& computerTestManufacturer.isPresent()
+            		&& null != computerOptional.get().getManufacturer()
+            		&& null == computerTestManufacturer.get().getManufacturer()) {
+            	companyService.modifyNumberOfComputersOfCompany(true, computerOptional.get().getManufacturer().getId());
+            }
+            // If there was a manufacturer in the initial computer and not in the updated one, decrease
+            // the company's number of computer
+            if (computerOptional.isPresent()
+            		&& computerTestManufacturer.isPresent()
+            		&& null == computerOptional.get().getManufacturer()
+            		&& null != computerTestManufacturer.get().getManufacturer()) {
+            	companyService.modifyNumberOfComputersOfCompany(false, computerTestManufacturer.get().getManufacturer().getId());
+            }
+            
+            return computerOptional;
         } catch (RuntimeException e) {
-            LOGGER.warn("Problem when updating the Computer : " + e);
-            throw new ComputerException("Problem when updating the computer");
+            LOGGER.warn(ERROR_WHEN_UPDATE + " : " + e);
+            throw new ComputerException(ERROR_WHEN_UPDATE);
         }
     }
 
@@ -145,10 +172,16 @@ public class ComputerService {
      * Delete an existing computer.
      * @param id The id of the computer to delete
      * @return true if the computer is deleted, false if not
+     * @throws CompanyUnknownException 
      * @throws ComputerServiceException If there is no computer matching this id
      */
-    public boolean deleteComputer(long id) {
-        return computerDAO.delete(id);
+    public boolean deleteComputer(long id) throws CompanyUnknownException {
+    	Optional<Computer> computer = computerDAO.findById(id);
+        boolean success = computerDAO.delete(id);
+        if (computer.isPresent() && null != computer.get().getManufacturer()) {
+        	companyService.modifyNumberOfComputersOfCompany(false, computer.get().getManufacturer().getId());
+        }
+        return success;
     }
 
     /**
@@ -178,8 +211,8 @@ public class ComputerService {
      * @param maxResults    The number of results per page
      * @return              The result of the search
      */
-    public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults) {
-        return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults));
+    public Optional<Page<Computer>> searchComputer(String search, int currentPage, int maxResults, boolean searchByComputerName) {
+        return Optional.ofNullable(computerDAO.searchComputer(search, currentPage, maxResults, searchByComputerName));
     }
 
     /**
@@ -187,7 +220,30 @@ public class ComputerService {
      * @param search    The String researched
      * @return          The number of computers
      */
-    public int countSearchedComputers(String search) {
-        return computerDAO.countSearchedComputers(search);
+    public int countSearchedComputers(String search, boolean searchByComputerName) {
+        return computerDAO.countSearchedComputers(search, searchByComputerName);
+    }
+    
+    public Optional<Page<Computer>> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+    	if("COMPANY".equals(sort.toUpperCase())) {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSorting(currentPage, maxResults, "manufacturer.name", asc));
+    	}
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSorting(currentPage, maxResults, sort.toLowerCase(), asc));
+    	}
+    }
+    
+    public Optional<Page<Computer>> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc, boolean searchByComputerName) {
+    	if("COMPANY".equals(sort.toUpperCase())) {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, "manufacturer.name", asc, searchByComputerName));
+    	}
+    	if(!EnumUtils.isValidEnum(Sort_Allowed.class, sort.toUpperCase())) {
+    		return Optional.empty();
+    	} else {
+    		return Optional.ofNullable(computerDAO.findAllWithPagingAndSortingAndSearch(search, currentPage, maxResults, sort, asc, searchByComputerName));
+    	}
     }
 }

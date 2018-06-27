@@ -19,7 +19,7 @@ public class CompanyTest {
      */
     @Before
     public void setup() {
-        company = new Company(1L, "companyTest");
+        company = new Company(1L, "companyTest", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
     }
 
     /**
@@ -52,7 +52,7 @@ public class CompanyTest {
      */
     @Test
     public void computerEqualsWithAnotherId() {
-        Company anotherCompany = new Company(2L, "companyTest");
+        Company anotherCompany = new Company(2L, "companyTest", 0, "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg");
         assertFalse(company.equals(anotherCompany));
     }
 

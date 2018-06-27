@@ -1,6 +1,5 @@
 package com.excilys.cdb.daos;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +28,16 @@ public class CompanyDAO implements DAO<Company> {
     private final String UPDATE_COMPANY = "UPDATE Company SET name = :name WHERE id = :id";
     private final String COUNT_COMPANIES = "SELECT COUNT(id) FROM Company";
     private final String DELETE_COMPUTER_FROM_MANUFACTURER = "DELETE FROM Computer WHERE manufacturer = :manufacturer";
-
+    private final String SEARCH_COMPANIES = "FROM Company WHERE name LIKE :search";
+    private final String COUNT_SEARCHED_COMPANIES = "SELECT COUNT(id) FROM Company WHERE name LIKE :search";
+    private final String COUNT_COMPUTERS_OF_COMPANY = "SELECT COUNT(id) FROM Computer WHERE manufacturer = :manufacturer";
+    private final String INCREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers + 1 WHERE id = :id";
+    private final String DECREMENT_COMPUTERS_OF_COMPANY = "UPDATE Company SET number_of_computers = number_of_computers - 1 WHERE id = :id";
+    private final String SEARCH_COMPANIES_WITH_SORTING = "FROM Company WHERE name LIKE :search ORDER BY ";
+    private final String FIND_ALL_COMPANIES_WITH_PAGING_AND_SORTING = "FROM Company ORDER BY ";
+    private final String ASC = " ASC";
+    private final String DESC = " DESC";
+    
     private SessionFactory sessionFactory;
 
     /**
@@ -131,7 +139,6 @@ public class CompanyDAO implements DAO<Company> {
     /**
      * Find all companies.
      * @return The list of companies, or an empty List if there is no one
-     * @throws SQLException If there is a problem with the SQL request
      */
     public List<Company> findAll() {
         List<Company> companies = new ArrayList<>();
@@ -141,5 +148,170 @@ public class CompanyDAO implements DAO<Company> {
             companies = query.getResultList();
         }
         return companies;
+    }
+
+    /**
+     * Count the number of computers in the database.
+     * @return              The number of computers
+     */
+    public int count() {
+        long total = 0;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPANIES);
+            total = (long) query.getResultList().get(0);
+        }
+        return (int) total;
+    }
+
+    /**
+     * Search a company or a list of companies with a name.
+     * @param search          The name to search
+     * @param currentPage   The page to display
+     * @param maxResults    The number of results per page
+     * @return              The list found
+     */
+    public Page<Company> searchCompany(String search, int currentPage, int maxResults) {
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Company> page = new Page<>();
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(SEARCH_COMPANIES, Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            query.setParameter("search", '%' + search + '%');
+            companies = query.getResultList();
+        }
+
+        int total = countSearchedCompanies(search);
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
+        return page;
+    }
+
+    /**
+     * Count the number of companies corresponding to the search.
+     * @param search        The researched String
+     * @return              The number of companies
+     */
+    public int countSearchedCompanies(String search) {
+        long total = 0;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_SEARCHED_COMPANIES);
+            query.setParameter("search", '%' + search + '%');
+            total = (long) query.getResultList().get(0);
+        }
+        return (int) total;
+    }
+    
+    /**
+     * Count the number of computers with a certain manufacturer.
+     * @param id	The id of the manufacturer
+     * @return		The number of searched computers
+     */
+    public int countComputersOfCompany(long id) {
+    	long total = 0;
+    	try (Session session = sessionFactory.getCurrentSession()) {
+    		session.beginTransaction();
+    		Query query = session.createQuery(COUNT_COMPUTERS_OF_COMPANY);
+    		query.setParameter("manufacturer", new Company(id));
+            total = (long) query.getResultList().get(0);
+    	}
+        return (int) total;
+    }
+    
+    /**
+     * Increment the numbers of computers of a company.
+     * @param id	The id of the company
+     * @return		true if the increment is done, false if not
+     */
+    public boolean incrementComputersOfCompany(long id) {
+        long result;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(INCREMENT_COMPUTERS_OF_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate();
+        }
+        return !(result == 0);
+    }
+    
+    /**
+     * Decrement the numbers of computers of a company.
+     * @param id	The id of the company
+     * @return		true if the decrement is done, false if not
+     */
+    public boolean decrementComputersOfCompany(long id) {
+        long result;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(DECREMENT_COMPUTERS_OF_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate();
+        }
+        return !(result == 0);
+    }
+
+    public Page<Company> findAllWithPagingAndSorting(int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Company> page = new Page<>();
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(
+            		FIND_ALL_COMPANIES_WITH_PAGING_AND_SORTING + sort.toLowerCase() + (asc ? ASC : DESC), Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            
+            companies = query.getResultList();
+        }
+        int total = 1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(COUNT_COMPANIES);
+            total = (int) (long) query.getResultList().get(0);
+        }
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
+        return page;
+    }
+    
+    public Page<Company> findAllWithPagingAndSortingAndSearch(
+    		String search, int currentPage, int maxResults, String sort, boolean asc) {
+
+        if (currentPage < 1 || maxResults < 1) {
+            return null;
+        }
+
+        Page<Company> page = new Page<>();
+        List<Company> companies = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Company> query = session.createQuery(
+            		SEARCH_COMPANIES_WITH_SORTING + sort.toLowerCase() + (asc ? ASC : DESC), Company.class)
+                    .setFirstResult((currentPage - 1) * maxResults)
+                    .setMaxResults(maxResults);
+            query.setParameter("search", '%' + search + '%');
+            companies = query.getResultList();
+        }
+        int total = countSearchedCompanies(search);
+        page.setMaxPage((int) Math.ceil((double) total / (double) maxResults));
+        page.setCurrentPage(currentPage);
+        page.setResultsPerPage(maxResults);
+        page.setResults(companies);
+        return page;
     }
 }

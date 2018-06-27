@@ -14,7 +14,7 @@ import com.excilys.cdb.services.UserService;
 @Configuration
 @EnableWebSecurity
 @EnableWebMvc
-@Import(value=SecurityConfig.class)
+@Import(value= SecurityConfig.class)
 @ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controllers"})
 public class SpringRESTConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
     
