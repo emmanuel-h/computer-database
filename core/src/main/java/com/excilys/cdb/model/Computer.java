@@ -2,6 +2,7 @@ package com.excilys.cdb.model;
 
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -48,7 +49,7 @@ public class Computer {
     /**
      * The manufacturer of the computer.
      */
-    @ManyToOne
+    @ManyToOne(cascade= {CascadeType.REFRESH,CascadeType.MERGE})
     @JoinColumn(name = "company_id")
     private Company manufacturer;
 

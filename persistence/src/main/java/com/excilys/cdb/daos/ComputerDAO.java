@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.Page;
 
@@ -110,19 +111,12 @@ public class ComputerDAO implements DAO<Computer> {
         long result = 0;
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Query query = session.createQuery(UPDATE_COMPUTER);
-            query.setParameter("name", computer.getName());
-            query.setParameter("introduced", computer.getIntroduced());
-            query.setParameter("discontinued", computer.getDiscontinued());
-            query.setParameter("manufacturer", computer.getManufacturer());
-            query.setParameter("id", computer.getId());
-            result = query.executeUpdate();
+            Company company = session.get(Company.class, computer.getManufacturer().getId());
+            computer.setManufacturer(company);
+            session.update(computer);
+            session.flush();
         }
-        if (result == 0) {
-            return null;
-        } else {
-            return computer;
-        }
+        return computer;
     }
 
     /**
